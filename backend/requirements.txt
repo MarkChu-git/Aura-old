@@ -11,7 +11,7 @@ kombu==5.3.4
 redis==5.0.1
 python-multipart==0.0.9
 email-validator
-requests==2.31.0
+requests==2.32.4
 httpx==0.26.0
 openai>=1.0.0
 sentry-sdk==1.39.2

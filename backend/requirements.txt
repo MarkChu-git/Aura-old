@@ -9,7 +9,7 @@ pgvector==0.2.4
 celery==5.3.4
 kombu==5.3.4
 redis==5.0.1
-python-multipart==0.0.9
+python-multipart==0.0.18
 email-validator
 requests==2.31.0
 httpx==0.26.0

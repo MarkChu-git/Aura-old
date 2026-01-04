@@ -1,0 +1,1 @@
+{"last_found_secrets": [{"match": "1e771197a7dc64f16f9eab32893ed8b9835b129e7cdf98975eabbec9883dc16e", "name": "DeepSeek API Key - commit://aaec74595eb9b1a10487519738bb9fc7eeffc569/backend/.env"}, {"match": "6e0d657eb1f0fbc40cf0b8f3c3873ef627cc9cb7c4108d1c07d979c04bc8a4bb", "name": "Generic Password - commit://aaec74595eb9b1a10487519738bb9fc7eeffc569/backend/docker-compose.yml"}]}

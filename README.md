@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![Aura Banner](https://via.placeholder.com/1200x300.png?text=AURA+Fragrance+Intelligence)
+![Aura Logo](docs/images/logo.svg)
 
 **AI-Driven Fragrance Imagery-to-Recommendation Platform**
 

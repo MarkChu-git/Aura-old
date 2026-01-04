@@ -27,23 +27,23 @@ The system is built as a modern distributed application with a clear separation 
 
 ```mermaid
 graph TD
-    Client[User Client] -->|HTTP/REST| Frontend[Frontend SPA (React)]
-    Frontend -->|API Requests| API[Backend API (FastAPI)]
+    Client["User Client"] -->|HTTP/REST| Frontend["Frontend SPA (React)"]
+    Frontend -->|API Requests| API["Backend API (FastAPI)"]
     
     subgraph Data Layer
-        DB[(PostgreSQL + pgvector)]
-        Redis[(Redis Cache/Queue)]
+        DB[("PostgreSQL + pgvector")]
+        Redis[("Redis Cache/Queue")]
     end
     
     subgraph Compute
         API -->|Read/Write| DB
         API -->|Enqueue Jobs| Redis
-        Worker[Celery Worker] -->|Process Jobs| Redis
+        Worker["Celery Worker"] -->|Process Jobs| Redis
         Worker -->|Store Results| DB
     end
     
     subgraph AI Services
-        Worker -->|Embeddings & Completion| LLM[OpenAI / External Models]
+        Worker -->|Embeddings & Completion| LLM["OpenAI / External Models"]
     end
 ```
 

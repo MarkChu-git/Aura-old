@@ -67,43 +67,14 @@ graph TD
 - **Containerization**: Docker & Docker Compose
 - **Linting & Formatting**: Black, Isort, ESLint
 
-## 🚀 Getting Started
-
-The easiest way to run Aura is using Docker Compose, which spins up the database, backend, workers, and frontend in a unified network.
-
-### Prerequisites
-- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-- [Git](https://git-scm.com/)
-
-### Quick Start
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/your-username/aura.git
-   cd aura
-   ```
-
-2. **Configure Environment**
-   Set up the backend environment variables.
-   ```bash
-   cd backend
-   cp .env.example .env
-   # Open .env and add your OPENAI_API_KEY if required for embeddings
-   cd ..
-   ```
-
-3. **Launch Services**
-   ```bash
-   docker compose up --build
-   ```
-   > ⏳ The first build may take a few minutes as it compiles dependencies.
-
-4. **Access the Application**
-   - **Frontend**: [http://localhost:5173](http://localhost:5173)
-   - **API Docs (Swagger)**: [http://localhost:8000/docs](http://localhost:8000/docs)
-   - **Alembic Migrations** (if needed):
-     ```bash
-     docker compose exec api alembic upgrade head
-     ```
+## 🚀 Deployment
+ 
+ For detailed instructions on deploying Aura securely to a production server (Linux + Docker Compose), please refer to the [Deployment Guide](DEPLOY.md).
+ 
+ **Highlights:**
+ - ✅ **Secure by Default**: Strict database isolation.
+ - ✅ **Secrets Management**: No API keys in the repo.
+ - ✅ **Nginx Integration**: Reverse proxy for production traffic.
 
 ## 💻 Local Development
 

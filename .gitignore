@@ -1,0 +1,17 @@
+# Operations
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# System
+.DS_Store
+.idea/
+.vscode/
+
+# Build
+dist/
+build/
+*.egg-info/
+__pycache__/

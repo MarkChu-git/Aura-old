@@ -1,41 +1,53 @@
 services:
-  # Frontend Service (Nginx + React)
+  # -----------------------------------------------------------------------------
+  # FRONTEND: Static React App served by Nginx
+  # -----------------------------------------------------------------------------
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     restart: always
-    # In production, we might map port 80:80. 
-    # If using a host-level Nginx for SSL, we map 127.0.0.1:8080:80 to avoid public exposure of HTTP.
-    # For this setup, we assume the server's clean entrypoint is this container on port 80.
-    ports:
-      - "80:80"
-    volumes:
-      - ./deploy/nginx/aura.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - api
+    # No public ports; traffic comes via Edge Nginx (nginx-proxy)
+    # Using 'expose' for documentation, though internal network allows access anyway
+    expose:
+      - "80"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget --spider -q http://localhost:80 || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - aura-network
 
-  # Backend API Service
+  # -----------------------------------------------------------------------------
+  # BACKEND API: FastAPI Uvicorn Server
+  # -----------------------------------------------------------------------------
   api:
     build:
       context: ./backend
       dockerfile: Dockerfile
     restart: always
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000
-    # Secure: No ports mapped to host. Only accessible via internal network.
     expose:
       - "8000"
     env_file:
       - ${SECRETS_FILE:-.env}
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     networks:
       - aura-network
-    depends_on:
-      - db
-      - redis
 
-  # Celery Worker
+  # -----------------------------------------------------------------------------
+  # WORKER: Celery Background Task Worker
+  # -----------------------------------------------------------------------------
   worker:
     build:
       context: ./backend
@@ -44,33 +56,69 @@ services:
     command: celery -A app.tasks.celery_app worker --loglevel=info
     env_file:
       - ${SECRETS_FILE:-.env}
+    depends_on:
+      api:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - aura-network
-    depends_on:
-      - db
-      - redis
 
-  # Database (PostgreSQL + pgvector)
+  # -----------------------------------------------------------------------------
+  # DATABASE: PostgreSQL with pgvector
+  # -----------------------------------------------------------------------------
   db:
     image: ankane/pgvector:v0.4.1
     restart: always
-    # Secure: No ports mapped.
     expose:
       - "5432"
+    # Ports NOT mapped to host for security
     env_file:
       - ${SECRETS_FILE:-.env}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - aura-network
 
-  # Redis
+  # -----------------------------------------------------------------------------
+  # CACHE: Redis
+  # -----------------------------------------------------------------------------
   redis:
     image: redis:7-alpine
     restart: always
-    # Secure: No ports mapped.
     expose:
       - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - aura-network
+
+  # -----------------------------------------------------------------------------
+  # EDGE PROXY: Nginx Reverse Proxy (Single Entrypoint)
+  # -----------------------------------------------------------------------------
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      # - "443:443" # Uncomment when SSL is configured
+    volumes:
+      - ./deploy/nginx/aura.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      frontend:
+        condition: service_healthy
+      api:
+        condition: service_healthy
     networks:
       - aura-network
 

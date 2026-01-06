@@ -69,12 +69,12 @@ graph TD
 
 ## 🚀 Deployment
  
- For detailed instructions on deploying Aura securely to a production server (Linux + Docker Compose), please refer to the [Deployment Guide](DEPLOY.md).
+ For detailed instructions on deploying Aura securely to a production server (Linux + Docker Compose), please refer to the [Deployment Guide](DEPLOYMENT.md).
  
  **Highlights:**
- - ✅ **Secure by Default**: Strict database isolation.
- - ✅ **Secrets Management**: No API keys in the repo.
- - ✅ **Nginx Integration**: Reverse proxy for production traffic.
+ - ✅ **One-Command Bootstrap**: `./scripts/bootstrap.sh`
+ - ✅ **Secure by Default**: Strict database isolation & external secrets.
+ - ✅ **Maintenance**: Helpers for logs (`./scripts/logs.sh`) and updates (`./scripts/deploy.sh`).
 
 ## 💻 Local Development
 

@@ -15,6 +15,15 @@ export default function Profile() {
     const [loadingHistory, setLoadingHistory] = useState(true);
     const [error, setError] = useState('');
 
+    // Password change state
+    const [showPasswordForm, setShowPasswordForm] = useState(false);
+    const [oldPassword, setOldPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [changingPassword, setChangingPassword] = useState(false);
+
     useEffect(() => {
         if (isAuthenticated) {
             loadData();
@@ -60,6 +69,43 @@ export default function Profile() {
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric'
         });
+    };
+
+    const handleChangePassword = async (e) => {
+        e.preventDefault();
+        setPasswordError('');
+        setPasswordSuccess('');
+
+        // Validation
+        if (!oldPassword || !newPassword || !confirmPassword) {
+            setPasswordError('All fields are required');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            setPasswordError('New passwords do not match');
+            return;
+        }
+
+        if (newPassword.length < 10) {
+            setPasswordError('Password must be at least 10 characters');
+            return;
+        }
+
+        setChangingPassword(true);
+        try {
+            await api.changePassword({ old_password: oldPassword, new_password: newPassword });
+            setPasswordSuccess('Password changed successfully!');
+            setOldPassword('');
+            setNewPassword('');
+            setConfirmPassword('');
+            setShowPasswordForm(false);
+            setTimeout(() => setPasswordSuccess(''), 3000);
+        } catch (err) {
+            setPasswordError(err.response?.data?.detail || 'Failed to change password');
+        } finally {
+            setChangingPassword(false);
+        }
     };
 
     if (!isAuthenticated) return (
@@ -203,6 +249,177 @@ export default function Profile() {
                 ) : (
                     <div>{/* Placeholder for saved items list */}</div>
                 )}
+            </Section>
+
+            {/* Security Section */}
+            <Section title="Security" icon={Settings}>
+                <Card>
+                    {passwordSuccess && (
+                        <div style={{
+                            padding: '1rem',
+                            marginBottom: '1rem',
+                            background: 'rgba(16, 185, 129, 0.1)',
+                            color: '#059669',
+                            borderRadius: '0.75rem',
+                            fontSize: '0.9rem'
+                        }}>
+                            {passwordSuccess}
+                        </div>
+                    )}
+
+                    {!showPasswordForm ? (
+                        <button
+                            onClick={() => setShowPasswordForm(true)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.75rem 1.5rem',
+                                borderRadius: '0.75rem',
+                                border: '1px solid hsl(var(--color-border))',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: 'hsl(var(--color-text-main))',
+                                fontSize: '0.9rem',
+                                width: '100%',
+                                justifyContent: 'space-between'
+                            }}
+                        >
+                            <span>Change Password</span>
+                            <ChevronRight size={16} />
+                        </button>
+                    ) : (
+                        <form onSubmit={handleChangePassword}>
+                            <div style={{ marginBottom: '1.5rem' }}>
+                                <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Change Your Password</h3>
+                                {passwordError && (
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.75rem 1rem',
+                                        background: 'rgba(239, 68, 68, 0.1)',
+                                        color: '#EF4444',
+                                        borderRadius: '0.5rem',
+                                        fontSize: '0.85rem',
+                                        marginBottom: '1rem'
+                                    }}>
+                                        <AlertCircle size={16} />
+                                        {passwordError}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
+                                        Current Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={oldPassword}
+                                        onChange={(e) => setOldPassword(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            borderRadius: '0.5rem',
+                                            border: '1px solid hsl(var(--color-border))',
+                                            background: 'hsl(var(--color-surface))',
+                                            fontSize: '1rem'
+                                        }}
+                                        disabled={changingPassword}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
+                                        New Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={newPassword}
+                                        onChange={(e) => setNewPassword(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            borderRadius: '0.5rem',
+                                            border: '1px solid hsl(var(--color-border))',
+                                            background: 'hsl(var(--color-surface))',
+                                            fontSize: '1rem'
+                                        }}
+                                        disabled={changingPassword}
+                                    />
+                                    <div style={{ fontSize: '0.8rem', color: 'hsl(var(--color-text-muted))', marginTop: '0.25rem' }}>
+                                        At least 10 characters with uppercase, lowercase, number, and special character
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
+                                        Confirm New Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        value={confirmPassword}
+                                        onChange={(e) => setConfirmPassword(e.target.value)}
+                                        style={{
+                                            width: '100%',
+                                            padding: '0.75rem',
+                                            borderRadius: '0.5rem',
+                                            border: '1px solid hsl(var(--color-border))',
+                                            background: 'hsl(var(--color-surface))',
+                                            fontSize: '1rem'
+                                        }}
+                                        disabled={changingPassword}
+                                    />
+                                </div>
+
+                                <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                                    <button
+                                        type="submit"
+                                        disabled={changingPassword}
+                                        style={{
+                                            flex: 1,
+                                            padding: '0.75rem 1.5rem',
+                                            borderRadius: '0.75rem',
+                                            border: 'none',
+                                            background: 'hsl(var(--color-text-main))',
+                                            color: '#fff',
+                                            cursor: changingPassword ? 'not-allowed' : 'pointer',
+                                            fontSize: '0.9rem',
+                                            fontWeight: 500,
+                                            opacity: changingPassword ? 0.6 : 1
+                                        }}
+                                    >
+                                        {changingPassword ? 'Saving...' : 'Save New Password'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setShowPasswordForm(false);
+                                            setOldPassword('');
+                                            setNewPassword('');
+                                            setConfirmPassword('');
+                                            setPasswordError('');
+                                        }}
+                                        disabled={changingPassword}
+                                        style={{
+                                            padding: '0.75rem 1.5rem',
+                                            borderRadius: '0.75rem',
+                                            border: '1px solid hsl(var(--color-border))',
+                                            background: 'transparent',
+                                            cursor: changingPassword ? 'not-allowed' : 'pointer',
+                                            fontSize: '0.9rem',
+                                            color: 'hsl(var(--color-text-main))'
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    )}
+                </Card>
             </Section>
 
             {/* Data Controls */}

@@ -113,6 +113,11 @@ export default function Login() {
                         Sign In
                     </LiquidButton>
                 </form>
+                <div style={{ marginTop: '1rem', fontSize: '0.85rem' }}>
+                    <Link to="/forgot-password" style={{ color: 'hsl(var(--color-text-muted))', textDecoration: 'none' }}>
+                        Forgot your password?
+                    </Link>
+                </div>
                 <div style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: 'hsl(var(--color-text-muted))' }}>
                     Don't have an account? <Link to="/register" style={{ color: 'hsl(var(--color-text-main))', fontWeight: 500 }}>Create one</Link>
                 </div>

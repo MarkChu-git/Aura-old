@@ -91,3 +91,139 @@ def read_user_me(
     Get current user.
     """
     return current_user
+
+from app.schemas.user import PasswordChange
+
+@router.post("/change-password")
+async def change_password(
+    password_change: PasswordChange,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """
+    Change password for current user.
+    """
+    # 1. Verify old password
+    if not security.verify_password(password_change.old_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Incorrect password"
+        )
+    
+    # 2. Ensure new password is different
+    if password_change.old_password == password_change.new_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password must be different from old password"
+        )
+    
+    # 3. Validate new password strength
+    if not security.validate_password_strength(password_change.new_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 10 characters and contain uppercase, lowercase, number, and special character."
+        )
+    
+    # 4. Update password
+    current_user.hashed_password = security.get_password_hash(password_change.new_password)
+    await db.commit()
+    
+    return {"message": "Password updated successfully"}
+
+from app.schemas.user import PasswordResetRequest, PasswordReset
+from app.db.models.password_reset import PasswordResetToken
+from datetime import datetime, timedelta
+import secrets
+
+@router.post("/forgot-password")
+async def forgot_password(
+    request: PasswordResetRequest,
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """
+    Generate password reset token for user (simplified version without email).
+    """
+    # 1. Find user
+    result = await db.execute(select(User).filter(User.email == request.email))
+    user = result.scalars().first()
+    
+    # Always return success to prevent user enumeration
+    if not user:
+        return {"message": "If an account with that email exists, a reset token has been generated", "token": None}
+    
+    # 2. Generate secure token
+    token = secrets.token_urlsafe(32)
+    expires_at = datetime.utcnow() + timedelta(hours=1)
+    
+    # 3. Save token to database
+    reset_token = PasswordResetToken(
+        user_id=user.id,
+        token=token,
+        expires_at=expires_at
+    )
+    db.add(reset_token)
+    await db.commit()
+    
+    # 4. Return token (in production with email, this would be sent via email)
+    return {
+        "message": "Password reset token generated successfully",
+        "token": token,
+        "expires_at": expires_at.isoformat(),
+        "note": "Copy this token and use it on the reset password page"
+    }
+
+@router.post("/reset-password")
+async def reset_password(
+    reset_data: PasswordReset,
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """
+    Reset password using token.
+    """
+    # 1. Find and validate token
+    result = await db.execute(
+        select(PasswordResetToken).filter(
+            PasswordResetToken.token == reset_data.token,
+            PasswordResetToken.used == False
+        )
+    )
+    token_record = result.scalars().first()
+    
+    if not token_record:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or already used reset token"
+        )
+    
+    # 2. Check expiration
+    if datetime.utcnow() > token_record.expires_at:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Reset token has expired"
+        )
+    
+    # 3. Validate new password
+    if not security.validate_password_strength(reset_data.new_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 10 characters and contain uppercase, lowercase, number, and special character."
+        )
+    
+    # 4. Get user and update password
+    result = await db.execute(select(User).filter(User.id == token_record.user_id))
+    user = result.scalars().first()
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    user.hashed_password = security.get_password_hash(reset_data.new_password)
+    
+    # 5. Mark token as used
+    token_record.used = True
+    
+    await db.commit()
+    
+    return {"message": "Password has been reset successfully"}

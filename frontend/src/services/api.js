@@ -122,6 +122,45 @@ export const api = {
         return response.json();
     },
 
+    changePassword: async ({ old_password, new_password }) => {
+        const response = await fetch(`${API_BASE}/auth/change-password`, {
+            method: 'POST',
+            headers: await getHeaders(),
+            body: JSON.stringify({ old_password, new_password })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw error;
+        }
+        return response.json();
+    },
+
+    forgotPassword: async (email) => {
+        const response = await fetch(`${API_BASE}/auth/forgot-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw error;
+        }
+        return response.json();
+    },
+
+    resetPassword: async ({ token, new_password }) => {
+        const response = await fetch(`${API_BASE}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, new_password })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw error;
+        }
+        return response.json();
+    },
+
     clearHistory: async () => {
         const response = await fetch(`${API_BASE}/chat/history`, {
             method: 'DELETE',

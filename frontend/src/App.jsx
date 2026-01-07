@@ -10,6 +10,8 @@ import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 import Background from './components/Background';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -21,6 +23,8 @@ function App() {
         <Route path="/" element={<Layout><Home /></Layout>} />
         <Route path="/login" element={<Layout><Login /></Layout>} />
         <Route path="/register" element={<Layout><Register /></Layout>} />
+        <Route path="/forgot-password" element={<Layout><ForgotPassword /></Layout>} />
+        <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
         <Route path="/chat" element={<Layout><Chat /></Layout>} />
         <Route path="/explore" element={<Layout><Explore /></Layout>} />
         <Route path="/analyzing" element={<Layout><Analyzing /></Layout>} />

@@ -57,7 +57,7 @@ export default function Header() {
                 }} className="desktop-nav">
                     {[
                         { path: '/', label: t('header.home') },
-                        { path: '/explore', label: t('header.explore') },
+                        { path: '/chat', label: t('header.explore') },
                         { path: '/profile', label: t('header.profile') }
                     ].map(({ path, label }) => (
                         <Link
@@ -100,25 +100,6 @@ export default function Header() {
                                     fontWeight: '500',
                                     padding: '0.6rem 1.4rem',
                                     borderRadius: '2rem',
-                                    border: '1px solid hsl(var(--color-border))',
-                                    transition: 'all 0.3s ease',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: 'hsl(var(--color-text-main))',
-                                    background: 'transparent',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                {t('header.signIn')}
-                            </button>
-                            <button
-                                onClick={() => openAuthModal('register')}
-                                style={{
-                                    fontSize: '0.9rem',
-                                    fontWeight: '500',
-                                    padding: '0.6rem 1.4rem',
-                                    borderRadius: '2rem',
                                     background: 'hsl(var(--color-text-main))',
                                     color: 'hsl(var(--color-surface))',
                                     transition: 'all 0.3s ease',
@@ -129,7 +110,7 @@ export default function Header() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                {t('header.getStarted')}
+                                {t('header.signIn')}
                             </button>
                         </>
                     ) : (
@@ -191,7 +172,7 @@ export default function Header() {
                 }}>
                     {[
                         { path: '/', label: t('header.home') },
-                        { path: '/explore', label: t('header.explore') },
+                        { path: '/chat', label: t('header.explore') },
                         { path: '/profile', label: t('header.profile') }
                     ].map(({ path, label }) => (
                         <Link
@@ -213,15 +194,9 @@ export default function Header() {
                         <>
                             <button
                                 onClick={() => { setIsMenuOpen(false); openAuthModal('login'); }}
-                                style={{ fontSize: '1.1rem', background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer' }}
+                                style={{ fontSize: '1.1rem', fontWeight: 500, background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer', color: 'hsl(var(--color-text-main))' }}
                             >
                                 {t('header.signIn')}
-                            </button>
-                            <button
-                                onClick={() => { setIsMenuOpen(false); openAuthModal('register'); }}
-                                style={{ fontSize: '1.1rem', fontWeight: 500, background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer' }}
-                            >
-                                {t('header.getStarted')}
                             </button>
                         </>
                     ) : (

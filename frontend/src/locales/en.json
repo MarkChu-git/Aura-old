@@ -97,13 +97,75 @@
             "message": "You need to be logged in to view your profile.",
             "cta": "Go to Login"
         },
-        "loading": "Loading..."
+        "loading": "Loading...",
+        "sections": {
+            "account": "Account",
+            "history": "History",
+            "saved": "Saved",
+            "security": "Security",
+            "dataControls": "Data Controls"
+        },
+        "account": {
+            "email": "Email",
+            "activeMember": "Active Member",
+            "signOut": "Sign Out"
+        },
+        "history": {
+            "emptyTitle": "No exploration history yet",
+            "emptyMessage": "Start exploring to see your history here.",
+            "cta": "Go to Explore",
+            "openResult": "Open Result",
+            "untitled": "Untitled Chat",
+            "text": "Text"
+        },
+        "saved": {
+            "emptyTitle": "No saved items yet",
+            "emptyMessage": "Save results or items to keep them here.",
+            "cta": "Go to Explore"
+        },
+        "security": {
+            "changePassword": "Change Password",
+            "changePasswordTitle": "Change Your Password",
+            "currentPassword": "Current Password",
+            "newPassword": "New Password",
+            "confirmPassword": "Confirm New Password",
+            "passwordHint": "At least 10 characters with uppercase, lowercase, number, and special character",
+            "savePassword": "Save New Password",
+            "saving": "Saving...",
+            "cancel": "Cancel",
+            "success": "Password changed successfully!",
+            "errors": {
+                "allRequired": "All fields are required",
+                "noMatch": "New passwords do not match",
+                "tooShort": "Password must be at least 10 characters",
+                "failed": "Failed to change password"
+            }
+        },
+        "dataControls": {
+            "clearHistory": "Clear History",
+            "clearSaved": "Clear Saved",
+            "confirmClearHistory": "Clear your history? This will delete your exploration history from this device/account.",
+            "confirmClearSaved": "Clear saved items? This will remove all items from your Saved list."
+        },
+        "notAuthenticated": {
+            "title": "Please Sign In",
+            "message": "You need to be logged in to view your profile.",
+            "cta": "Go to Login"
+        }
     },
     "chat": {
         "title": "Chat",
-        "placeholder": "Describe a feeling, memory, or moment...",
+        "placeholder": "Type your thoughts...",
         "send": "Send",
-        "newChat": "New Chat"
+        "newChat": "New Chat",
+        "welcomeMessage": "Hello. I am Aura. Tell me about a memory, a mood, or a place, and I will describe its scent.",
+        "sidebar": {
+            "loginPrompt": "Log in to save your fragrance journey and view history.",
+            "signIn": "Sign In",
+            "recent": "Recent",
+            "noHistory": "No history yet. Start exploring!"
+        },
+        "error": "I'm having trouble sensing that right now. Please try again."
     },
     "explore": {
         "title": "Explore",
@@ -145,7 +207,12 @@
             "confirmPassword": "Confirm Password",
             "submit": "Reset Password",
             "success": "Password reset successfully"
-        }
+        },
+        "welcome": "Welcome Back",
+        "subtitle": "Sign in to continue your journey",
+        "processing": "Processing secure login...",
+        "error": "Google authentication failed",
+        "continueAs": "Continue as"
     },
     "analyzing": {
         "title": "Analyzing",

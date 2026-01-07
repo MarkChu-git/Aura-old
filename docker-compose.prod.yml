@@ -31,7 +31,7 @@ services:
     expose:
       - "8000"
     env_file:
-      - ${SECRETS_FILE:-.env}
+      - ${SECRETS_FILE:-backend/.env}
     depends_on:
       db:
         condition: service_healthy
@@ -55,7 +55,7 @@ services:
     restart: always
     command: celery -A app.tasks.celery_app worker --loglevel=info
     env_file:
-      - ${SECRETS_FILE:-.env}
+      - ${SECRETS_FILE:-backend/.env}
     depends_on:
       api:
         condition: service_healthy
@@ -76,7 +76,7 @@ services:
       - "5432"
     # Ports NOT mapped to host for security
     env_file:
-      - ${SECRETS_FILE:-.env}
+      - ${SECRETS_FILE:-backend/.env}
     volumes:
       - postgres_data_prod:/var/lib/postgresql/data
     healthcheck:

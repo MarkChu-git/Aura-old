@@ -247,6 +247,36 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                         onEndIconClick={() => setShowPassword(!showPassword)}
                     />
 
+                    {mode === 'login' && (
+                        <div style={{
+                            textAlign: 'right',
+                            marginTop: '-0.5rem',
+                            marginBottom: '0.5rem'
+                        }}>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    // TODO: Implement forgot password flow
+                                    alert('Password reset functionality coming soon!\n\nFor now, please contact support to reset your password.');
+                                }}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'hsl(var(--color-text-muted))',
+                                    fontSize: '0.85rem',
+                                    cursor: 'pointer',
+                                    padding: 0,
+                                    textDecoration: 'none',
+                                    transition: 'color 0.2s ease'
+                                }}
+                                onMouseOver={(e) => e.target.style.color = 'hsl(var(--color-text-main))'}
+                                onMouseOut={(e) => e.target.style.color = 'hsl(var(--color-text-muted))'}
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
+                    )}
+
                     {mode === 'register' && isPasswordFocused && (
                         <div style={{
                             background: 'hsl(var(--color-text-main) / 0.03)',

@@ -10,4 +10,5 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
     role = Column(String, default="user") # 'admin', 'user'
     is_active = Column(Boolean, default=True)
+    language = Column(String, default="en")  # User's preferred language: 'en', 'zh', 'ms'
     created_at = Column(DateTime(timezone=True), server_default=func.now())

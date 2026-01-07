@@ -168,5 +168,23 @@ export const api = {
         });
         if (!response.ok) throw new Error('Failed to clear history');
         return response.json();
+    },
+
+    getUserLanguage: async () => {
+        const response = await fetch(`${API_BASE}/auth/language`, {
+            headers: await getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to get language preference');
+        return response.json();
+    },
+
+    updateUserLanguage: async (language) => {
+        const response = await fetch(`${API_BASE}/auth/language`, {
+            method: 'PUT',
+            headers: await getHeaders(),
+            body: JSON.stringify({ language })
+        });
+        if (!response.ok) throw new Error('Failed to update language preference');
+        return response.json();
     }
 };

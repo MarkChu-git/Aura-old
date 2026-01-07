@@ -1,0 +1,184 @@
+{
+    "header": {
+        "home": "首页",
+        "explore": "探索",
+        "profile": "个人资料",
+        "signIn": "登录",
+        "getStarted": "开始使用",
+        "signOut": "退出"
+    },
+    "home": {
+        "hero": {
+            "title": "探索香水",
+            "titleThrough": "通过",
+            "titleFeeling": "感觉",
+            "subtitle": "将模糊的感觉转化为可理解的香水解决方案",
+            "cta": "开始您的旅程"
+        },
+        "howItWorks": {
+            "title": "如何运作",
+            "subtitle": "精致的香水发现方法",
+            "step1": {
+                "number": "一",
+                "title": "描述",
+                "description": "分享您珍视的感觉、记忆或意象"
+            },
+            "step2": {
+                "number": "二",
+                "title": "分析",
+                "description": "我们的系统将您的输入解码为感官数据"
+            },
+            "step3": {
+                "number": "三",
+                "title": "发现",
+                "description": "获得个性化的香水方案"
+            }
+        },
+        "trust": {
+            "message": "每个推荐都是可以解释的。",
+            "submessage": "我们相信透明度和理解，而不仅仅是算法。"
+        }
+    },
+    "profile": {
+        "title": "个人资料",
+        "subtitle": "您的账户、历史记录和收藏项目",
+        "account": {
+            "title": "账户",
+            "email": "电子邮件",
+            "activeMember": "活跃会员",
+            "signOut": "退出"
+        },
+        "history": {
+            "title": "历史记录",
+            "empty": {
+                "title": "还没有探索历史",
+                "message": "开始探索以在此处查看您的历史记录。",
+                "cta": "前往探索"
+            },
+            "text": "文本",
+            "openResult": "打开结果"
+        },
+        "saved": {
+            "title": "收藏",
+            "empty": {
+                "title": "还没有收藏项目",
+                "message": "保存结果或项目以将其保留在此处。",
+                "cta": "前往探索"
+            }
+        },
+        "security": {
+            "title": "安全",
+            "changePassword": "更改密码",
+            "changePasswordTitle": "更改您的密码",
+            "currentPassword": "当前密码",
+            "newPassword": "新密码",
+            "confirmPassword": "确认新密码",
+            "passwordHint": "至少10个字符，包含大写字母、小写字母、数字和特殊字符",
+            "savePassword": "保存新密码",
+            "saving": "保存中...",
+            "cancel": "取消",
+            "success": "密码更改成功！",
+            "errors": {
+                "allRequired": "所有字段都是必填的",
+                "noMatch": "新密码不匹配",
+                "tooShort": "密码必须至少10个字符",
+                "failed": "更改密码失败"
+            }
+        },
+        "dataControls": {
+            "title": "数据控制",
+            "clearHistory": "清除历史记录",
+            "clearSaved": "清除收藏",
+            "confirmClearHistory": "清除您的历史记录？这将从此设备/账户中删除您的探索历史记录。",
+            "confirmClearSaved": "清除收藏的项目？这将从您的收藏列表中删除所有项目。"
+        },
+        "notAuthenticated": {
+            "title": "请登录",
+            "message": "您需要登录才能查看您的个人资料。",
+            "cta": "前往登录"
+        },
+        "loading": "加载中..."
+    },
+    "chat": {
+        "title": "聊天",
+        "placeholder": "描述一种感觉、记忆或时刻...",
+        "send": "发送",
+        "newChat": "新聊天"
+    },
+    "explore": {
+        "title": "探索",
+        "subtitle": "发现香水",
+        "searchPlaceholder": "搜索香水...",
+        "filters": "筛选",
+        "noResults": "未找到结果"
+    },
+    "auth": {
+        "login": {
+            "title": "登录",
+            "email": "电子邮件",
+            "password": "密码",
+            "submit": "登录",
+            "forgotPassword": "忘记密码？",
+            "noAccount": "还没有账户？",
+            "register": "注册"
+        },
+        "register": {
+            "title": "创建账户",
+            "email": "电子邮件",
+            "password": "密码",
+            "confirmPassword": "确认密码",
+            "submit": "创建账户",
+            "hasAccount": "已有账户？",
+            "signIn": "登录"
+        },
+        "forgotPassword": {
+            "title": "重置密码",
+            "subtitle": "输入您的电子邮件以接收密码重置链接",
+            "email": "电子邮件",
+            "submit": "发送重置链接",
+            "backToLogin": "返回登录",
+            "success": "请检查您的电子邮件以获取重置链接"
+        },
+        "resetPassword": {
+            "title": "设置新密码",
+            "newPassword": "新密码",
+            "confirmPassword": "确认密码",
+            "submit": "重置密码",
+            "success": "密码重置成功"
+        }
+    },
+    "analyzing": {
+        "title": "分析中",
+        "message": "正在分析您的输入...",
+        "please": "请稍候"
+    },
+    "result": {
+        "title": "您的结果",
+        "recommendations": "推荐",
+        "noResults": "未找到结果",
+        "tryAgain": "再试一次"
+    },
+    "footer": {
+        "privacy": "隐私政策",
+        "terms": "服务条款",
+        "copyright": "© 2026 Aura. 版权所有。"
+    },
+    "common": {
+        "loading": "加载中...",
+        "error": "发生错误",
+        "retry": "重试",
+        "cancel": "取消",
+        "save": "保存",
+        "delete": "删除",
+        "edit": "编辑",
+        "close": "关闭",
+        "confirm": "确认",
+        "pageNotFound": "找不到页面"
+    },
+    "language": {
+        "select": "选择语言",
+        "en": "English",
+        "zh": "中文",
+        "ms": "Bahasa Melayu"
+    }
+}

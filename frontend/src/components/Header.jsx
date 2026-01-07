@@ -1,11 +1,14 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import LiquidButton from './LiquidButton';
 import Logo from './Logo';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
+    const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
     const { isAuthenticated, openAuthModal, logout } = useAuth();
@@ -53,9 +56,9 @@ export default function Header() {
                     '@media (min-width: 768px)': { display: 'flex' }
                 }} className="desktop-nav">
                     {[
-                        { path: '/', label: 'Home' },
-                        { path: '/explore', label: 'Explore' },
-                        { path: '/profile', label: 'Profile' }
+                        { path: '/', label: t('header.home') },
+                        { path: '/explore', label: t('header.explore') },
+                        { path: '/profile', label: t('header.profile') }
                     ].map(({ path, label }) => (
                         <Link
                             key={path}
@@ -87,6 +90,7 @@ export default function Header() {
 
                 {/* Desktop Actions */}
                 <div style={{ display: 'none', gap: '1rem', '@media (min-width: 768px)': { display: 'flex' } }} className="desktop-actions">
+                    <LanguageSwitcher />
                     {!isAuthenticated ? (
                         <>
                             <button
@@ -106,7 +110,7 @@ export default function Header() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Sign In
+                                {t('header.signIn')}
                             </button>
                             <button
                                 onClick={() => openAuthModal('register')}
@@ -125,7 +129,7 @@ export default function Header() {
                                     cursor: 'pointer'
                                 }}
                             >
-                                Get Started
+                                {t('header.getStarted')}
                             </button>
                         </>
                     ) : (
@@ -149,7 +153,7 @@ export default function Header() {
                             onMouseLeave={e => e.target.style.color = 'hsl(var(--color-text-muted))'}
                         >
                             <LogOut size={18} />
-                            <span>Sign Out</span>
+                            <span>{t('header.signOut')}</span>
                         </button>
                     )}
                 </div>
@@ -186,9 +190,9 @@ export default function Header() {
                     zIndex: 99
                 }}>
                     {[
-                        { path: '/', label: 'Home' },
-                        { path: '/explore', label: 'Explore' },
-                        { path: '/profile', label: 'Profile' }
+                        { path: '/', label: t('header.home') },
+                        { path: '/explore', label: t('header.explore') },
+                        { path: '/profile', label: t('header.profile') }
                     ].map(({ path, label }) => (
                         <Link
                             key={path}
@@ -211,13 +215,13 @@ export default function Header() {
                                 onClick={() => { setIsMenuOpen(false); openAuthModal('login'); }}
                                 style={{ fontSize: '1.1rem', background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer' }}
                             >
-                                Sign In
+                                {t('header.signIn')}
                             </button>
                             <button
                                 onClick={() => { setIsMenuOpen(false); openAuthModal('register'); }}
                                 style={{ fontSize: '1.1rem', fontWeight: 500, background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer' }}
                             >
-                                Get Started
+                                {t('header.getStarted')}
                             </button>
                         </>
                     ) : (
@@ -225,7 +229,7 @@ export default function Header() {
                             onClick={() => { setIsMenuOpen(false); logout(); }}
                             style={{ fontSize: '1.1rem', color: '#EF4444', background: 'none', border: 'none', textAlign: 'left', padding: 0, cursor: 'pointer' }}
                         >
-                            Sign Out
+                            {t('header.signOut')}
                         </button>
                     )}
                 </div>

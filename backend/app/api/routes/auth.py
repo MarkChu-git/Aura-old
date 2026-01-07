@@ -227,3 +227,40 @@ async def reset_password(
     await db.commit()
     
     return {"message": "Password has been reset successfully"}
+
+from pydantic import BaseModel
+
+class LanguageUpdate(BaseModel):
+    language: str
+
+@router.get("/language")
+async def get_user_language(
+    current_user: User = Depends(get_current_active_user),
+) -> Any:
+    """
+    Get current user's language preference.
+    """
+    return {"language": current_user.language or "en"}
+
+@router.put("/language")
+async def update_user_language(
+    language_update: LanguageUpdate,
+    current_user: User = Depends(get_current_active_user),
+    db: AsyncSession = Depends(get_db)
+) -> Any:
+    """
+    Update current user's language preference.
+    """
+    # Validate language code
+    allowed_languages = ["en", "zh", "ms"]
+    if language_update.language not in allowed_languages:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid language. Allowed values: {', '.join(allowed_languages)}"
+        )
+    
+    # Update user's language preference
+    current_user.language = language_update.language
+    await db.commit()
+    
+    return {"message": "Language preference updated successfully", "language": current_user.language}

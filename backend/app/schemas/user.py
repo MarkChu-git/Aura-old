@@ -5,6 +5,7 @@ class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
     role: str = "user"
+    language: Optional[str] = "en"  # Default to English
 
 class UserCreate(UserBase):
     email: EmailStr

@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Brain, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import LiquidButton from '../components/LiquidButton';
 
 export default function Home() {
+    const { t } = useTranslation();
     const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
 
     useEffect(() => {
@@ -46,15 +48,15 @@ export default function Home() {
                         letterSpacing: '-0.02em',
                         fontFamily: 'Georgia, serif'
                     }}>
-                        Explore fragrance <br />
-                        through <span
+                        {t('home.hero.title')} <br />
+                        {t('home.hero.titleThrough')} <span
                             className="gradient-text-interactive"
                             style={{
                                 fontSize: '1.05em',
                                 background: `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%, #667eea 0%, #764ba2 50%, #f093fb 100%)`,
                                 backgroundSize: '200% 200%'
                             }}
-                        >feeling</span>
+                        >{t('home.hero.titleFeeling')}</span>
                     </h1>
                 </div>
 
@@ -67,12 +69,12 @@ export default function Home() {
                     fontWeight: '300',
                     fontFamily: 'Georgia, serif'
                 }}>
-                    Transform vague sensations into understandable fragrance solutions
+                    {t('home.hero.subtitle')}
                 </p>
 
                 <div className="animate-fade-in-up delay-200">
                     <LiquidButton to="/chat" className="btn-primary" style={{ fontFamily: 'var(--font-sans)' }}>
-                        Begin Your Journey <ArrowRight size={16} />
+                        {t('home.hero.cta')} <ArrowRight size={16} />
                     </LiquidButton>
                 </div>
             </section>
@@ -90,7 +92,7 @@ export default function Home() {
                     fontFamily: 'Georgia, serif',
                     letterSpacing: '-0.02em'
                 }}>
-                    How it works
+                    {t('home.howItWorks.title')}
                 </h2>
                 <p className="animate-fade-in delay-100" style={{
                     textAlign: 'center',
@@ -99,7 +101,7 @@ export default function Home() {
                     fontSize: '0.9375rem',
                     fontFamily: 'Georgia, serif'
                 }}>
-                    A refined approach to fragrance discovery
+                    {t('home.howItWorks.subtitle')}
                 </p>
 
                 <div style={{
@@ -111,22 +113,22 @@ export default function Home() {
                 }}>
                     {[
                         {
-                            step: 'I',
+                            step: t('home.howItWorks.step1.number'),
                             icon: Sparkles,
-                            title: 'Describe',
-                            desc: 'Share a feeling, memory, or imagery you cherish'
+                            title: t('home.howItWorks.step1.title'),
+                            desc: t('home.howItWorks.step1.description')
                         },
                         {
-                            step: 'II',
+                            step: t('home.howItWorks.step2.number'),
                             icon: Brain,
-                            title: 'Analyze',
-                            desc: 'Our system decodes your input into sensory data'
+                            title: t('home.howItWorks.step2.title'),
+                            desc: t('home.howItWorks.step2.description')
                         },
                         {
-                            step: 'III',
+                            step: t('home.howItWorks.step3.number'),
                             icon: Package,
-                            title: 'Discover',
-                            desc: 'Receive a personalized fragrance plan'
+                            title: t('home.howItWorks.step3.title'),
+                            desc: t('home.howItWorks.step3.description')
                         }
                     ].map((item, idx) => {
                         const Icon = item.icon;
@@ -208,8 +210,8 @@ export default function Home() {
                         fontWeight: '400',
                         fontStyle: 'italic'
                     }}>
-                        Every recommendation is explainable. <br />
-                        We believe in transparency and understanding, not just algorithms.
+                        {t('home.trust.message')} <br />
+                        {t('home.trust.submessage')}
                     </p>
                 </div>
             </section>

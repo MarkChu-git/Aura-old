@@ -76,44 +76,171 @@ graph TD
  - ✅ **Secure by Default**: Strict database isolation & external secrets.
  - ✅ **Maintenance**: Helpers for logs (`./scripts/logs.sh`) and updates (`./scripts/deploy.sh`).
 
-## 💻 Local Development
+## 💻 Getting Started
 
-If you prefer to run services individually on your machine:
+### Prerequisites
+- **Node.js** 18+ (frontend)
+- **Python** 3.10-3.13 (backend) - *Note: Python 3.14+ is not yet supported by pydantic-core*
+- **Docker** & **Docker Compose** (for database and Redis)
+- **Git** (for cloning the repository)
 
-### Backend
-1. Navigate to `backend/`
-2. Create virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   ```
-3. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start Dependencies (DB/Redis) via Docker:
-   ```bash
-   docker compose up -d db redis
-   ```
-5. Run the API:
-   ```bash
-   uvicorn app.main:app --reload
-   ```
-6. Start Celery Worker (in a separate terminal):
-   ```bash
-   celery -A app.core.celery_app worker --loglevel=info
-   ```
+### Quick Start (Recommended)
 
-### Frontend
-1. Navigate to `frontend/`
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start Dev Server:
-   ```bash
-   npm run dev
-   ```
+#### Development Mode
+
+**1. Clone the Repository**
+```bash
+git clone https://github.com/your-repo/aura.git
+cd aura
+```
+
+**2. Start Frontend (Terminal 1)**
+```bash
+cd frontend
+npm install          # First time only
+npm run dev         # Starts on http://localhost:5173
+```
+
+**3. Start Backend Services (Terminal 2)**
+```bash
+cd backend
+
+# Create .env file from example
+cp .env.example .env
+
+# Start database and Redis with Docker
+docker compose up -d db redis
+
+# Create virtual environment (first time only)
+python3 -m venv venv
+source venv/bin/activate
+
+# Install dependencies (first time only)
+pip install -r requirements.txt
+
+# Run database migrations (first time only)
+alembic upgrade head
+
+# Start API server
+uvicorn app.main:app --reload --port 8000
+```
+
+**4. Start Celery Worker (Terminal 3)** *(Optional, for AI features)*
+```bash
+cd backend
+source venv/bin/activate
+celery -A app.core.celery_app worker --loglevel=info
+```
+
+**Access Points:**
+- 🎨 **Frontend**: [http://localhost:5173](http://localhost:5173)
+- 🚀 **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- 📖 **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
+
+---
+
+### Production Deployment
+
+#### Using Docker Compose (Recommended)
+
+**1. Prepare Environment**
+```bash
+cd aura
+
+# Copy and configure production environment
+cp backend/.env.example backend/.env
+# Edit backend/.env - set secure passwords, API keys, etc.
+```
+
+**2. Run Bootstrap Script**
+```bash
+./scripts/bootstrap.sh
+```
+
+This script will:
+- Build all Docker images
+- Start all services (frontend, backend, database, Redis, Celery worker)
+- Run database migrations
+- Verify health of all services
+
+**3. Access Production**
+- Frontend: http://your-server-ip:3000
+- Backend API: http://your-server-ip:8000
+
+**4. View Logs**
+```bash
+./scripts/logs.sh
+```
+
+**5. Update Deployment**
+```bash
+./scripts/deploy.sh
+```
+
+For detailed production deployment instructions including SSL, domain setup, and security hardening, see [DEPLOYMENT.md](DEPLOYMENT.md).
+
+---
+
+### Manual Production Build
+
+If you prefer to build and run without Docker:
+
+**Frontend:**
+```bash
+cd frontend
+npm install
+npm run build          # Creates optimized production build in dist/
+npm run preview        # Preview production build locally
+```
+
+**Backend:**
+```bash
+cd backend
+
+# Setup environment
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Configure for production
+export ENV=prod
+export DATABASE_URL=postgresql+asyncpg://user:pass@host/dbname
+export REDIS_URL=redis://host:6379/0
+
+# Run migrations
+alembic upgrade head
+
+# Start with production server (Gunicorn)
+gunicorn app.main:app \
+  --workers 4 \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --bind 0.0.0.0:8000
+```
+
+---
+
+### Troubleshooting
+
+**"command not found: python"**
+- Use `python3` instead of `python` on macOS/Linux
+
+**"Docker daemon not running"**
+- Start Docker Desktop application
+- Or use `brew services start docker` on macOS
+
+**"Python 3.14 compatibility issues"**
+- Downgrade to Python 3.10-3.13: `brew install python@3.12`
+- Create venv with specific version: `python3.12 -m venv venv`
+
+**"Port already in use"**
+- Frontend (5173): `lsof -ti:5173 | xargs kill -9`
+- Backend (8000): `lsof -ti:8000 | xargs kill -9`
+
+**Database migration fails**
+- Ensure PostgreSQL is running: `docker compose ps`
+- Reset database: `docker compose down -v && docker compose up -d db`
+- Run migrations: `alembic upgrade head`
+
 
 ## 📂 Project Structure
 

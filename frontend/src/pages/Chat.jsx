@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Send, User, Bot, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
@@ -8,11 +9,12 @@ import remarkGfm from 'remark-gfm';
 
 export default function Chat() {
     const { isAuthenticated, openAuthModal } = useAuth();
+    const { t, i18n } = useTranslation();
     const location = useLocation();
 
     // State
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: 'Hello. I am Aura. Tell me about a memory, a mood, or a place, and I will describe its scent.' }
+        { role: 'assistant', content: t('chat.welcomeMessage') }
     ]);
     const [conversationId, setConversationId] = useState(null);
     const [historyList, setHistoryList] = useState([]);
@@ -44,6 +46,13 @@ export default function Chat() {
             // Good enough.
         }
     }, [location.state, isAuthenticated]);
+
+    // Update welcome message when language changes if it's the only message
+    useEffect(() => {
+        if (messages.length === 1 && messages[0].role === 'assistant') {
+            setMessages([{ role: 'assistant', content: t('chat.welcomeMessage') }]);
+        }
+    }, [t, i18n.language]);
 
     const fetchHistory = async () => {
         try {
@@ -84,7 +93,7 @@ export default function Chat() {
     const startNewChat = () => {
         setConversationId(null);
         setMessages([
-            { role: 'assistant', content: 'Hello. I am Aura. Tell me about a memory, a mood, or a place, and I will describe its scent.' }
+            { role: 'assistant', content: t('chat.welcomeMessage') }
         ]);
         if (window.innerWidth < 768) setShowSidebar(false);
     };
@@ -116,7 +125,7 @@ export default function Chat() {
             }
         } catch (err) {
             console.error(err);
-            setMessages(prev => [...prev, { role: 'assistant', content: "I'm having trouble sensing that right now. Please try again." }]);
+            setMessages(prev => [...prev, { role: 'assistant', content: t('chat.error') }]);
         } finally {
             setLoading(false);
         }
@@ -183,7 +192,7 @@ export default function Chat() {
                         onMouseEnter={e => e.target.style.background = 'rgba(0,0,0,0.02)'}
                         onMouseLeave={e => e.target.style.background = 'transparent'}
                     >
-                        <Plus size={18} /> New Chat
+                        <Plus size={18} /> {t('chat.newChat')}
                     </button>
                 </div>
 
@@ -196,7 +205,7 @@ export default function Chat() {
                             fontSize: '0.9rem'
                         }}>
                             <Lock size={32} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
-                            <p style={{ marginBottom: '1rem' }}>Log in to save your fragrance journey and view history.</p>
+                            <p style={{ marginBottom: '1rem' }}>{t('chat.sidebar.loginPrompt')}</p>
                             <button
                                 onClick={() => openAuthModal('login')}
                                 style={{
@@ -208,12 +217,12 @@ export default function Chat() {
                                     textDecoration: 'underline'
                                 }}
                             >
-                                Sign In
+                                {t('chat.sidebar.signIn')}
                             </button>
                         </div>
                     ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                            <div style={{ padding: '0 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'hsl(var(--color-text-muted))', textTransform: 'uppercase' }}>Recent</div>
+                            <div style={{ padding: '0 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'hsl(var(--color-text-muted))', textTransform: 'uppercase' }}>{t('chat.sidebar.recent')}</div>
                             {historyList.map(conv => (
                                 <button
                                     key={conv.id}
@@ -239,13 +248,13 @@ export default function Chat() {
                                         textOverflow: 'ellipsis',
                                         fontSize: '0.9rem'
                                     }}>
-                                        {conv.title || "New Chat"}
+                                        {conv.title || t('chat.newChat')}
                                     </span>
                                 </button>
                             ))}
                             {historyList.length === 0 && (
                                 <div style={{ padding: '1rem', textAlign: 'center', color: 'hsl(var(--color-text-muted))', fontSize: '0.9rem' }}>
-                                    No history yet. Start exploring!
+                                    {t('chat.sidebar.noHistory')}
                                 </div>
                             )}
                         </div>
@@ -365,7 +374,7 @@ export default function Chat() {
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Type your thoughts..."
+                        placeholder={t('chat.placeholder')}
                         disabled={loading}
                         style={{
                             flex: 1,

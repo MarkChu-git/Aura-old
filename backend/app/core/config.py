@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     DEEPSEEK_API_KEY: Optional[str] = None
     DEEPSEEK_MODEL: str = "deepseek-chat"
     
+    # Google Authentication
+    GOOGLE_CLIENT_ID: Optional[str] = None
+    
     # Legacy/Optional
     SITE_URL: Optional[str] = "http://localhost:5173"
     

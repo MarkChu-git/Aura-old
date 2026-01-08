@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
-import { X, User, Mail, Lock, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { X, AlertCircle, Mail, Lock, Eye, EyeOff, Check } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LiquidButton from './LiquidButton';
@@ -55,103 +56,142 @@ const AuthInput = ({ icon: Icon, endIcon, onEndIconClick, ...props }) => (
     </div>
 );
 
-export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
-    const [mode, setMode] = useState(initialMode); // 'login' or 'register'
+const RequirementItem = ({ met, text }) => (
+    <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        fontSize: '0.85rem',
+        color: met ? 'hsl(var(--color-success))' : 'hsl(var(--color-text-muted))', // Fixed colors to use variables if possible, or fallbacks
+        transition: 'color 0.3s ease'
+    }}>
+        {met ? <Check size={14} color="#10B981" /> : <X size={14} />}
+        <span style={{ color: met ? '#10B981' : 'inherit' }}>{text}</span>
+    </div>
+);
+
+export default function AuthModal({ isOpen, onClose }) {
+    const [mode, setMode] = useState('login');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-
-    // Password requirements state
-    const [requirements, setRequirements] = useState({
-        length: false,
-        upper: false,
-        lower: false,
-        number: false,
-        special: false
-    });
-
-    useEffect(() => {
-        setRequirements({
-            length: password.length >= 10,
-            upper: /[A-Z]/.test(password),
-            lower: /[a-z]/.test(password),
-            number: /\d/.test(password),
-            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-        });
-    }, [password]);
-
-    const isPasswordValid = Object.values(requirements).every(Boolean);
 
     const { login } = useAuth();
+    const { t } = useTranslation();
+    const googleButtonRef = useRef(null);
+
+    const requirements = {
+        length: password.length >= 10,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /[0-9]/.test(password),
+        special: /[!@#$%^&*]/.test(password)
+    };
 
     useEffect(() => {
-        setMode(initialMode);
         setError('');
-        setEmail('');
-        setPassword('');
-    }, [initialMode, isOpen]);
+        if (!isOpen) {
+            // Reset form on close
+            setEmail('');
+            setPassword('');
+            setConfirmPassword('');
+            setMode('login');
+        }
+    }, [isOpen]);
 
-    if (!isOpen) return null;
+    useEffect(() => {
+        if (!isOpen) return;
 
-    const validateEmail = (email) => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
+        // Function to render the button
+        const renderGoogleButton = () => {
+            if (window.google?.accounts?.id && googleButtonRef.current) {
+                // Initialize the client
+                window.google.accounts.id.initialize({
+                    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                    callback: async (response) => {
+                        try {
+                            setLoading(true);
+                            const data = await api.googleAuth(response.credential);
+                            login(data.access_token);
+                            onClose();
+                        } catch (error) {
+                            console.error("Google auth error:", error);
+                            setError(error.message || t('auth.error'));
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                    auto_select: false,
+                    itp_support: true
+                });
+
+                // Render the button
+                window.google.accounts.id.renderButton(
+                    googleButtonRef.current,
+                    {
+                        type: 'standard',
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'continue_with',
+                        shape: 'pill',
+                        width: '330', // MAX width to match container (400px - 4rem padding)
+                        logo_alignment: 'center'
+                    }
+                );
+            }
+        };
+
+        // Check if script is loaded, if not wait a bit or just retry
+        if (window.google?.accounts?.id) {
+            renderGoogleButton();
+        } else {
+            // Retry once after a short delay in case script is racing
+            const timer = setTimeout(renderGoogleButton, 500);
+            return () => clearTimeout(timer);
+        }
+
+    }, [isOpen, login, onClose, t]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
-
-        if (!validateEmail(email)) {
-            setError("Please enter a valid email address.");
-            return;
-        }
-
         setLoading(true);
 
         try {
-            if (mode === 'login') {
-                const data = await api.login(email, password);
-                login(data.access_token);
-                onClose();
-            } else {
+            if (mode === 'register') {
                 if (password !== confirmPassword) {
                     throw new Error("Passwords do not match");
                 }
-                if (!isPasswordValid) {
-                    throw new Error("Please meet all password requirements");
+                const allMet = Object.values(requirements).every(Boolean);
+                if (!allMet) {
+                    throw new Error("Password does not meet all requirements");
                 }
-                // Register then login
-                await api.register(email, password);
-                const data = await api.login(email, password);
-                login(data.access_token);
-                onClose();
+                const res = await api.register(email, password);
+                // Depending on API, register might return token or just success
+                // api.register returns data. If autologin is desired:
+                // Usually we might need to login after register or if the API returns token
+                // Assuming api.register returns similar stucture or we login automatically
+                // The current api.register returns json. 
+                // Let's assume we need to auto-login.
+                const loginRes = await api.login(email, password);
+                login(loginRes.access_token);
+            } else {
+                const res = await api.login(email, password);
+                login(res.access_token);
             }
+            onClose();
         } catch (err) {
-            setError(err.message || "Authentication failed");
+            setError(err.message || 'Authentication failed');
         } finally {
             setLoading(false);
         }
     };
 
-    const RequirementItem = ({ met, text }) => (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.8rem',
-            color: met ? '#10B981' : '#EF4444',
-            transition: 'color 0.3s ease',
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', height: '20px' }}>
-                {met ? <Check size={14} /> : <X size={14} />}
-            </div>
-            <span style={{ lineHeight: '20px' }}>{text}</span>
-        </div>
-    );
+    if (!isOpen) return null;
 
     return (
         <div style={{
@@ -169,11 +209,13 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             <div className="liquid-glass animate-scale-in" style={{
                 width: '100%',
                 maxWidth: '400px',
-                padding: '2rem',
+                padding: '3rem 2rem',
                 borderRadius: '1.5rem',
-                background: 'hsl(var(--color-surface) / 0.95)',
+                background: 'hsl(var(--color-surface) / 0.98)',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-                position: 'relative'
+                position: 'relative',
+                maxHeight: '90vh',
+                overflowY: 'auto'
             }}>
                 <button
                     onClick={onClose}
@@ -196,13 +238,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                 <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                     <h2 style={{
                         fontFamily: 'var(--font-serif)',
-                        fontSize: '1.75rem',
-                        marginBottom: '0.5rem'
+                        fontSize: '2rem',
+                        marginBottom: '0.75rem',
+                        color: 'hsl(var(--color-text-main))'
                     }}>
-                        {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+                        {mode === 'login' ? t('auth.welcome') : 'Create Account'}
                     </h2>
-                    <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '0.9rem' }}>
-                        {mode === 'login' ? 'Sign in to continue your journey' : 'Join Aura to explore fragrances'}
+                    <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '1rem' }}>
+                        {t('auth.subtitle')}
                     </p>
                 </div>
 
@@ -251,12 +294,11 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                         <div style={{
                             textAlign: 'right',
                             marginTop: '-0.5rem',
-                            marginBottom: '0.5rem'
+                            marginBottom: '1rem'
                         }}>
                             <button
                                 type="button"
                                 onClick={() => {
-                                    // TODO: Implement forgot password flow
                                     alert('Password reset functionality coming soon!\n\nFor now, please contact support to reset your password.');
                                 }}
                                 style={{
@@ -310,11 +352,35 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                         type="submit"
                         className="btn-primary"
                         disabled={loading}
-                        style={{ width: '100%', marginTop: '0.5rem' }}
+                        style={{ width: '100%' }}
                     >
                         {loading ? 'Processing...' : (mode === 'login' ? 'Sign In' : 'Create Account')}
                     </LiquidButton>
                 </form>
+
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    margin: '1.5rem 0',
+                    color: 'hsl(var(--color-text-muted))',
+                    fontSize: '0.85rem'
+                }}>
+                    <div style={{ height: '1px', flex: 1, background: 'hsl(var(--color-border))' }}></div>
+                    <span>or</span>
+                    <div style={{ height: '1px', flex: 1, background: 'hsl(var(--color-border))' }}></div>
+                </div>
+
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    justifyContent: 'center'
+                }}>
+                    {/* Container for the Google Button */}
+                    <div ref={googleButtonRef} style={{ minHeight: '40px', minWidth: '240px' }}></div>
+                </div>
 
                 <div style={{
                     marginTop: '1.5rem',
@@ -322,41 +388,20 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                     fontSize: '0.9rem',
                     color: 'hsl(var(--color-text-muted))'
                 }}>
-                    {mode === 'login' ? (
-                        <>
-                            Don't have an account?{' '}
-                            <button
-                                onClick={() => setMode('register')}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'hsl(var(--color-text-main))',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    padding: 0
-                                }}
-                            >
-                                Sign up
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            Already have an account?{' '}
-                            <button
-                                onClick={() => setMode('login')}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'hsl(var(--color-text-main))',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    padding: 0
-                                }}
-                            >
-                                Sign in
-                            </button>
-                        </>
-                    )}
+                    {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
+                    <button
+                        onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'hsl(var(--color-primary))',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            padding: 0
+                        }}
+                    >
+                        {mode === 'login' ? "Sign Up" : "Sign In"}
+                    </button>
                 </div>
             </div>
         </div>

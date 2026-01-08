@@ -33,7 +33,7 @@ export default function Explore() {
 
     return (
         <div className="container" style={{ maxWidth: '900px' }}>
-            <section className="section">
+            <section className="section" style={{ paddingTop: '10rem' }}>
                 <div className="animate-fade-in-up" style={{ textAlign: 'center', marginBottom: '3rem' }}>
                     <h1 style={{
                         fontSize: '3rem',

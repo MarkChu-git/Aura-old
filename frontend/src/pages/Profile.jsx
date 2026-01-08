@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText, Image as ImageIcon } from 'lucide-react';
@@ -6,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export default function Profile() {
     const { isAuthenticated, logout } = useAuth();
+    const { t } = useTranslation();
     const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [history, setHistory] = useState([]);
@@ -110,13 +112,13 @@ export default function Profile() {
 
     if (!isAuthenticated) return (
         <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Please Sign In</h2>
-            <p style={{ color: 'hsl(var(--color-text-muted))', marginBottom: '1.5rem' }}>You need to be logged in to view your profile.</p>
-            <button onClick={() => navigate('/login')} className="btn-primary" style={{ padding: '0.5rem 1.5rem', borderRadius: '2rem', border: 'none', cursor: 'pointer', background: 'hsl(var(--color-text-main))', color: '#fff' }}>Go to Login</button>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>{t('profile.notAuthenticated.title')}</h2>
+            <p style={{ color: 'hsl(var(--color-text-muted))', marginBottom: '1.5rem' }}>{t('profile.notAuthenticated.message')}</p>
+            <button onClick={() => navigate('/login')} className="btn-primary" style={{ padding: '0.5rem 1.5rem', borderRadius: '2rem', border: 'none', cursor: 'pointer', background: 'hsl(var(--color-text-main))', color: '#fff' }}>{t('profile.notAuthenticated.cta')}</button>
         </div>
     );
 
-    if (loadingProfile) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>Loading...</div>;
+    if (loadingProfile) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>{t('profile.loading')}</div>;
 
     const Section = ({ title, icon: Icon, children }) => (
         <section style={{ marginBottom: '3rem' }}>
@@ -144,20 +146,20 @@ export default function Profile() {
         <div className="container" style={{ paddingBottom: '4rem' }}>
             {/* Header */}
             <div style={{ marginBottom: '3rem' }}>
-                <h1 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>Profile</h1>
-                <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '1.1rem' }}>Your account, history, and saved items</p>
+                <h1 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>{t('profile.title')}</h1>
+                <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '1.1rem' }}>{t('profile.subtitle')}</p>
             </div>
 
             {/* Account Section */}
-            <Section title="Account" icon={User}>
+            <Section title={t('profile.sections.account')} icon={User}>
                 <Card style={{ padding: '2rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
                         <div>
-                            <div style={{ fontSize: '0.9rem', color: 'hsl(var(--color-text-muted))', marginBottom: '0.5rem' }}>Email</div>
+                            <div style={{ fontSize: '0.9rem', color: 'hsl(var(--color-text-muted))', marginBottom: '0.5rem' }}>{t('profile.account.email')}</div>
                             <div style={{ fontSize: '1.25rem', fontWeight: 500, marginBottom: '1rem' }}>{user?.email}</div>
                             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.25rem 0.75rem', background: 'rgba(16, 185, 129, 0.1)', color: '#059669', borderRadius: '1rem', fontSize: '0.85rem', fontWeight: 500 }}>
                                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'currentColor' }} />
-                                Active Member
+                                {t('profile.account.activeMember')}
                             </div>
                         </div>
                         <button
@@ -178,23 +180,23 @@ export default function Profile() {
                             }}
                         >
                             <LogOut size={16} />
-                            Sign Out
+                            {t('profile.account.signOut')}
                         </button>
                     </div>
                 </Card>
             </Section>
 
             {/* History Section */}
-            <Section title="History" icon={Clock}>
+            <Section title={t('profile.sections.history')} icon={Clock}>
                 {history.length === 0 ? (
                     <Card style={{ textAlign: 'center', padding: '3rem 2rem' }}>
                         <div style={{ background: 'hsl(var(--color-text-main) / 0.05)', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
                             <Clock size={24} color="hsl(var(--color-text-muted))" />
                         </div>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>No exploration history yet</h3>
-                        <p style={{ color: 'hsl(var(--color-text-muted))', marginBottom: '1.5rem' }}>Start exploring to see your history here.</p>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{t('profile.history.emptyTitle')}</h3>
+                        <p style={{ color: 'hsl(var(--color-text-muted))', marginBottom: '1.5rem' }}>{t('profile.history.emptyMessage')}</p>
                         <Link to="/explore" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none', padding: '0.6rem 1.5rem', borderRadius: '2rem', background: 'hsl(var(--color-text-main))', color: '#fff' }}>
-                            Go to Explore
+                            {t('profile.history.cta')}
                         </Link>
                     </Card>
                 ) : (
@@ -203,11 +205,11 @@ export default function Profile() {
                             <Card key={item.id} style={{ padding: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'transform 0.2s' }}>
                                 <div style={{ minWidth: 0, paddingRight: '1rem' }}>
                                     <h4 style={{ fontSize: '1.05rem', fontWeight: 500, marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        {item.title || "Untitled Chat"}
+                                        {item.title || t('profile.history.untitled')}
                                     </h4>
                                     <div style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: 'hsl(var(--color-text-muted))' }}>
                                         {/* Assumed text input for now */}
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><FileText size={12} /> Text</span>
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><FileText size={12} /> {t('profile.history.text')}</span>
                                         <span>{formatDate(item.created_at || item.updated_at)}</span>
                                     </div>
                                 </div>
@@ -225,7 +227,7 @@ export default function Profile() {
                                         color: 'hsl(var(--color-text-main))'
                                     }}
                                 >
-                                    Open Result
+                                    {t('profile.history.openResult')}
                                 </button>
                             </Card>
                         ))}
@@ -234,16 +236,16 @@ export default function Profile() {
             </Section>
 
             {/* Saved Section */}
-            <Section title="Saved" icon={Bookmark}>
+            <Section title={t('profile.sections.saved')} icon={Bookmark}>
                 {saved.length === 0 ? (
                     <Card style={{ textAlign: 'center', padding: '3rem 2rem' }}>
                         <div style={{ background: 'hsl(var(--color-text-main) / 0.05)', width: 48, height: 48, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
                             <Bookmark size={24} color="hsl(var(--color-text-muted))" />
                         </div>
-                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>No saved items yet</h3>
-                        <p style={{ color: 'hsl(var(--color-text-muted))', marginBottom: '1.5rem' }}>Save results or items to keep them here.</p>
+                        <h3 style={{ fontSize: '1.1rem', marginBottom: '0.5rem' }}>{t('profile.saved.emptyTitle')}</h3>
+                        <p style={{ color: 'hsl(var(--color-text-muted))', marginBottom: '1.5rem' }}>{t('profile.saved.emptyMessage')}</p>
                         <Link to="/explore" className="btn-primary" style={{ display: 'inline-block', textDecoration: 'none', padding: '0.6rem 1.5rem', borderRadius: '2rem', background: 'hsl(var(--color-text-main))', color: '#fff' }}>
-                            Go to Explore
+                            {t('profile.saved.cta')}
                         </Link>
                     </Card>
                 ) : (
@@ -252,7 +254,7 @@ export default function Profile() {
             </Section>
 
             {/* Security Section */}
-            <Section title="Security" icon={Settings}>
+            <Section title={t('profile.sections.security')} icon={Settings}>
                 <Card>
                     {passwordSuccess && (
                         <div style={{
@@ -285,13 +287,13 @@ export default function Profile() {
                                 justifyContent: 'space-between'
                             }}
                         >
-                            <span>Change Password</span>
+                            <span>{t('profile.security.changePassword')}</span>
                             <ChevronRight size={16} />
                         </button>
                     ) : (
                         <form onSubmit={handleChangePassword}>
                             <div style={{ marginBottom: '1.5rem' }}>
-                                <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>Change Your Password</h3>
+                                <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem' }}>{t('profile.security.changePasswordTitle')}</h3>
                                 {passwordError && (
                                     <div style={{
                                         display: 'flex',
@@ -313,7 +315,7 @@ export default function Profile() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
-                                        Current Password
+                                        {t('profile.security.currentPassword')}
                                     </label>
                                     <input
                                         type="password"
@@ -333,7 +335,7 @@ export default function Profile() {
 
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
-                                        New Password
+                                        {t('profile.security.newPassword')}
                                     </label>
                                     <input
                                         type="password"
@@ -350,13 +352,13 @@ export default function Profile() {
                                         disabled={changingPassword}
                                     />
                                     <div style={{ fontSize: '0.8rem', color: 'hsl(var(--color-text-muted))', marginTop: '0.25rem' }}>
-                                        At least 10 characters with uppercase, lowercase, number, and special character
+                                        {t('profile.security.passwordHint')}
                                     </div>
                                 </div>
 
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: 500 }}>
-                                        Confirm New Password
+                                        {t('profile.security.confirmPassword')}
                                     </label>
                                     <input
                                         type="password"
@@ -391,7 +393,7 @@ export default function Profile() {
                                             opacity: changingPassword ? 0.6 : 1
                                         }}
                                     >
-                                        {changingPassword ? 'Saving...' : 'Save New Password'}
+                                        {changingPassword ? t('profile.security.saving') : t('profile.security.savePassword')}
                                     </button>
                                     <button
                                         type="button"
@@ -413,7 +415,7 @@ export default function Profile() {
                                             color: 'hsl(var(--color-text-main))'
                                         }}
                                     >
-                                        Cancel
+                                        {t('profile.security.cancel')}
                                     </button>
                                 </div>
                             </div>
@@ -423,7 +425,7 @@ export default function Profile() {
             </Section>
 
             {/* Data Controls */}
-            <Section title="Data Controls" icon={Settings}>
+            <Section title={t('profile.sections.dataControls')} icon={Settings}>
                 <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
                     <button
                         onClick={handleClearHistory}
@@ -443,7 +445,7 @@ export default function Profile() {
                         }}
                     >
                         <Trash2 size={16} />
-                        Clear History
+                        {t('profile.dataControls.clearHistory')}
                     </button>
                     <button
                         onClick={handleClearSaved}
@@ -463,7 +465,7 @@ export default function Profile() {
                         }}
                     >
                         <Trash2 size={16} />
-                        Clear Saved
+                        {t('profile.dataControls.clearSaved')}
                     </button>
                 </div>
             </Section>

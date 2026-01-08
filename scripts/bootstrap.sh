@@ -30,12 +30,12 @@ fi
 if [ -f "/home/deploy/aura-secrets.env" ]; then
     echo -e "${GREEN}Found secure secrets file at /home/deploy/aura-secrets.env${NC}"
     export SECRETS_FILE="/home/deploy/aura-secrets.env"
-elif [ -f ".env" ]; then
-    echo -e "${GREEN}Found local .env file.${NC}"
-    export SECRETS_FILE=".env"
+elif [ -f "backend/.env" ]; then
+    echo -e "${GREEN}Found backend/.env file.${NC}"
+    export SECRETS_FILE="backend/.env"
 else
     echo -e "${RED}Error: No secrets file found.${NC}"
-    echo "Please copy .env.example to .env or /home/deploy/aura-secrets.env and populate variables."
+    echo "Please create backend/.env (copy from backend/.env.example) or /home/deploy/aura-secrets.env for production."
     exit 1
 fi
 
@@ -62,8 +62,8 @@ echo ""
 
 # 5. Verify
 echo -e "${BLUE}>>> Verifying deployment...${NC}"
-if curl -s -f http://localhost/v1/health > /dev/null; then
-    echo -e "${GREEN}SUCCESS: API is reachable at http://localhost/v1/health${NC}"
+if curl -s -f http://localhost/health > /dev/null; then
+    echo -e "${GREEN}SUCCESS: API is reachable at http://localhost/health${NC}"
 else
     echo -e "${RED}WARNING: API health check failed.${NC}"
 fi

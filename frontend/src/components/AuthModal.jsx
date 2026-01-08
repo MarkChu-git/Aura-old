@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
-import { X, User, Mail, Lock, Eye, EyeOff, Check, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { X, AlertCircle } from 'lucide-react';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import LiquidButton from './LiquidButton';
 
 // Reusable Input Component
 const AuthInput = ({ icon: Icon, endIcon, onEndIconClick, ...props }) => (
@@ -55,103 +55,72 @@ const AuthInput = ({ icon: Icon, endIcon, onEndIconClick, ...props }) => (
     </div>
 );
 
-export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
-    const [mode, setMode] = useState(initialMode); // 'login' or 'register'
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [showPassword, setShowPassword] = useState(false);
+export default function AuthModal({ isOpen, onClose }) {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const [isPasswordFocused, setIsPasswordFocused] = useState(false);
-
-    // Password requirements state
-    const [requirements, setRequirements] = useState({
-        length: false,
-        upper: false,
-        lower: false,
-        number: false,
-        special: false
-    });
-
-    useEffect(() => {
-        setRequirements({
-            length: password.length >= 10,
-            upper: /[A-Z]/.test(password),
-            lower: /[a-z]/.test(password),
-            number: /\d/.test(password),
-            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-        });
-    }, [password]);
-
-    const isPasswordValid = Object.values(requirements).every(Boolean);
-
     const { login } = useAuth();
+    const { t } = useTranslation();
+    const googleButtonRef = useRef(null);
 
     useEffect(() => {
-        setMode(initialMode);
         setError('');
-        setEmail('');
-        setPassword('');
-    }, [initialMode, isOpen]);
+    }, [isOpen]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        // Function to render the button
+        const renderGoogleButton = () => {
+            if (window.google?.accounts?.id && googleButtonRef.current) {
+                // Initialize the client
+                window.google.accounts.id.initialize({
+                    client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+                    callback: async (response) => {
+                        try {
+                            setLoading(true);
+                            const data = await api.googleAuth(response.credential);
+                            login(data.access_token);
+                            onClose();
+                        } catch (error) {
+                            console.error("Google auth error:", error);
+                            console.error("Google auth error:", error);
+                            setError(error.message || t('auth.error'));
+                        } finally {
+                            setLoading(false);
+                        }
+                    },
+                    auto_select: false,
+                    itp_support: true
+                });
+
+                // Render the button
+                window.google.accounts.id.renderButton(
+                    googleButtonRef.current,
+                    {
+                        type: 'standard',
+                        theme: 'outline',
+                        size: 'large',
+                        text: 'continue_with',
+                        shape: 'pill',
+                        width: '330', // MAX width to match container (400px - 4rem padding)
+                        logo_alignment: 'center'
+                    }
+                );
+            }
+        };
+
+        // Check if script is loaded, if not wait a bit or just retry
+        if (window.google?.accounts?.id) {
+            renderGoogleButton();
+        } else {
+            // Retry once after a short delay in case script is racing
+            const timer = setTimeout(renderGoogleButton, 500);
+            return () => clearTimeout(timer);
+        }
+
+    }, [isOpen, login, onClose]);
 
     if (!isOpen) return null;
-
-    const validateEmail = (email) => {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-
-        if (!validateEmail(email)) {
-            setError("Please enter a valid email address.");
-            return;
-        }
-
-        setLoading(true);
-
-        try {
-            if (mode === 'login') {
-                const data = await api.login(email, password);
-                login(data.access_token);
-                onClose();
-            } else {
-                if (password !== confirmPassword) {
-                    throw new Error("Passwords do not match");
-                }
-                if (!isPasswordValid) {
-                    throw new Error("Please meet all password requirements");
-                }
-                // Register then login
-                await api.register(email, password);
-                const data = await api.login(email, password);
-                login(data.access_token);
-                onClose();
-            }
-        } catch (err) {
-            setError(err.message || "Authentication failed");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const RequirementItem = ({ met, text }) => (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.8rem',
-            color: met ? '#10B981' : '#EF4444',
-            transition: 'color 0.3s ease',
-        }}>
-            <div style={{ display: 'flex', alignItems: 'center', height: '20px' }}>
-                {met ? <Check size={14} /> : <X size={14} />}
-            </div>
-            <span style={{ lineHeight: '20px' }}>{text}</span>
-        </div>
-    );
 
     return (
         <div style={{
@@ -169,9 +138,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
             <div className="liquid-glass animate-scale-in" style={{
                 width: '100%',
                 maxWidth: '400px',
-                padding: '2rem',
+                padding: '3rem 2rem',
                 borderRadius: '1.5rem',
-                background: 'hsl(var(--color-surface) / 0.95)',
+                background: 'hsl(var(--color-surface) / 0.98)',
                 boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
                 position: 'relative'
             }}>
@@ -193,16 +162,17 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                     <X size={20} />
                 </button>
 
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
                     <h2 style={{
                         fontFamily: 'var(--font-serif)',
-                        fontSize: '1.75rem',
-                        marginBottom: '0.5rem'
+                        fontSize: '2rem',
+                        marginBottom: '0.75rem',
+                        color: 'hsl(var(--color-text-main))'
                     }}>
-                        {mode === 'login' ? 'Welcome Back' : 'Create Account'}
+                        {t('auth.welcome')}
                     </h2>
-                    <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '0.9rem' }}>
-                        {mode === 'login' ? 'Sign in to continue your journey' : 'Join Aura to explore fragrances'}
+                    <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '1rem' }}>
+                        {t('auth.subtitle')}
                     </p>
                 </div>
 
@@ -223,110 +193,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit}>
-                    <AuthInput
-                        icon={Mail}
-                        type="email"
-                        placeholder="Email address"
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        required
-                        autoFocus
-                    />
-
-                    <AuthInput
-                        icon={Lock}
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Password"
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        onFocus={() => setIsPasswordFocused(true)}
-                        onBlur={() => setIsPasswordFocused(false)}
-                        required
-                        endIcon={showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                        onEndIconClick={() => setShowPassword(!showPassword)}
-                    />
-
-                    {mode === 'register' && isPasswordFocused && (
-                        <div style={{
-                            background: 'hsl(var(--color-text-main) / 0.03)',
-                            padding: '0.75rem',
-                            borderRadius: '0.75rem',
-                            marginBottom: '1rem',
-                            display: 'grid',
-                            gridTemplateColumns: '1fr 1fr',
-                            gap: '0.5rem'
-                        }} onMouseDown={(e) => e.preventDefault()}>
-                            <RequirementItem met={requirements.length} text="10+ Characters" />
-                            <RequirementItem met={requirements.upper} text="Uppercase" />
-                            <RequirementItem met={requirements.lower} text="Lowercase" />
-                            <RequirementItem met={requirements.number} text="Number" />
-                            <RequirementItem met={requirements.special} text="Symbol (!@#$)" />
-                        </div>
-                    )}
-
-                    {mode === 'register' && (
-                        <AuthInput
-                            icon={Check}
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Confirm Password"
-                            value={confirmPassword}
-                            onChange={e => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                    )}
-
-                    <LiquidButton
-                        type="submit"
-                        className="btn-primary"
-                        disabled={loading}
-                        style={{ width: '100%', marginTop: '0.5rem' }}
-                    >
-                        {loading ? 'Processing...' : (mode === 'login' ? 'Sign In' : 'Create Account')}
-                    </LiquidButton>
-                </form>
-
                 <div style={{
-                    marginTop: '1.5rem',
-                    textAlign: 'center',
-                    fontSize: '0.9rem',
-                    color: 'hsl(var(--color-text-muted))'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    minHeight: '60px',
+                    justifyContent: 'center'
                 }}>
-                    {mode === 'login' ? (
-                        <>
-                            Don't have an account?{' '}
-                            <button
-                                onClick={() => setMode('register')}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'hsl(var(--color-text-main))',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    padding: 0
-                                }}
-                            >
-                                Sign up
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            Already have an account?{' '}
-                            <button
-                                onClick={() => setMode('login')}
-                                style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'hsl(var(--color-text-main))',
-                                    fontWeight: 600,
-                                    cursor: 'pointer',
-                                    padding: 0
-                                }}
-                            >
-                                Sign in
-                            </button>
-                        </>
-                    )}
+                    {loading && <div style={{ marginBottom: '1rem', fontSize: '0.9rem' }}>{t('auth.processing')}</div>}
+
+                    {/* Container for the Google Button */}
+                    <div ref={googleButtonRef} style={{ minHeight: '40px', minWidth: '240px' }}></div>
                 </div>
             </div>
         </div>

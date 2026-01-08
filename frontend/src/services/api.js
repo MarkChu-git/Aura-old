@@ -83,7 +83,7 @@ export const api = {
     },
 
     register: async (email, password) => {
-        const response = await fetch(`${API_BASE}/auth/register`, {
+        const response = await fetch(`${API_BASE}/v1/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -112,6 +112,19 @@ export const api = {
             throw new Error(errorMessage);
         }
         return data;
+    },
+
+    googleAuth: async (credential) => {
+        const response = await fetch(`${API_BASE}/auth/google`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ credential })
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Google authentication failed');
+        }
+        return response.json();
     },
 
     getProfile: async () => {

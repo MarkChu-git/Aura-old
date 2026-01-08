@@ -68,116 +68,138 @@ graph TD
 - **Linting & Formatting**: Black, Isort, ESLint
 
 ## 🚀 Deployment
- 
- For detailed instructions on deploying Aura securely to a production server (Linux + Docker Compose), please refer to the [Deployment Guide](DEPLOYMENT.md).
- 
- **Highlights:**
- - ✅ **One-Command Bootstrap**: `./scripts/bootstrap.sh`
- - ✅ **Secure by Default**: Strict database isolation & external secrets.
- - ✅ **Maintenance**: Helpers for logs (`./scripts/logs.sh`) and updates (`./scripts/deploy.sh`).
 
-## 💻 Getting Started
+For detailed instructions on deploying Aura securely to a production server (Linux + Docker Compose), please refer to the [Deployment Guide](DEPLOYMENT.md).
 
-### Prerequisites
-- **Node.js** 18+ (frontend)
-- **Python** 3.10-3.13 (backend) - *Note: Python 3.14+ is not yet supported by pydantic-core*
-- **Docker** & **Docker Compose** (for database and Redis)
-- **Git** (for cloning the repository)
+**Highlights:**
+- ✅ **One-Command Bootstrap**: `./scripts/bootstrap.sh`
+- ✅ **Secure by Default**: Strict database isolation & external secrets.
+- ✅ **Maintenance**: Helpers for logs (`./scripts/logs.sh`) and updates (`./scripts/deploy.sh`).
 
-### Quick Start (Recommended)
+## 🏃‍♂️ How to Run
 
-#### Development Mode
+There are two ways to run Aura: **Production Mode** (easiest, runs everything in Docker) and **Development Mode** (for editing code).
 
-**1. Clone the Repository**
+### 🐳 Option 1: Production Mode (Recommended)
+
+Run the entire application (frontend, backend, db, redis) in containers.
+
+**1. Start Services**
 ```bash
+# Easy start script
+./scripts/bootstrap.sh
+
+# Or manually
+docker compose -f docker-compose.prod.yml up -d
+```
+
+**2. Access Application**
+- 🌍 **App URL**: [http://localhost](http://localhost) (Port 80)
+- 🔌 **API**: `http://localhost/v1`
+- 📘 **API Docs**: `http://localhost/docs` (if enabled in Nginx)
+
+> **Note**: In this mode, the frontend is served on port **80**, not 5173.
+
+---
+
+### 💻 Option 2: Development Mode
+
+Run the database in Docker, but run frontend and backend locally for hot-reloading.
+
+**1. Start Database & Redis**
+```bash
+docker compose -f docker-compose.prod.yml up -d db redis
+```
+
+**2. Start Backend (Terminal 1)**
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+```
+
+**3. Start Frontend (Terminal 2)**
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+**4. Access Development**
+- 🎨 **Frontend**: [http://localhost:5173](http://localhost:5173) (Hot Reload)
+- 🔌 **Backend**: [http://localhost:8000](http://localhost:8000)
+- 📘 **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+---
+
+## 🚀 Deployment Guide
+
+For deploying to a remote server (e.g., EC2, DigitalOcean):
+
+**1. Prepare Server**
+```bash
+# Clone repo
 git clone https://github.com/your-repo/aura.git
 cd aura
 ```
 
-**2. Start Frontend (Terminal 1)**
+**2. Configure Secrets**
 ```bash
-cd frontend
-npm install          # First time only
-npm run dev         # Starts on http://localhost:5173
-```
-
-**3. Start Backend Services (Terminal 2)**
-```bash
-cd backend
-
-# Create .env file from example
-cp .env.example .env
-
-# Start database and Redis with Docker
-docker compose up -d db redis
-
-# Create virtual environment (first time only)
-python3 -m venv venv
-source venv/bin/activate
-
-# Install dependencies (first time only)
-pip install -r requirements.txt
-
-# Run database migrations (first time only)
-alembic upgrade head
-
-# Start API server
-uvicorn app.main:app --reload --port 8000
-```
-
-**4. Start Celery Worker (Terminal 3)** *(Optional, for AI features)*
-```bash
-cd backend
-source venv/bin/activate
-celery -A app.core.celery_app worker --loglevel=info
-```
-
-**Access Points:**
-- 🎨 **Frontend**: [http://localhost:5173](http://localhost:5173)
-- 🚀 **API Docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
-- 📖 **ReDoc**: [http://localhost:8000/redoc](http://localhost:8000/redoc)
-
----
-
-### Production Deployment
-
-#### Using Docker Compose (Recommended)
-
-**1. Prepare Environment**
-```bash
-cd aura
-
-# Copy and configure production environment
+# Copy example to production env
 cp backend/.env.example backend/.env
-# Edit backend/.env - set secure passwords, API keys, etc.
+
+# EDIT THIS FILE! Set strong passwords and API keys
+nano backend/.env
 ```
 
-**2. Run Bootstrap Script**
+**3. Launch**
 ```bash
 ./scripts/bootstrap.sh
 ```
 
-This script will:
-- Build all Docker images
-- Start all services (frontend, backend, database, Redis, Celery worker)
-- Run database migrations
-- Verify health of all services
+**4. Verify**
+Access `http://<your-server-ip>`
 
-**3. Access Production**
-- Frontend: http://your-server-ip:3000
-- Backend API: http://your-server-ip:8000
+---
 
-**4. View Logs**
+## 🛠 Common Commands
+
+### Restart Services
+
+To restart all services (useful after config changes):
+
 ```bash
-./scripts/logs.sh
+# Restart everything
+docker compose -f docker-compose.prod.yml restart
+
+# Restart specific service (e.g. api)
+docker compose -f docker-compose.prod.yml restart api
 ```
 
-**5. Update Deployment**
+If you changed environment variables (`.env`), valid restart requires:
+
 ```bash
-./scripts/deploy.sh
+docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-For detailed production deployment instructions including SSL, domain setup, and security hardening, see [DEPLOYMENT.md](DEPLOYMENT.md).
+### Stop Services
+
+```bash
+docker compose -f docker-compose.prod.yml down
+```
+
+### View Logs
+
+```bash
+# View all logs
+docker compose -f docker-compose.prod.yml logs -f
+
+# View specific service logs
+docker compose -f docker-compose.prod.yml logs -f api
+```
 
 ---
 

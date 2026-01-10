@@ -21,7 +21,7 @@ export default function Chat() {
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [historyLoading, setHistoryLoading] = useState(false);
-    const [showSidebar, setShowSidebar] = useState(true); // Toggle for mobile
+    const [showSidebar, setShowSidebar] = useState(false); // Default hidden on mobile
 
     const messagesEndRef = useRef(null);
 
@@ -194,21 +194,21 @@ export default function Chat() {
                 <div
                     className="sidebar-overlay"
                     style={{
-                        position: 'absolute',
+                        position: 'fixed',
                         top: 0,
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
-                        zIndex: 10,
-                        display: 'none' // Hidden by default, shown via CSS media query if needed
+                        backgroundColor: 'transparent',
+                        zIndex: 40, // Higher than sidebar (20) - WAIT, sidebar needs to be on TOP. Sidebar is z=50. So 40 is correct.
+                        // Display handled by CSS class now
                     }}
                     onClick={() => setShowSidebar(false)}
                 />
             )}
 
             {/* Sidebar */}
-            <div className={`chat-sidebar liquid-glass ${showSidebar ? 'visible' : ''}`} style={{
+            <div className={`chat-sidebar liquid-glass ${showSidebar ? 'open' : ''}`} style={{
                 width: '260px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -550,6 +550,8 @@ export default function Chat() {
             <style>{`
                 .spin { animation: spin 1s linear infinite; }
                 
+                .sidebar-overlay { display: none; }
+
                 @media (max-width: 768px) {
                     .chat-sidebar {
                         position: fixed;
@@ -567,6 +569,9 @@ export default function Chat() {
                         transform: translateX(0);
                     }
                     .sidebar-toggle {
+                        display: block !important;
+                    }
+                    .sidebar-overlay {
                         display: block !important;
                     }
                 }

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, User, Bot, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock } from 'lucide-react';
+import { Send, User, Bot, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock, Trash2 } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -97,6 +97,25 @@ export default function Chat() {
         ]);
         if (window.innerWidth < 768) setShowSidebar(false);
     };
+    // Delete Handler
+    const handleDeleteChat = async (e, id) => {
+        e.preventDefault(); // Prevent default link/button behavior
+        e.stopPropagation(); // Prevent opening the chat when deleting
+        if (window.confirm(t('chat.confirmDelete', 'Are you sure you want to delete this chat?'))) {
+            try {
+                // Optimistic update
+                setHistoryList(prev => prev.filter(c => c.id !== id));
+                if (conversationId === id) {
+                    setConversationId(null);
+                    setMessages([{ role: 'assistant', content: t('chat.welcomeMessage') }]);
+                }
+                await api.deleteConversation(id);
+            } catch (err) {
+                console.error("Delete failed", err);
+                fetchHistory(); // Revert on fail
+            }
+        }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -170,19 +189,41 @@ export default function Chat() {
                 <MenuIcon size={20} />
             </button>
 
+            {/* Sidebar Overlay for Mobile */}
+            {showSidebar && (
+                <div
+                    className="sidebar-overlay"
+                    style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        zIndex: 10,
+                        display: 'none' // Hidden by default, shown via CSS media query if needed
+                    }}
+                    onClick={() => setShowSidebar(false)}
+                />
+            )}
+
             {/* Sidebar */}
-            <div className={`chat-sidebar liquid-glass ${showSidebar ? 'open' : ''}`} style={{
-                width: '300px',
+            <div className={`chat-sidebar liquid-glass ${showSidebar ? 'visible' : ''}`} style={{
+                width: '260px',
                 display: 'flex',
                 flexDirection: 'column',
                 borderRadius: '1.5rem',
                 overflow: 'hidden',
                 flexShrink: 0,
-                // height: '100%' // fill container
+                borderRight: '1px solid hsl(var(--color-border))',
+                paddingRight: '1rem',
+                transition: 'transform 0.3s ease',
+                zIndex: 20
             }}>
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <button
                         onClick={startNewChat}
+                        className="button button-primary"
                         style={{
                             width: '100%',
                             padding: '0.75rem',
@@ -207,12 +248,18 @@ export default function Chat() {
                 </div>
 
                 <div style={{ flex: 1, overflowY: 'auto', padding: '1rem' }}>
-                    {!isAuthenticated ? (
+                    {historyLoading ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', padding: '1rem' }}>
+                            <Loader2 className="spin" size={20} />
+                        </div>
+                    ) : !isAuthenticated ? (
                         <div style={{
                             textAlign: 'center',
                             padding: '2rem 1rem',
                             color: 'hsl(var(--color-text-muted))',
-                            fontSize: '0.9rem'
+                            fontSize: '0.9rem',
+                            background: 'hsl(var(--color-bg-secondary))',
+                            borderRadius: '0.5rem',
                         }}>
                             <Lock size={32} style={{ marginBottom: '0.5rem', opacity: 0.5 }} />
                             <p style={{ marginBottom: '1rem' }}>{t('chat.sidebar.loginPrompt')}</p>
@@ -234,34 +281,114 @@ export default function Chat() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                             <div style={{ padding: '0 0.5rem', fontSize: '0.75rem', fontWeight: 600, color: 'hsl(var(--color-text-muted))', textTransform: 'uppercase' }}>{t('chat.sidebar.recent')}</div>
                             {historyList.map(conv => (
-                                <button
+                                <div
                                     key={conv.id}
-                                    onClick={() => loadConversation(conv.id)}
+                                    className="chat-history-item"
                                     style={{
+                                        position: 'relative',
                                         textAlign: 'left',
                                         padding: '0.75rem',
                                         borderRadius: '0.5rem',
                                         background: conversationId === conv.id ? 'hsl(var(--color-text-main) / 0.05)' : 'transparent',
-                                        border: 'none',
                                         cursor: 'pointer',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '0.75rem',
                                         transition: 'background 0.2s ease',
-                                        color: 'hsl(var(--color-text-main))'
+                                        color: 'hsl(var(--color-text-main))',
+                                        overflow: 'hidden'
                                     }}
                                 >
-                                    <MessageSquare size={16} style={{ opacity: 0.5 }} />
-                                    <span style={{
-                                        whiteSpace: 'nowrap',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        fontSize: '0.9rem'
-                                    }}>
-                                        {conv.title || t('chat.newChat')}
-                                    </span>
-                                </button>
+                                    {/* Clickable Content Area - Loads Chat */}
+                                    <div
+                                        onClick={() => loadConversation(conv.id)}
+                                        title={conv.title || t('chat.defaultTitle')} // Native Tooltip
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            flex: 1,
+                                            minWidth: 0,
+                                            height: '100%',
+                                            position: 'relative',
+                                            zIndex: 1
+                                        }}
+                                    >
+                                        <MessageSquare size={16} style={{ opacity: 0.5, flexShrink: 0 }} />
+                                        <div style={{
+                                            flex: 1,
+                                            minWidth: 0,
+                                            marginRight: '0.5rem',
+                                            transition: 'all 0.2s ease'
+                                        }}>
+                                            <div style={{
+                                                whiteSpace: 'nowrap',
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                fontSize: '0.9rem'
+                                            }}>
+                                                {conv.title || t('chat.defaultTitle')}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Delete Button Container - CSS Controlled Visibility */}
+                                    <div
+                                        className="delete-overlay"
+                                        style={{
+                                            position: 'absolute',
+                                            right: 0,
+                                            top: 0,
+                                            bottom: 0,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'flex-end', // Ensure button is at the end
+                                            paddingRight: '0.5rem',
+                                            width: '120px', // Fixed width for consistent gradient start
+                                            background: 'linear-gradient(to right, transparent, var(--color-bg-primary, #ffffff) 60%)',
+                                            zIndex: 10,
+                                            backdropFilter: 'blur(6px)', // Deeper blur
+                                            WebkitBackdropFilter: 'blur(6px)',
+                                            maskImage: 'linear-gradient(to right, transparent, black 70%)', // Seamless fade-in of the blur/cover
+                                            WebkitMaskImage: 'linear-gradient(to right, transparent, black 70%)',
+                                        }}
+                                    >
+                                        <button
+                                            className="delete-btn-force" // Specific class to target pointer-events
+                                            onClick={(e) => handleDeleteChat(e, conv.id)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                padding: '6px',
+                                                color: '#ef4444',
+                                                cursor: 'pointer',
+                                                borderRadius: '4px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                transition: 'background 0.2s ease',
+                                                pointerEvents: 'auto' // Always clickable if visible
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.background = '#fee2e2'}
+                                            onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                                            title={t('common.delete', 'Delete')}
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                </div>
                             ))}
+
+                            <style>{`
+                                .delete-overlay {
+                                    opacity: 0;
+                                    pointer-events: none;
+                                    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Slower, smoother fade */
+                                }
+                                .chat-history-item:hover .delete-overlay {
+                                    opacity: 1;
+                                    pointer-events: auto; 
+                                }
+                            `}</style>
                             {historyList.length === 0 && (
                                 <div style={{ padding: '1rem', textAlign: 'center', color: 'hsl(var(--color-text-muted))', fontSize: '0.9rem' }}>
                                     {t('chat.sidebar.noHistory')}

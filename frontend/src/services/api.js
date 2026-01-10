@@ -183,6 +183,15 @@ export const api = {
         return response.json();
     },
 
+    deleteConversation: async (id) => {
+        const response = await fetch(`${API_BASE}/chat/history/${id}`, {
+            method: 'DELETE',
+            headers: await getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to delete conversation');
+        return response.json();
+    },
+
     getUserLanguage: async () => {
         const response = await fetch(`${API_BASE}/auth/language`, {
             headers: await getHeaders()

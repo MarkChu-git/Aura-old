@@ -137,3 +137,73 @@ class RealAIAdapter(AIAdapter):
         except Exception as e:
             logger.error(f"Chat Completion Failed: {e}")
             raise e
+
+    async def generate_title(self, messages: List[Dict[str, str]]) -> str:
+        """
+        Generate a descriptive title (<=40 chars) using full context.
+        Matches user spec: Unique, Specific, Max 40 chars.
+        """
+        # strict instructions for the model
+        system_prompt = (
+            "Generate a specific, unique title for this conversation. "
+            "Rules:"
+            "1. Max 40 chars. "
+            "2. Be descriptive and capturing the essence (e.g. 'Debugging Python Connection Timeout', 'Perfume Recommendations for Summer'). "
+            "3. NO PII. NO formatting. "
+            "4. English only. "
+            "5. NO generic single words like 'Help' or 'Chat'."
+        )
+
+        # Context: Pass FULL context
+        valid_msgs = [m for m in messages if m['role'] in ('user', 'assistant')]
+        if not valid_msgs:
+            return "Untitled"
+
+        # Format interaction
+        snippet = "\n".join([f"{m['role'].upper()}: {m['content']}" for m in valid_msgs])
+
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model_chat,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Title for:\n{snippet}"}
+                ],
+                max_tokens=30, # Increased for 40 char output
+                temperature=0.6 
+            )
+            
+            raw_title = response.choices[0].message.content.strip()
+            
+            # --- Post-Processing Pipeline ---
+            import re
+            
+            # 1. Basic Cleaning
+            title = raw_title.replace('\n', ' ').replace('\r', '').strip()
+            title = title.strip('"\'') 
+            title = title.rstrip('.,:;!?') 
+            
+            # 2. Sensitive Data Filters
+            if re.search(r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}', title):
+                return "Untitled"
+            if re.search(r'\b(?:(?:25[0-5]|2[0-4]\d|1?\d?\d)\.){3}(?:25[0-5]|2[0-4]\d|1?\d?\d)\b', title):
+                return "Untitled"
+            
+            # 3. Length Enforcer (<= 40 chars)
+            if len(title) > 40:
+                truncated = title[:40]
+                last_space = truncated.rfind(' ')
+                if last_space > 10: # Keep substantial part
+                    title = truncated[:last_space]
+                else:
+                    title = truncated # Hard truncate
+            
+            # 4. Final Safety
+            if not re.match(r'^[A-Za-z0-9 \-&+\./!]+$', title):
+                return "Untitled"
+
+            return title if title else "Untitled"
+            
+        except Exception as e:
+            logger.error(f"Title Gen Error: {e}")
+            return "Untitled"

@@ -120,8 +120,18 @@ export default function Chat() {
             // If this was a new chat, we got a conversationId back. set it + refresh list
             if (!conversationId && response.conversation_id) {
                 setConversationId(response.conversation_id);
-                // Refresh history list to show the new item
-                if (isAuthenticated) fetchHistory();
+            }
+
+            // Trigger History Refresh
+            // We do this on EVERY message to catch title updates (which happen around msg #5)
+            // The backend runs in background, so we poll a few times
+            if (isAuthenticated) {
+                // Immediate update not strictly needed for title, but good for "last updated" sort
+                // fetchHistory(); 
+
+                // Poll for AI Title generation
+                setTimeout(fetchHistory, 2000);
+                setTimeout(fetchHistory, 5000);
             }
         } catch (err) {
             console.error(err);

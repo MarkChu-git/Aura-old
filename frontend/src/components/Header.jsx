@@ -158,7 +158,7 @@ export default function Header() {
 
             {/* Mobile Nav Overlay */}
             {isMenuOpen && (
-                <div className="liquid-glass animate-fade-in" style={{
+                <div className="animate-fade-in" style={{
                     position: 'fixed',
                     top: '75px',
                     left: 0,
@@ -168,7 +168,9 @@ export default function Header() {
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '1.5rem',
-                    zIndex: 99
+                    zIndex: 999, // Extremely high Z-Index
+                    backgroundColor: 'hsl(var(--color-surface))', // Solid background
+                    height: 'calc(100vh - 75px)' // Explicit height
                 }}>
                     {[
                         { path: '/', label: t('header.home') },

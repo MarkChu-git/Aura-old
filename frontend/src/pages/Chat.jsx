@@ -218,7 +218,7 @@ export default function Chat() {
                 borderRight: '1px solid hsl(var(--color-border))',
                 paddingRight: '1rem',
                 transition: 'transform 0.3s ease',
-                zIndex: 20
+                // zIndex removed from inline to allow CSS override (mobile needs 50 > overlay 40)
             }}>
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <button
@@ -284,6 +284,7 @@ export default function Chat() {
                                 <div
                                     key={conv.id}
                                     className="chat-history-item"
+                                    onClick={() => loadConversation(conv.id)}
                                     style={{
                                         position: 'relative',
                                         textAlign: 'left',
@@ -300,7 +301,6 @@ export default function Chat() {
                                 >
                                     {/* Clickable Content Area - Loads Chat */}
                                     <div
-                                        onClick={() => loadConversation(conv.id)}
                                         title={conv.title || t('chat.defaultTitle')} // Native Tooltip
                                         style={{
                                             display: 'flex',
@@ -381,12 +381,20 @@ export default function Chat() {
                             <style>{`
                                 .delete-overlay {
                                     opacity: 0;
-                                    pointer-events: none;
-                                    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Slower, smoother fade */
+                                    pointer-events: none; /* KEY FIX: Never block clicks on the item behind it */
+                                    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
                                 }
                                 .chat-history-item:hover .delete-overlay {
                                     opacity: 1;
-                                    pointer-events: auto; 
+                                }
+                                /* Mobile Sync: Force delete button visibility on touch devices */
+                                @media (max-width: 768px) {
+                                    .delete-overlay {
+                                        opacity: 1 !important; /* Always show on mobile */
+                                        background: linear-gradient(to right, transparent, hsl(var(--color-surface)) 80%); /* cleaner fade */
+                                        width: auto !important;
+                                        padding-left: 1rem;
+                                    }
                                 }
                             `}</style>
                             {historyList.length === 0 && (
@@ -551,14 +559,19 @@ export default function Chat() {
                 .spin { animation: spin 1s linear infinite; }
                 
                 .sidebar-overlay { display: none; }
+                
+                .chat-sidebar {
+                    z-index: 20; /* Default desktop z-index */
+                }
 
                 @media (max-width: 768px) {
                     .chat-sidebar {
+                        /* Prioritize mobile visibility over overlay */
+                        z-index: 50 !important; 
                         position: fixed;
                         top: 6rem;
                         bottom: 0;
                         left: 0;
-                        z-index: 50;
                         background: hsl(var(--color-surface));
                         transform: translateX(-100%);
                         transition: transform 0.3s ease;

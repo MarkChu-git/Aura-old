@@ -58,8 +58,6 @@ async def get_history(
     # Let's assume the user wants me to KEEP the history endpoint. 
     # I will rely on the fact that I am replacing up to line 140, and the file might be longer.
     # Actually, let's look at the previous file content again.
-    from app.db.models.conversation import Conversation
-    from sqlalchemy import select, desc
     
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authenticated")

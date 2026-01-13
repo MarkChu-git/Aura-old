@@ -567,7 +567,7 @@ export default function Chat() {
                 @media (max-width: 768px) {
                     .chat-sidebar {
                         /* Prioritize mobile visibility over overlay */
-                        z-index: 50 !important; 
+                        z-index: 50;
                         position: fixed;
                         top: 6rem;
                         bottom: 0;

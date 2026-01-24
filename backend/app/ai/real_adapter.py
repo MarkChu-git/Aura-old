@@ -146,11 +146,15 @@ class RealAIAdapter(AIAdapter):
         messages: [{"role": "user", "content": "..."}]
         """
         try:
+            # type: ignore for strict openai types vs simple dicts
             response = await self.client.chat.completions.create(  # type: ignore
                 model=self.model_chat, messages=messages
             )
             content = response.choices[0].message.content
             return content if content else ""
+        except Exception as e:
+            logger.error(f"Chat Completion Failed: {e}")
+            raise e
 
     async def generate_title(self, messages: List[Dict[str, str]]) -> str:
         """

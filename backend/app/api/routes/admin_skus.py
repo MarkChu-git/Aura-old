@@ -11,10 +11,12 @@ from app.core.errors import success_response
 router = APIRouter()
 rebuild_router = APIRouter()
 
+
 # Simple Admin Auth
 async def verify_admin(x_admin_token: str = Header(...)):
     if x_admin_token != settings.ADMIN_TOKEN:
         raise HTTPException(status_code=403, detail="Invalid admin token")
+
 
 class SKUCreate(BaseModel):
     brand: str
@@ -25,9 +27,11 @@ class SKUCreate(BaseModel):
     url: Optional[str] = None
     image_url: Optional[str] = None
 
+
 class SKURead(SKUCreate):
     id: UUID
     active: bool
+
 
 @router.get("", response_model=None)
 async def list_skus(skip: int = 0, limit: int = 100, _=Depends(verify_admin)):
@@ -36,15 +40,19 @@ async def list_skus(skip: int = 0, limit: int = 100, _=Depends(verify_admin)):
         skus = result.scalars().all()
         # manual serialization via success_response to keep envelope consistent?
         # For admin/internal APIs, standardization is less strict but good practice.
-        return success_response([
-            {
-                "id": str(s.id),
-                "brand": s.brand,
-                "name": s.name,
-                "category": s.category,
-                "active": s.active
-            } for s in skus
-        ])
+        return success_response(
+            [
+                {
+                    "id": str(s.id),
+                    "brand": s.brand,
+                    "name": s.name,
+                    "category": s.category,
+                    "active": s.active,
+                }
+                for s in skus
+            ]
+        )
+
 
 @router.post("", dependencies=[Depends(verify_admin)])
 async def create_sku(sku: SKUCreate):
@@ -54,8 +62,11 @@ async def create_sku(sku: SKUCreate):
         await session.commit()
         return success_response({"id": str(new_sku.id)})
 
+
 @rebuild_router.post("/rebuild-embeddings", dependencies=[Depends(verify_admin)])
 async def rebuild_embeddings():
     # Enqueue a task to rebuild all embeddings
     # rebuild_all_embeddings.delay()
-    return success_response({"status": "queued", "message": "Rebuilding embeddings for all SKUs"})
+    return success_response(
+        {"status": "queued", "message": "Rebuilding embeddings for all SKUs"}
+    )

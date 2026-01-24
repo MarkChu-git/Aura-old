@@ -5,6 +5,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.db.session import Base
 
+
 class Recommendation(Base):
     __tablename__ = "recommendations"
 

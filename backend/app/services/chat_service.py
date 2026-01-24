@@ -9,6 +9,7 @@ from fastapi import BackgroundTasks
 
 logger = logging.getLogger(__name__)
 
+
 class ChatService:
     @staticmethod
     async def process_chat(
@@ -16,22 +17,20 @@ class ChatService:
         messages: List[Dict[str, str]],
         conversation_id: Optional[str],
         user_id: Optional[int],
-        background_tasks: BackgroundTasks
+        background_tasks: BackgroundTasks,
     ) -> ChatResponse:
         adapter = get_ai_adapter()
-        
+
         # 1. Generate AI Response
         reply = await adapter.chat(messages)
-        
+
         # 2. Persist to DB if authenticated
         if user_id:
             if not conversation_id:
                 # Create New Conversation
                 initial_title = "New Chat"
                 db_conversation = Conversation(
-                    user_id=user_id, 
-                    title=initial_title,
-                    title_status="initial"
+                    user_id=user_id, title=initial_title, title_status="initial"
                 )
                 db.add(db_conversation)
                 await db.flush()
@@ -40,8 +39,8 @@ class ChatService:
                 # Verify ownership
                 result = await db.execute(
                     select(Conversation).where(
-                        Conversation.id == conversation_id, 
-                        Conversation.user_id == user_id
+                        Conversation.id == conversation_id,
+                        Conversation.user_id == user_id,
                     )
                 )
                 db_conversation = result.scalars().first()
@@ -50,29 +49,31 @@ class ChatService:
 
             # Save Messages
             # User Msg (Last one)
-            if messages and messages[-1]['role'] == 'user':
-                 last_msg = messages[-1]
-                 db.add(DBMessage(
-                     conversation_id=conversation_id,
-                     role="user",
-                     content=last_msg['content']
-                 ))
-            
+            if messages and messages[-1]["role"] == "user":
+                last_msg = messages[-1]
+                db.add(
+                    DBMessage(
+                        conversation_id=conversation_id,
+                        role="user",
+                        content=last_msg["content"],
+                    )
+                )
+
             # AI Msg
-            db.add(DBMessage(
-                conversation_id=conversation_id,
-                role="assistant",
-                content=reply
-            ))
+            db.add(
+                DBMessage(
+                    conversation_id=conversation_id, role="assistant", content=reply
+                )
+            )
             await db.commit()
-            
+
             # 3. Check & Trigger Title Generation
             # Pass full history (incoming + new reply)
             full_history = messages + [{"role": "assistant", "content": reply}]
             background_tasks.add_task(
                 ChatService.check_and_trigger_title_gen,
                 str(conversation_id),
-                full_history
+                full_history,
             )
 
         return ChatResponse(reply=reply, conversation_id=conversation_id)
@@ -89,34 +90,40 @@ class ChatService:
         try:
             from app.db.session import AsyncSessionLocal
             from sqlalchemy import func
-            
+
             async with AsyncSessionLocal() as session:
                 # 1. Strict Signal Check (DB Count)
                 # Count total messages in this conversation
                 count_result = await session.execute(
-                    select(func.count(DBMessage.id)).where(DBMessage.conversation_id == conversation_id)
+                    select(func.count(DBMessage.id)).where(
+                        DBMessage.conversation_id == conversation_id
+                    )
                 )
                 total_messages = count_result.scalar()
-                
+
                 # User Requirement: "When chatbox has 2 conversations" (2 messages)
                 if total_messages < 2:
-                    return 
+                    return
 
                 # 2. Status Check
                 result = await session.execute(
                     select(Conversation).where(Conversation.id == conversation_id)
                 )
                 conv = result.scalars().first()
-                if not conv: 
+                if not conv:
                     return
-                
+
                 # Only update if status is 'initial' or looks like a default
-                is_default = conv.title_status == 'initial' or conv.title in ["New Chat", "Untitled", "New chat"]
+                is_default = conv.title_status == "initial" or conv.title in [
+                    "New Chat",
+                    "Untitled",
+                    "New chat",
+                ]
                 if not is_default:
-                   # Allow *one* re-generation if it's generic "Untitled" even if status says generated?
-                   # Strict user rule: "ensure every title is different". 
-                   # For now honor status.
-                   return
+                    # Allow *one* re-generation if it's generic "Untitled" even if status says generated?
+                    # Strict user rule: "ensure every title is different".
+                    # For now honor status.
+                    return
 
                 # 3. Context Retrieval (DB Fetch)
                 # "Maximum context length" -> Fetch ALL
@@ -126,22 +133,22 @@ class ChatService:
                     .order_by(DBMessage.created_at.asc())
                 )
                 db_messages = msgs_result.scalars().all()
-                
+
                 # Convert to Dict for Adapter
                 # We need strict format
                 context_messages = [
-                    {"role": m.role, "content": m.content} 
-                    for m in db_messages
+                    {"role": m.role, "content": m.content} for m in db_messages
                 ]
-                
+
                 # 4. Generate
                 adapter = get_ai_adapter()
                 new_title = await adapter.generate_title(context_messages)
-                
+
                 if new_title and new_title not in ["Untitled", "New Chat"]:
-                    stmt = update(Conversation).where(Conversation.id == conversation_id).values(
-                        title=new_title,
-                        title_status="generated"
+                    stmt = (
+                        update(Conversation)
+                        .where(Conversation.id == conversation_id)
+                        .values(title=new_title, title_status="generated")
                     )
                     await session.execute(stmt)
                     await session.commit()

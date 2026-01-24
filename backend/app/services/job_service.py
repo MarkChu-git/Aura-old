@@ -1,7 +1,7 @@
 from uuid import UUID
 from datetime import datetime, timedelta
 from typing import Optional
-import asyncio
+
 from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.db.models.job import Job

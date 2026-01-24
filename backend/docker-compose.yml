@@ -5,9 +5,9 @@ services:
     image: ankane/pgvector:v0.4.1 # PostgreSQL with pgvector extension pre-installed
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=aura_db
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-aura_db}
     ports:
       - "5432:5432"
     volumes:

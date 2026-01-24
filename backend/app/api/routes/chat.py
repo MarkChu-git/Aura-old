@@ -27,7 +27,7 @@ async def chat(
     try:
         # Pydantic models to dicts for service layer
         msgs = [{"role": m.role, "content": m.content} for m in request.messages]
-        user_id = current_user.id if current_user else None
+        user_id = int(current_user.id) if current_user else None
 
         return await ChatService.process_chat(
             db=db,

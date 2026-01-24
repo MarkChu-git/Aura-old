@@ -148,9 +148,9 @@ class RealAIAdapter(AIAdapter):
         messages: [{"role": "user", "content": "..."}]
         """
         try:
-            # type: ignore for strict openai types vs simple dicts
-            response = await self.client.chat.completions.create(  # type: ignore
-                model=self.model_chat, messages=messages
+            # Strict openai types vs simple dicts
+            response = await self.client.chat.completions.create(
+                model=self.model_chat, messages=messages  # type: ignore
             )
             content = response.choices[0].message.content
             return content if content else ""
@@ -195,7 +195,7 @@ class RealAIAdapter(AIAdapter):
                 temperature=0.6,
             )
 
-            raw_title = response.choices[0].message.content.strip()
+            raw_title = (response.choices[0].message.content or "").strip()
 
             # --- Post-Processing Pipeline ---
             import re

@@ -41,7 +41,7 @@ class JobService:
             # For robustness, we assume Celery is configured correctly.
             process_job.delay(str(new_job.id))
 
-            return new_job.id
+            return new_job.id  # type: ignore
 
     @staticmethod
     async def get_job(job_id: UUID):

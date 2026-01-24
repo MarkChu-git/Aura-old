@@ -30,7 +30,7 @@ async def http_exception_handler(request: Request, exc: Exception):
     # Check if standard FastAPI HTTPException
     if hasattr(exc, "status_code"):
         status_code = exc.status_code
-        detail = exc.detail
+        detail = getattr(exc, "detail", "Unknown Error")
     else:
         status_code = 500
         detail = "Internal Server Error"

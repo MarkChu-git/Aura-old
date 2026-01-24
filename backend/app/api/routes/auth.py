@@ -36,7 +36,7 @@ async def login_access_token(
     user = result.scalars().first()
 
     if not user or not security.verify_password(
-        form_data.password, user.hashed_password
+        form_data.password, str(user.hashed_password)
     ):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -112,7 +112,7 @@ async def change_password(
     """
     # 1. Verify old password
     if not security.verify_password(
-        password_change.old_password, current_user.hashed_password
+        password_change.old_password, str(current_user.hashed_password)
     ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect password"
@@ -133,7 +133,7 @@ async def change_password(
         )
 
     # 4. Update password
-    current_user.hashed_password = security.get_password_hash(
+    current_user.hashed_password = security.get_password_hash(  # type: ignore
         password_change.new_password
     )
     await db.commit()
@@ -226,7 +226,7 @@ async def reset_password(
     user.hashed_password = security.get_password_hash(reset_data.new_password)
 
     # 5. Mark token as used
-    token_record.used = True
+    token_record.used = True  # type: ignore
 
     await db.commit()
 
@@ -265,7 +265,7 @@ async def update_user_language(
         )
 
     # Update user's language preference
-    current_user.language = language_update.language
+    current_user.language = language_update.language  # type: ignore
     await db.commit()
 
     return {

@@ -109,10 +109,10 @@ async def google_auth(auth_data: GoogleAuthRequest, db: AsyncSession = Depends(g
     return GoogleAuthResponse(
         access_token=access_token,
         user=UserResponse(
-            id=user.id,
-            email=user.email,
-            name=user.name,
-            picture=user.picture_url,
+            id=user.id,  # type: ignore
+            email=user.email,  # type: ignore
+            name=user.name,  # type: ignore
+            picture=user.picture_url,  # type: ignore
             provider="google",
         ),
     )

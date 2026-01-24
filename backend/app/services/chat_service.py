@@ -34,7 +34,7 @@ class ChatService:
                 )
                 db.add(db_conversation)
                 await db.flush()
-                conversation_id = db_conversation.id
+                conversation_id = str(db_conversation.id)
             else:
                 # Verify ownership
                 result = await db.execute(
@@ -43,7 +43,7 @@ class ChatService:
                         Conversation.user_id == user_id,
                     )
                 )
-                db_conversation = result.scalars().first()
+                db_conversation = result.scalars().first()  # type: ignore
                 if not db_conversation:
                     raise ValueError("Conversation not found or access denied")
 

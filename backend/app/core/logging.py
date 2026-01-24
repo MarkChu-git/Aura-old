@@ -1,13 +1,13 @@
 import logging
 import sys
-from typing import Any
+from typing import Any, Optional
 import json
 from datetime import datetime
 from contextvars import ContextVar
 
 # Context Vars for traceability
-request_id_context: ContextVar[str] = ContextVar("request_id", default=None)
-job_id_context: ContextVar[str] = ContextVar("job_id", default=None)
+request_id_context: ContextVar[Optional[str]] = ContextVar("request_id", default=None)
+job_id_context: ContextVar[Optional[str]] = ContextVar("job_id", default=None)
 
 
 class JSONFormatter(logging.Formatter):

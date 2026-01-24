@@ -1,5 +1,6 @@
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Optional
 import asyncio
 from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
@@ -11,7 +12,10 @@ from app.tasks.tasks import process_job
 class JobService:
     @staticmethod
     async def create_job(
-        input_type: str, text: str = None, image_key: str = None, session_id: str = None
+        input_type: str,
+        text: Optional[str] = None,
+        image_key: Optional[str] = None,
+        session_id: Optional[str] = None,
     ) -> UUID:
         async with AsyncSessionLocal() as db:
             # 1. Create Input
@@ -67,7 +71,7 @@ class JobService:
         Fail jobs that have been running for too long.
         This should be called by a periodic task.
         """
-        cutoff = datetime.utcnow() - asyncio.timedelta(seconds=timeout_seconds)
+        cutoff = datetime.utcnow() - timedelta(seconds=timeout_seconds)
         async with AsyncSessionLocal() as session:
             # Find jobs running and started before cutoff
             # OR queued and created before cutoff (if we want to timeout queued jobs too)

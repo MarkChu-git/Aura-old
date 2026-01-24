@@ -34,10 +34,13 @@ async def get_current_user_optional(
             token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
         )
         token_data = TokenPayload(**payload)
+        if not token_data.sub:
+            return None
+        # type: ignore[arg-type] # SQLAlchemy filter expression
         result = await db.execute(select(User).filter(User.id == int(token_data.sub)))
         user = result.scalars().first()
         return user
-    except (JWTError, ValidationError):
+    except (JWTError, ValidationError, ValueError):
         return None
 
 
@@ -55,6 +58,10 @@ async def get_current_user(
             detail="Could not validate credentials",
         )
 
+    if not token_data.sub:
+        raise HTTPException(status_code=403, detail="Invalid token subject")
+
+    # type: ignore[arg-type] # SQLAlchemy filter expression
     result = await db.execute(select(User).filter(User.id == int(token_data.sub)))
     user = result.scalars().first()
 

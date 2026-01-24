@@ -98,6 +98,12 @@ async def google_auth(auth_data: GoogleAuthRequest, db: AsyncSession = Depends(g
         logger.info(f"New Google user created: {user.id}")
 
     # Generate JWT token
+    if not user.id or not user.email:
+        # Should not happen given schema constraints
+        raise HTTPException(
+            status_code=500, detail="User created with missing ID or email"
+        )
+
     access_token = create_access_token(subject=user.id)
 
     return GoogleAuthResponse(

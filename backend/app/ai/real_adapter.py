@@ -26,7 +26,7 @@ class RealAIAdapter(AIAdapter):
         """
         Multimodal extraction using OpenRouter (GPT-4o or similar).
         """
-        messages = [
+        messages: List[Dict[str, Any]] = [
             {
                 "role": "system",
                 "content": (
@@ -41,7 +41,7 @@ class RealAIAdapter(AIAdapter):
             }
         ]
 
-        user_content = []
+        user_content: List[Dict[str, Any]] = []
         if text:
             user_content.append({"type": "text", "text": text})
 
@@ -73,12 +73,16 @@ class RealAIAdapter(AIAdapter):
         messages.append({"role": "user", "content": user_content})
 
         try:
-            response = await self.client.chat.completions.create(
+            # Type ignore for strict openai types vs simple dicts
+            response = await self.client.chat.completions.create(  # type: ignore
                 model=self.model_chat,
                 messages=messages,
                 response_format={"type": "json_object"},
             )
             content = response.choices[0].message.content
+            if not content:
+                raise ValueError("Empty response from AI")
+
             # Clean markdown code blocks if present
             if content.strip().startswith("```"):
                 content = content.strip().split("\n", 1)[-1].rsplit("\n", 1)[0]
@@ -90,7 +94,6 @@ class RealAIAdapter(AIAdapter):
                 return json.loads(content)
             except json.JSONDecodeError as e:
                 logger.error(f"JSON Parse Error. Raw content: {content}")
-                raise e
                 raise e
         except Exception as e:
             logger.error(f"AI Extraction Failed: {e}")
@@ -115,7 +118,7 @@ class RealAIAdapter(AIAdapter):
             # Fallback for now to avoid breaking flow
             return [0.0] * 1536
 
-    async def explain(self, sku_name: str, sku_tags: Dict, user_context: Dict) -> str:
+    async def explain(self, sku_name: str, sku_tags: Dict[str, Any], user_context: Dict[str, Any]) -> str:
         """
         Generate explanation.
         """
@@ -129,7 +132,8 @@ class RealAIAdapter(AIAdapter):
             response = await self.client.chat.completions.create(
                 model=self.model_chat, messages=[{"role": "user", "content": prompt}]
             )
-            return response.choices[0].message.content
+            content = response.choices[0].message.content
+            return content if content else "A perfect match."
         except Exception as e:
             logger.error(f"Explanation Failed: {e}")
             return (
@@ -142,13 +146,11 @@ class RealAIAdapter(AIAdapter):
         messages: [{"role": "user", "content": "..."}]
         """
         try:
-            response = await self.client.chat.completions.create(
+            response = await self.client.chat.completions.create(  # type: ignore
                 model=self.model_chat, messages=messages
             )
-            return response.choices[0].message.content
-        except Exception as e:
-            logger.error(f"Chat Completion Failed: {e}")
-            raise e
+            content = response.choices[0].message.content
+            return content if content else ""
 
     async def generate_title(self, messages: List[Dict[str, str]]) -> str:
         """

@@ -76,8 +76,8 @@ async def google_auth(auth_data: GoogleAuthRequest, db: AsyncSession = Depends(g
     if user:
         # Update existing user info
         user.email = google_user["email"]
-        user.name = google_user.get("name")
-        user.picture_url = google_user.get("picture")
+        user.name = google_user.get("name")  # type: ignore
+        user.picture_url = google_user.get("picture")  # type: ignore
         await db.commit()
         await db.refresh(user)
         logger.info(f"Existing Google user logged in: {user.id}")

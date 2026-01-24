@@ -12,7 +12,7 @@ engine = create_async_engine(
 )
 
 AsyncSessionLocal = sessionmaker(
-    bind=engine, class_=AsyncSession, expire_on_commit=False
+    bind=engine, class_=AsyncSession, expire_on_commit=False  # type: ignore
 )
 
 Base = declarative_base()

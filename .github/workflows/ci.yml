@@ -50,6 +50,9 @@ jobs:
         export POSTGRES_PASSWORD=postgres
         export POSTGRES_DB=test_db
         export POSTGRES_HOST=localhost
+        export DATABASE_URL=postgresql+asyncpg://postgres:postgres@localhost/test_db
+        export REDIS_URL=redis://localhost:6379/0
+        export ADMIN_TOKEN=dummy_token_for_ci
         pytest
 
   frontend-ci:

@@ -15,3 +15,6 @@ dist/
 build/
 *.egg-info/
 __pycache__/
+
+# Documentation
+docs/work_plan.md

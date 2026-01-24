@@ -118,7 +118,9 @@ class RealAIAdapter(AIAdapter):
             # Fallback for now to avoid breaking flow
             return [0.0] * 1536
 
-    async def explain(self, sku_name: str, sku_tags: Dict[str, Any], user_context: Dict[str, Any]) -> str:
+    async def explain(
+        self, sku_name: str, sku_tags: Dict[str, Any], user_context: Dict[str, Any]
+    ) -> str:
         """
         Generate explanation.
         """

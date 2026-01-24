@@ -7,7 +7,6 @@ Create Date: 2026-01-06
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = 'pwd_reset_001'

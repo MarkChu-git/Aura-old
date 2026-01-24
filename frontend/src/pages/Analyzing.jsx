@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -6,7 +6,7 @@ export default function Analyzing() {
     const navigate = useNavigate();
     const location = useLocation();
     const jobId = location.state?.jobId;
-    const [status, setStatus] = useState('initializing');
+    // const [status, setStatus] = useState('initializing');
     const hasNavigated = useRef(false);
 
     useEffect(() => {
@@ -21,7 +21,7 @@ export default function Analyzing() {
 
             try {
                 const job = await api.getJobStatus(jobId);
-                setStatus(job.progress_step);
+                // setStatus(job.progress_step);
 
                 if (job.status === 'succeeded') {
                     hasNavigated.current = true;

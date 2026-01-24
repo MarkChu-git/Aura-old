@@ -9,7 +9,6 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-import pgvector  # Need this if we use vector types in migrations directly? usually sa.types is enough if configured
 
 # revision identifiers, used by Alembic.
 revision: str = '1b5ca8e129db'

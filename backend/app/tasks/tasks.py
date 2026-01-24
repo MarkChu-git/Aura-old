@@ -8,12 +8,10 @@ from app.db.models.input import Input
 from app.db.models.result import Result
 from app.db.models.recommendation import Recommendation
 from app.db.models.sku import SKU
-from app.db.models.sku_embedding import SKUEmbedding
-from app.db.models.sku_embedding import SKUEmbedding
 from app.core.config import settings
 from app.core.logging import job_id_context
 from app.ai.mock_adapter import MockAIAdapter
-from sqlalchemy import select, update
+from sqlalchemy import select
 import logging
 
 logger = logging.getLogger(__name__)
@@ -72,7 +70,7 @@ async def process_job_async(job_id: str):
                 # 3. Embed
                 try:
                     query_text = f"{tags.get('mood')} {tags.get('primary_scent_family')} {' '.join(tags.get('extracted_keywords', []))}"
-                    embedding = await adapter.embed(query_text)
+                    await adapter.embed(query_text)
                 except Exception as e:
                     raise ValueError("EMBEDDING_FAILED") from e
 

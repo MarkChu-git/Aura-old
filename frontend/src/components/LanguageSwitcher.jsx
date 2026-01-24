@@ -4,7 +4,7 @@ import { Globe } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function LanguageSwitcher() {
-    const { t, i18n } = useTranslation();
+    const { i18n } = useTranslation();
     const { changeLanguage } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);

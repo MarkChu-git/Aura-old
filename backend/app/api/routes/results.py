@@ -5,7 +5,6 @@ from sqlalchemy.orm import selectinload
 from app.db.session import AsyncSessionLocal
 from app.db.models.result import Result
 from app.db.models.recommendation import Recommendation
-from app.db.models.sku import SKU
 from app.core.errors import success_response
 
 router = APIRouter()

@@ -42,6 +42,6 @@ async def presign_image_upload(filename: str, content_type: str):
         return success_response(result)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
+    except Exception:
         # Log unexpected error
         raise HTTPException(status_code=500, detail="Failed to generate upload URL")

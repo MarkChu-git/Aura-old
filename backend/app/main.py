@@ -5,7 +5,6 @@ from app.core.config import settings
 from app.core.logging import setup_logging, request_id_context
 from app.core.errors import http_exception_handler
 from app.api.router import api_router
-from app.tasks.celery_app import celery_app # Ensure Celery app is loaded
 
 # Initialize Logging
 print(f"DEBUG: REDIS_URL={settings.REDIS_URL}")

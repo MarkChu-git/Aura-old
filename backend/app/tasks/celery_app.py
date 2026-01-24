@@ -13,4 +13,3 @@ celery_app.conf.update(
 )
 
 # Import tasks module so Celery can find the tasks
-import app.tasks.tasks

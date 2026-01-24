@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 from uuid import UUID
-from sqlalchemy import select, update
+from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.db.models.sku import SKU
 from app.core.config import settings

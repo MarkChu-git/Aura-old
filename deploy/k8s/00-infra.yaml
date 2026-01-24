@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aura-prod
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: aura-config
+  namespace: aura-prod
+data:
+  ENV: "prod"
+  # Service names based on K8s DNS
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_DB: "aura_db"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  # S3 / Object Storage
+  S3_ENDPOINT: "http://minio:9000"
+  S3_BUCKET: "aura-uploads"
+  # AI Configuration
+  DEEPSEEK_MODEL: "deepseek-chat"
+  MODEL_VERSION: "v1-prod"
+  # Authentication
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: aura-secrets
+  namespace: aura-prod
+type: Opaque
+stringData:
+  # CHANGE THESE VALUES IN PRODUCTION!
+  # Use kubectl create secret generic aura-secrets --from-literal=KEY=VALUE ...
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "changethispassword"
+  ADMIN_TOKEN: "changethisadmintoken"
+  DEEPSEEK_API_KEY: "sk-changethis"
+  OPENROUTER_API_KEY: "sk-changethis"
+  S3_ACCESS_KEY: "minioadmin"
+  S3_SECRET_KEY: "minioadmin"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aura-ingress
+  namespace: aura-prod
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod" # Uncomment if using CertManager
+spec:
+  rules:
+  - host: aura.example.com
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      - path: /docs
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      - path: /openapi.json
+        pathType: Prefix
+        backend:
+          service:
+            name: backend
+            port:
+              number: 8000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend
+            port:
+              number: 80

@@ -1,6 +1,6 @@
 from typing import Any, Optional
 from uuid import UUID, uuid4
-from fastapi import Request, status
+from fastapi import Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from app.core.logging import request_id_context

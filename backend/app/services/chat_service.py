@@ -88,7 +88,7 @@ class ChatService:
         """
         try:
             from app.db.session import AsyncSessionLocal
-            from sqlalchemy import func, desc
+            from sqlalchemy import func
             
             async with AsyncSessionLocal() as session:
                 # 1. Strict Signal Check (DB Count)

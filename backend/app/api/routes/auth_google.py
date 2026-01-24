@@ -62,7 +62,7 @@ async def google_auth(
             detail="Google email not verified"
         )
         
-    except GoogleAuthError as e:
+    except GoogleAuthError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Google credential"

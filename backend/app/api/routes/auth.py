@@ -1,15 +1,19 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 from typing import Any
+import secrets
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from pydantic import BaseModel
 
 from app.core import security
 from app.core.config import settings
-from app.api.deps import get_db
+from app.api.deps import get_db, get_current_active_user
 from app.db.models.user import User
 from app.schemas.token import Token
+from app.schemas.user import UserCreate, User as UserSchema, PasswordChange, PasswordResetRequest, PasswordReset
+from app.db.models.password_reset import PasswordResetToken
 
 router = APIRouter()
 
@@ -41,8 +45,6 @@ async def login_access_token(
         "access_token": access_token,
         "token_type": "bearer",
     }
-
-from app.schemas.user import UserCreate, User as UserSchema
 
 @router.post("/register", response_model=UserSchema)
 async def register(
@@ -81,8 +83,6 @@ async def register(
     
     return user
 
-from app.api.deps import get_current_active_user
-
 @router.get("/me", response_model=UserSchema)
 def read_user_me(
     current_user: User = Depends(get_current_active_user),
@@ -91,8 +91,6 @@ def read_user_me(
     Get current user.
     """
     return current_user
-
-from app.schemas.user import PasswordChange
 
 @router.post("/change-password")
 async def change_password(
@@ -129,11 +127,6 @@ async def change_password(
     await db.commit()
     
     return {"message": "Password updated successfully"}
-
-from app.schemas.user import PasswordResetRequest, PasswordReset
-from app.db.models.password_reset import PasswordResetToken
-from datetime import datetime, timedelta
-import secrets
 
 @router.post("/forgot-password")
 async def forgot_password(
@@ -184,7 +177,7 @@ async def reset_password(
     result = await db.execute(
         select(PasswordResetToken).filter(
             PasswordResetToken.token == reset_data.token,
-            PasswordResetToken.used == False
+            PasswordResetToken.used.is_(False)
         )
     )
     token_record = result.scalars().first()
@@ -227,8 +220,6 @@ async def reset_password(
     await db.commit()
     
     return {"message": "Password has been reset successfully"}
-
-from pydantic import BaseModel
 
 class LanguageUpdate(BaseModel):
     language: str

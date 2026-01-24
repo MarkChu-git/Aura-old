@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText, Image as ImageIcon } from 'lucide-react';
+import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function Profile() {
@@ -14,8 +14,8 @@ export default function Profile() {
     const [saved, setSaved] = useState([]); // Mocked for now
 
     const [loadingProfile, setLoadingProfile] = useState(true);
-    const [loadingHistory, setLoadingHistory] = useState(true);
-    const [error, setError] = useState('');
+    const [loadingHistory, setLoadingHistory] = useState(true); // eslint-disable-line no-unused-vars
+    const [error, setError] = useState(''); // eslint-disable-line no-unused-vars
 
     // Password change state
     const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -57,7 +57,7 @@ export default function Profile() {
         try {
             await api.clearHistory();
             setHistory([]);
-        } catch (err) {
+        } catch {
             alert("Failed to clear history");
         }
     };
@@ -120,6 +120,7 @@ export default function Profile() {
 
     if (loadingProfile) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>{t('profile.loading')}</div>;
 
+    // eslint-disable-next-line no-unused-vars
     const Section = ({ title, icon: Icon, children }) => (
         <section style={{ marginBottom: '3rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>

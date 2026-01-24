@@ -1,4 +1,4 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 from datetime import datetime
 import asyncio
 from sqlalchemy import select

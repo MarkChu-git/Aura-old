@@ -88,7 +88,7 @@ class StorageService:
         # Note: Size check here is trusting the client if passed. 
         # Real S3 policy can enforce content-length-range.
         if size_bytes and size_bytes > MAX_SIZE:
-             raise ValueError(f"File too large. Max size: 5MB")
+             raise ValueError("File too large. Max size: 5MB")
 
     @classmethod
     def presign(cls, filename: str, content_type: str) -> Dict[str, str]:

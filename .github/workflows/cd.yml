@@ -1,0 +1,94 @@
+name: CD
+
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    strategy:
+      matrix:
+        include:
+          - context: ./backend
+            image: backend
+          - context: ./frontend
+            image: frontend
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Log in to the Container registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/${{ matrix.image }}
+        tags: |
+          type=semver,pattern={{version}}
+          type=sha,format=long
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ${{ matrix.context }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+
+    - name: Set Kubernetes Context
+      uses: azure/k8s-set-context@v3
+      with:
+        method: kubeconfig
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+    - name: Deploy to Kubernetes
+      env:
+        # Get the tag from the ref (e.g., refs/tags/v1.0.0 -> v1.0.0)
+        IMAGE_TAG: ${{ github.ref_name }}
+        REGISTRY: ${{ env.REGISTRY }}
+        REPO: ${{ env.IMAGE_NAME }}
+      run: |
+        # Replace image tags in manifests
+        # This is a simple substitution strategy. For more complex setups, use Helm or Kustomize.
+        
+        # Backend
+        sed -i "s|image: .*backend:.*|image: $REGISTRY/$REPO/backend:$IMAGE_TAG|g" deploy/k8s/backend.yaml
+        
+        # Worker (uses same image as backend)
+        sed -i "s|image: .*backend:.*|image: $REGISTRY/$REPO/backend:$IMAGE_TAG|g" deploy/k8s/worker.yaml
+        
+        # Frontend
+        sed -i "s|image: .*frontend:.*|image: $REGISTRY/$REPO/frontend:$IMAGE_TAG|g" deploy/k8s/frontend.yaml
+
+        # Apply manifests
+        kubectl apply -f deploy/k8s/

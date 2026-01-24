@@ -4,7 +4,7 @@ Google Authentication Module
 Handles Google ID token verification and user authentication.
 """
 import logging
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.core.config import settings

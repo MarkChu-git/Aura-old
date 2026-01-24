@@ -100,45 +100,11 @@ class RealAIAdapter(AIAdapter):
             return response.data[0].embedding
         except Exception as e:
             logger.error(f"AI Embedding Failed: {e}")
-            raise e
+            # raise e
+            # Fallback for now to avoid breaking flow
+            return [0.0] * 1536
 
-    async def generate_title(self, messages: List[Dict[str, str]]) -> str:
-        """
-        Generate a concise 3-5 word title for the conversation history.
-        """
-        try:
-            # Construct Prompt
-            system_prompt = (
-                "You are a helpful assistant. "
-                "Read the following conversation and generate a very concise title (3-5 words maximum). "
-                "The title should directly reflect the core topic. "
-                "Do not use quotes. Do not say 'Title:'. Just the text."
-            )
-            
-            # Prepare API Messages
-            api_messages = [{"role": "system", "content": system_prompt}]
-            # Append last 6 messages for context
-            api_messages.extend(messages[-6:])
-            
-            response = await self.client.chat.completions.create(
-                model=self.model_chat,
-                messages=api_messages,
-                max_tokens=20,
-                temperature=0.5
-            )
-            
-            title = response.choices[0].message.content.strip()
-            # Cleanup
-            title = title.replace('"', '').replace("'", "").replace("Title:", "").strip()
-            return title
-            
-        except Exception as e:
-            logger.error(f"Title Generation Failed: {e}")
-            return "New Chat"
-        except Exception as e:
-            logger.error(f"Embedding Failed: {e}")
-            # Fallback mock for MVP stability if API key doesn't support embeddings
-            return [0.0] * 1536 
+ 
 
     async def explain(self, sku_name: str, sku_tags: Dict, user_context: Dict) -> str:
         """

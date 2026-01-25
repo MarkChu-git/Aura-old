@@ -5,29 +5,51 @@ class InkParticle {
     constructor(x, y) {
         this.x = x;
         this.y = y;
-        this.size = Math.random() * 20 + 10; // Random size
-        this.opacity = 0.8; // Initial opacity
-        this.growth = 0.5; // Growth rate
-        this.fade = 0.015; // Fade rate
+        this.size = 0; // Start small
+        this.maxSize = Math.random() * 80 + 40; // Max ripple size
+        this.opacity = 0.5; // Starts fainter (was 1)
+        // Easing the expansion: fast start, slow end
+        this.age = 0;
+        this.life = Math.random() * 100 + 100; // longer life
+
+        // Color palette: Very subtle, watery ink colors
+        const colors = [
+            '100, 149, 237', // Cornflower Blue
+            '216, 191, 216', // Thistle (Purple)
+            '175, 238, 238', // Pale Turquoise
+            '160, 160, 160'  // Light Gray (Ink)
+        ];
+        this.color = colors[Math.floor(Math.random() * colors.length)];
     }
 
     update() {
-        this.size += this.growth;
-        this.opacity -= this.fade;
+        this.age++;
+        // Logarithmic growth for "ripple" feel
+        const progress = this.age / this.life;
+        this.size = this.maxSize * Math.sin(progress * Math.PI / 2); // Ease out
+
+        // Fade out
+        this.opacity = 1 - progress;
     }
 
     draw(ctx) {
-        ctx.fillStyle = `rgba(0, 0, 0, ${this.opacity * 0.08})`; // Very faint, smoky look
         ctx.beginPath();
+        // Radial gradient to simulate the ring ripple
+        const gradient = ctx.createRadialGradient(
+            this.x, this.y, this.size * 0.2, // Inner radius (hole in ripple)
+            this.x, this.y, this.size
+        );
+
+        // Inner edge (transparent)
+        gradient.addColorStop(0, `rgba(${this.color}, 0)`);
+        // Middle (ink body) - significantly reduced opacity for "light watercolor" feel
+        gradient.addColorStop(0.5, `rgba(${this.color}, ${this.opacity * 0.4})`);
+        // Outer edge (fading)
+        gradient.addColorStop(1, `rgba(${this.color}, 0)`);
+
+        ctx.fillStyle = gradient;
         ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
         ctx.fill();
-
-        // Inner ring to make it look like a ripple
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = `rgba(0, 0, 0, ${this.opacity * 0.05})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 0.8, 0, Math.PI * 2);
-        ctx.stroke();
     }
 }
 
@@ -108,7 +130,7 @@ export default function Background() {
             width: '100vw',
             height: '100vh',
             zIndex: -1,
-            background: 'hsl(var(--color-bg))', // Base canvas color
+            background: 'transparent', // Transparent to let body gradient show
             overflow: 'hidden'
         }}>
             {/* The Blur Filter is CRITICAL for the "Ink Wash" look */}

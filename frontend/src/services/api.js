@@ -275,6 +275,14 @@ export const api = {
             });
             if (!response.ok) throw new Error('Failed to toggle announcement');
             return response.json();
+        },
+        pinAnnouncement: async (id) => {
+            const response = await fetch(`${API_BASE}/admin/announcements/${id}/pin`, {
+                method: 'PUT',
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to pin announcement');
+            return response.json();
         }
     },
 

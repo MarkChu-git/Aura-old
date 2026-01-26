@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
-import { ArrowLeft, Plus, Trash2, Power, PowerOff, Eye, EyeOff, FileText } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Power, PowerOff, Eye, EyeOff, FileText, Pin, PinOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -116,6 +116,15 @@ export default function AdminAnnouncements() {
         }
     };
 
+    const handlePin = async (id) => {
+        try {
+            await api.admin.pinAnnouncement(id);
+            await loadAnnouncements();
+        } catch (error) {
+            alert(error.message || 'Failed to pin announcement');
+        }
+    };
+
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric',
@@ -202,8 +211,10 @@ export default function AdminAnnouncements() {
                             style={{
                                 padding: '1.5rem',
                                 borderRadius: '1rem',
-                                border: '1px solid hsl(var(--color-border))',
-                                background: announcement.is_active
+                                border: announcement.is_pinned ? '2px solid #667eea' : '1px solid hsl(var(--color-border))',
+                                background: announcement.is_pinned
+                                    ? 'rgba(102, 126, 234, 0.05)'
+                                    : announcement.is_active
                                     ? 'hsl(var(--color-surface) / 0.8)'
                                     : 'hsl(var(--color-surface) / 0.4)',
                                 opacity: announcement.is_active ? 1 : 0.6
@@ -211,9 +222,12 @@ export default function AdminAnnouncements() {
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                                 <div style={{ flex: 1, marginRight: '1rem' }}>
-                                    <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: '0.5rem' }}>
-                                        {announcement.title}
-                                    </h3>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                        <h3 style={{ fontSize: '1.25rem', fontWeight: 600, marginBottom: 0 }}>
+                                            {announcement.is_pinned && <Pin size={18} style={{ color: '#667eea', marginRight: '0.5rem' }} />}
+                                            {announcement.title}
+                                        </h3>
+                                    </div>
                                     <div style={{ color: 'hsl(var(--color-text-muted))', fontSize: '0.9rem' }}>
                                         {formatDate(announcement.created_at)}
                                     </div>
@@ -225,14 +239,41 @@ export default function AdminAnnouncements() {
                                             borderRadius: '1rem',
                                             fontSize: '0.85rem',
                                             fontWeight: 500,
-                                            background: announcement.is_active
-                                                ? 'rgba(16, 185, 129, 0.1)'
-                                                : 'rgba(239, 68, 68, 0.1)',
-                                            color: announcement.is_active ? '#059669' : '#DC2626'
+                                            background: announcement.is_pinned
+                                                ? 'rgba(102, 126, 234, 0.15)'
+                                                : 'rgba(102, 126, 234, 0.05)',
+                                            color: '#667eea'
                                         }}
                                     >
-                                        {announcement.is_active ? 'Active' : 'Inactive'}
+                                        {announcement.is_pinned ? 'Pinned' : 'Pin'}
                                     </div>
+                                    <button
+                                        onClick={() => handlePin(announcement.id)}
+                                        title={announcement.is_pinned ? 'Unpin' : 'Pin'}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            width: '36px',
+                                            height: '36px',
+                                            borderRadius: '0.5rem',
+                                            border: '1px solid hsl(var(--color-border))',
+                                            background: 'transparent',
+                                            cursor: 'pointer',
+                                            color: 'hsl(var(--color-text-main))',
+                                            transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.target.style.borderColor = '#667eea';
+                                            e.target.style.background = 'rgba(102, 126, 234, 0.1)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.target.style.borderColor = 'hsl(var(--color-border))';
+                                            e.target.style.background = 'transparent';
+                                        }}
+                                    >
+                                        {announcement.is_pinned ? <PinOff size={16} /> : <Pin size={16} />}
+                                    </button>
                                     <button
                                         onClick={() => handleToggle(announcement.id)}
                                         title={announcement.is_active ? 'Deactivate' : 'Activate'}

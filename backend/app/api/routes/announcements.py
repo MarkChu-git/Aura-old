@@ -14,7 +14,7 @@ async def get_active_announcements():
         result = await session.execute(
             select(Announcement)
             .filter(Announcement.is_active == True)
-            .order_by(Announcement.created_at.desc())
+            .order_by(Announcement.is_pinned.desc(), Announcement.created_at.desc())
         )
         announcements = result.scalars().all()
         return success_response(
@@ -23,6 +23,7 @@ async def get_active_announcements():
                     "id": a.id,
                     "title": a.title,
                     "content": a.content,
+                    "is_pinned": a.is_pinned,
                     "created_at": a.created_at.isoformat(),
                 }
                 for a in announcements

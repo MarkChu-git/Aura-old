@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { Megaphone, Calendar, X } from 'lucide-react';
+import { Megaphone, Calendar, X, Pin } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -125,6 +125,10 @@ export default function Announcements() {
                             style={{
                                 padding: '2rem',
                                 borderRadius: '1rem',
+                                border: announcement.is_pinned ? '2px solid #667eea' : 'none',
+                                background: announcement.is_pinned
+                                    ? 'rgba(102, 126, 234, 0.03)'
+                                    : 'transparent',
                                 position: 'relative',
                                 transition: 'all 0.3s ease'
                             }}
@@ -171,15 +175,18 @@ export default function Announcements() {
                                 <span>{formatDate(announcement.created_at)}</span>
                             </div>
 
-                            <h2 style={{
-                                fontSize: '1.5rem',
-                                fontWeight: '600',
-                                marginBottom: '1rem',
-                                paddingRight: '2rem',
-                                color: 'hsl(var(--color-text-main))'
-                            }}>
-                                {announcement.title}
-                            </h2>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+                                {announcement.is_pinned && <Pin size={18} style={{ color: '#667eea' }} />}
+                                <h2 style={{
+                                    fontSize: '1.5rem',
+                                    fontWeight: '600',
+                                    marginBottom: 0,
+                                    paddingRight: '2rem',
+                                    color: 'hsl(var(--color-text-main))'
+                                }}>
+                                    {announcement.title}
+                                </h2>
+                            </div>
 
                             <div style={{
                                 fontSize: '1rem',

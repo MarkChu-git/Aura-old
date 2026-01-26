@@ -83,7 +83,7 @@ export const api = {
     },
 
     register: async (email, password) => {
-        const response = await fetch(`${API_BASE}/v1/auth/register`, {
+        const response = await fetch(`${API_BASE}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -207,6 +207,99 @@ export const api = {
             body: JSON.stringify({ language })
         });
         if (!response.ok) throw new Error('Failed to update language preference');
+        return response.json();
+    },
+
+    // Admin methods
+    admin: {
+        getUsers: async (skip = 0, limit = 50) => {
+            const response = await fetch(`${API_BASE}/admin/users?skip=${skip}&limit=${limit}`, {
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to fetch users');
+            return response.json();
+        },
+        banUser: async (userId) => {
+            const response = await fetch(`${API_BASE}/admin/users/${userId}/ban`, {
+                method: 'POST',
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to ban user');
+            return response.json();
+        },
+        unbanUser: async (userId) => {
+            const response = await fetch(`${API_BASE}/admin/users/${userId}/ban`, {
+                method: 'DELETE',
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to unban user');
+            return response.json();
+        },
+        sendMessage: async (userId, content) => {
+            const response = await fetch(`${API_BASE}/admin/users/${userId}/messages`, {
+                method: 'POST',
+                headers: await getHeaders(),
+                body: JSON.stringify({ content })
+            });
+            if (!response.ok) throw new Error('Failed to send message');
+            return response.json();
+        },
+        getAnnouncements: async () => {
+            const response = await fetch(`${API_BASE}/admin/announcements`, {
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to fetch announcements');
+            return response.json();
+        },
+        createAnnouncement: async (title, content) => {
+            const response = await fetch(`${API_BASE}/admin/announcements`, {
+                method: 'POST',
+                headers: await getHeaders(),
+                body: JSON.stringify({ title, content })
+            });
+            if (!response.ok) throw new Error('Failed to create announcement');
+            return response.json();
+        },
+        deleteAnnouncement: async (id) => {
+            const response = await fetch(`${API_BASE}/admin/announcements/${id}`, {
+                method: 'DELETE',
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to delete announcement');
+            return response.json();
+        },
+        toggleAnnouncement: async (id) => {
+            const response = await fetch(`${API_BASE}/admin/announcements/${id}/toggle`, {
+                method: 'PUT',
+                headers: await getHeaders()
+            });
+            if (!response.ok) throw new Error('Failed to toggle announcement');
+            return response.json();
+        }
+    },
+
+    // Public announcements
+    getActiveAnnouncements: async () => {
+        const response = await fetch(`${API_BASE}/announcements`);
+        if (!response.ok) throw new Error('Failed to fetch announcements');
+        return response.json();
+    },
+
+    // User messages
+    getMessages: async () => {
+        const response = await fetch(`${API_BASE}/messages`, {
+            headers: await getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to fetch messages');
+        return response.json();
+    },
+
+    markMessageRead: async (messageId) => {
+        const response = await fetch(`${API_BASE}/messages/${messageId}/read`, {
+            method: 'PUT',
+            headers: await getHeaders()
+        });
+        if (!response.ok) throw new Error('Failed to mark message as read');
         return response.json();
     }
 };

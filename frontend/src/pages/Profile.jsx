@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText } from 'lucide-react';
+import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import UserMessages from '../components/UserMessages';
 
 export default function Profile() {
     const { isAuthenticated, logout } = useAuth();
@@ -150,6 +151,13 @@ export default function Profile() {
                 <h1 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>{t('profile.title')}</h1>
                 <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '1.1rem' }}>{t('profile.subtitle')}</p>
             </div>
+
+            {/* Messages Section */}
+            {user?.role !== 'admin' && (
+                <Section title="Messages" icon={MessageSquare}>
+                    <UserMessages />
+                </Section>
+            )}
 
             {/* Account Section */}
             <Section title={t('profile.sections.account')} icon={User}>

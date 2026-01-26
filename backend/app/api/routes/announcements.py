@@ -1,0 +1,30 @@
+from fastapi import APIRouter
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import AsyncSessionLocal
+from app.db.models.announcement import Announcement
+from app.core.errors import success_response
+
+router = APIRouter()
+
+
+@router.get("")
+async def get_active_announcements():
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(Announcement)
+            .filter(Announcement.is_active == True)
+            .order_by(Announcement.created_at.desc())
+        )
+        announcements = result.scalars().all()
+        return success_response(
+            [
+                {
+                    "id": a.id,
+                    "title": a.title,
+                    "content": a.content,
+                    "created_at": a.created_at.isoformat(),
+                }
+                for a in announcements
+            ]
+        )

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut } from 'lucide-react';
+import { Menu, X, LogOut, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import LiquidButton from './LiquidButton';
@@ -11,7 +11,8 @@ export default function Header() {
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const location = useLocation();
-    const { isAuthenticated, openAuthModal, logout } = useAuth();
+    const { isAuthenticated, user, openAuthModal, logout } = useAuth();
+    const isAdmin = user?.role === 'admin';
 
     const isActive = (path) => location.pathname === path;
 
@@ -58,20 +59,25 @@ export default function Header() {
                     {[
                         { path: '/', label: t('header.home') },
                         { path: '/chat', label: t('header.explore') },
-                        { path: '/profile', label: t('header.profile') }
+                        { path: '/profile', label: t('header.profile') },
+                        ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : [])
                     ].map(({ path, label }) => (
                         <Link
                             key={path}
                             to={path}
                             style={{
-                                opacity: isActive(path) ? 1 : 0.6,
+                                opacity: isActive(path) ?1 : 0.6,
                                 fontWeight: isActive(path) ? '500' : '400',
                                 fontSize: '0.9375rem',
                                 position: 'relative',
                                 transition: 'all var(--transition-base)',
-                                letterSpacing: '0.01em'
+                                letterSpacing: '0.01em',
+                                ...(path === '/admin' ? {
+                                    color: '#667eea'
+                                } : {})
                             }}
                         >
+                            {path === '/admin' && <Shield size={14} style={{ display: 'inline', marginRight: '0.25rem' }} />}
                             {label}
                             {isActive(path) && (
                                 <span style={{
@@ -80,7 +86,7 @@ export default function Header() {
                                     left: 0,
                                     right: 0,
                                     height: '1px',
-                                    background: 'hsl(var(--color-text-main))',
+                                    background: path === '/admin' ? '#667eea' : 'hsl(var(--color-text-main))',
                                     borderRadius: '1px'
                                 }} />
                             )}
@@ -175,7 +181,8 @@ export default function Header() {
                     {[
                         { path: '/', label: t('header.home') },
                         { path: '/chat', label: t('header.explore') },
-                        { path: '/profile', label: t('header.profile') }
+                        { path: '/profile', label: t('header.profile') },
+                        ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : [])
                     ].map(({ path, label }) => (
                         <Link
                             key={path}
@@ -184,9 +191,13 @@ export default function Header() {
                             style={{
                                 fontSize: '1.1rem',
                                 fontWeight: isActive(path) ? '500' : '400',
-                                opacity: isActive(path) ? 1 : 0.7
+                                opacity: isActive(path) ?1 : 0.7,
+                                ...(path === '/admin' ? {
+                                    color: '#667eea'
+                                } : {})
                             }}
                         >
+                            {path === '/admin' && <Shield size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />}
                             {label}
                         </Link>
                     ))}

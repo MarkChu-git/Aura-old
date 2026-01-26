@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X, Megaphone } from 'lucide-react';
-import { api } from '../services/api';
+import { api } from '../services/api.js';
+import LiquidGlass from 'liquid-glass-react';
 
 export default function AnnouncementBanner() {
     const [announcements, setAnnouncements] = useState([]);
@@ -55,16 +56,18 @@ export default function AnnouncementBanner() {
     }
 
     return (
-        <div
+        <LiquidGlass
+            displacementScale={70}
+            blurAmount={0.0625}
+            overLight={true}
+            elasticity={0.15}
             style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#fff',
                 padding: '1rem',
                 position: 'relative',
             }}
         >
             <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '1200px', margin: '0 auto' }}>
-                <Megaphone size={24} style={{ flexShrink: 0 }} />
+                <Megaphone size={24} style={{ flexShrink: 0, color: '#667eea' }} />
                 <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600, marginBottom: '0.25rem' }}>
                         {currentAnnouncement.title}
@@ -74,47 +77,51 @@ export default function AnnouncementBanner() {
                     </div>
                 </div>
                 {announcements.length > 1 && (
-                    <div style={{ display: 'flex', gap: '0.25rem', marginRight: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', marginRight: '0.5rem' }}>
                         {announcements.map((_, idx) => (
-                            <button
+                            <LiquidGlass
                                 key={idx}
+                                displacementScale={70}
+                                blurAmount={0.0625}
+                                overLight={true}
+                                elasticity={0.15}
+                                cornerRadius={999}
+                                padding="4px"
                                 onClick={() => {
                                     setCurrentIndex(idx);
                                     setCurrentAnnouncement(announcements[idx]);
                                 }}
                                 style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    cursor: 'pointer',
                                     width: '8px',
                                     height: '8px',
-                                    borderRadius: '50%',
-                                    border: 'none',
-                                    background: idx === currentIndex ? '#fff' : 'rgba(255, 255, 255, 0.5)',
-                                    cursor: 'pointer',
-                                    padding: 0
+                                    background: idx === currentIndex ? 'rgba(102, 126, 234, 0.8)' : 'rgba(102, 126, 234, 0.3)'
                                 }}
                             />
                         ))}
                     </div>
                 )}
-                <button
+                <LiquidGlass
+                    displacementScale={70}
+                    blurAmount={0.0625}
+                    overLight={true}
+                    elasticity={0.15}
+                    cornerRadius={8}
+                    padding="0.25rem"
                     onClick={() => handleDismiss(currentAnnouncement.id)}
                     style={{
-                        background: 'transparent',
-                        border: 'none',
-                        color: '#fff',
-                        cursor: 'pointer',
-                        padding: '0.25rem',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        borderRadius: '0.25rem',
-                        transition: 'background 0.2s'
+                        cursor: 'pointer'
                     }}
-                    onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
-                    onMouseLeave={(e) => e.target.style.background = 'transparent'}
                 >
                     <X size={20} />
-                </button>
+                </LiquidGlass>
             </div>
-        </div>
+        </LiquidGlass>
     );
 }

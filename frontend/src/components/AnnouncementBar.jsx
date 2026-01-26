@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { api } from '../../services/api';
+import { api } from '../services/api.js';
 import { X, Info } from 'lucide-react';
+import LiquidGlass from 'liquid-glass-react';
 
 export default function AnnouncementBar() {
     const [announcement, setAnnouncement] = useState(null);
@@ -52,10 +53,12 @@ export default function AnnouncementBar() {
     }
 
     return (
-        <div
+        <LiquidGlass
+            displacementScale={70}
+            blurAmount={0.0625}
+            overLight={true}
+            elasticity={0.15}
             style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: '#fff',
                 padding: '1rem',
                 display: 'flex',
                 alignItems: 'center',
@@ -63,7 +66,7 @@ export default function AnnouncementBar() {
                 position: 'relative'
             }}
         >
-            <Info size={20} style={{ flexShrink: 0 }} />
+            <Info size={20} style={{ flexShrink: 0, color: '#667eea' }} />
             <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.25rem' }}>
                     {announcement.title}
@@ -72,25 +75,23 @@ export default function AnnouncementBar() {
                     {announcement.content}
                 </div>
             </div>
-            <button
+            <LiquidGlass
+                displacementScale={70}
+                blurAmount={0.0625}
+                overLight={true}
+                elasticity={0.15}
+                cornerRadius={8}
+                padding="0.25rem"
                 onClick={handleDismiss}
                 style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#fff',
-                    cursor: 'pointer',
-                    padding: '0.25rem',
-                    borderRadius: '0.25rem',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    transition: 'all 0.2s'
+                    cursor: 'pointer'
                 }}
-                onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}
-                onMouseLeave={(e) => e.target.style.background = 'transparent'}
             >
                 <X size={18} />
-            </button>
-        </div>
+            </LiquidGlass>
+        </LiquidGlass>
     );
 }

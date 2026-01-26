@@ -2,6 +2,7 @@
     "header": {
         "home": "首页",
         "explore": "探索",
+        "announcements": "公告",
         "profile": "个人资料",
         "signIn": "登录",
         "getStarted": "开始使用",

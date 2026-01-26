@@ -6,6 +6,7 @@ import Explore from './pages/Explore';
 import Analyzing from './pages/Analyzing';
 import Result from './pages/Result';
 import Profile from './pages/Profile';
+import Announcements from './pages/Announcements';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Login from './pages/Login';
@@ -33,6 +34,7 @@ function App() {
           <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
           <Route path="/chat" element={<Layout><Chat /></Layout>} />
           <Route path="/explore" element={<Layout><Explore /></Layout>} />
+          <Route path="/announcements" element={<Layout><Announcements /></Layout>} />
           <Route path="/analyzing" element={<Layout><Analyzing /></Layout>} />
           <Route path="/result" element={<Layout><Result /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
-import { ArrowLeft, Search, Shield, ShieldOff, MessageSquare, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, Search, Shield, ShieldOff, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function AdminUsers() {

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from app.db.session import AsyncSessionLocal
 from app.db.models.user import User
 from app.db.models.user_message import UserMessage
+from app.db.models.audit_log import AuditLog
 from app.api.deps import get_current_admin_user
 from app.core.errors import success_response
 
@@ -54,25 +55,45 @@ async def list_users(skip: int = 0, limit: int = 50, _=Depends(get_current_admin
 
 
 @router.post("/{user_id}/ban")
-async def ban_user(user_id: int, _=Depends(get_current_admin_user)):
+async def ban_user(user_id: int, admin_user: User = Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(User).filter(User.id == user_id))
         user = result.scalars().first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         user.is_active = False
+
+        # Create audit log entry
+        audit_log = AuditLog(
+            admin_id=admin_user.id,
+            action="ban_user",
+            target_user_id=user_id,
+            details=f"Admin {admin_user.email} banned user {user.email}",
+        )
+        session.add(audit_log)
+
         await session.commit()
         return success_response({"message": "User banned successfully"})
 
 
 @router.delete("/{user_id}/ban")
-async def unban_user(user_id: int, _=Depends(get_current_admin_user)):
+async def unban_user(user_id: int, admin_user: User = Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(User).filter(User.id == user_id))
         user = result.scalars().first()
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         user.is_active = True
+
+        # Create audit log entry
+        audit_log = AuditLog(
+            admin_id=admin_user.id,
+            action="unban_user",
+            target_user_id=user_id,
+            details=f"Admin {admin_user.email} unbanned user {user.email}",
+        )
+        session.add(audit_log)
+
         await session.commit()
         return success_response({"message": "User unbanned successfully"})
 

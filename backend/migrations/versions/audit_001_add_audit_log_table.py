@@ -35,12 +35,6 @@ def upgrade():
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_audit_logs_id"),
-        "audit_logs",
-        ["id"],
-        unique=False,
-    )
-    op.create_index(
         op.f("ix_audit_logs_admin_id"),
         "audit_logs",
         ["admin_id"],
@@ -64,5 +58,4 @@ def downgrade():
     op.drop_index(op.f("ix_audit_logs_target_user_id"), table_name="audit_logs")
     op.drop_index(op.f("ix_audit_logs_action"), table_name="audit_logs")
     op.drop_index(op.f("ix_audit_logs_admin_id"), table_name="audit_logs")
-    op.drop_index(op.f("ix_audit_logs_id"), table_name="audit_logs")
     op.drop_table("audit_logs")

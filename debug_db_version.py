@@ -1,6 +1,5 @@
 import asyncio
 import asyncpg
-import os
 
 async def main():
     try:

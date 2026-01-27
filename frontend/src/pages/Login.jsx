@@ -20,16 +20,19 @@ export default function Login() {
         const renderGoogleButton = () => {
             if (window.google?.accounts?.id && googleButtonRef.current) {
                 // Initialize the client
+                console.log("Initializing Google Sign-In client with ID:", import.meta.env.VITE_GOOGLE_CLIENT_ID);
                 window.google.accounts.id.initialize({
                     client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
                     callback: async (response) => {
+                        console.log("Google Sign-In callback received", response);
                         try {
                             setLoading(true);
                             const data = await api.googleAuth(response.credential);
+                            console.log("Backend auth success:", data);
                             login(data.access_token);
                             navigate(from, { replace: true });
                         } catch (error) {
-                            console.error("Google auth error:", error);
+                            console.error("Google auth error details:", error);
                             setError(error.message || t('auth.error'));
                         } finally {
                             setLoading(false);

@@ -62,8 +62,9 @@ def verify_google_token(credential: str) -> Dict[str, Any]:
 
     except ValueError as e:
         # Invalid token
-        logger.warning(f"Google token verification failed: {str(e)}")
-        raise GoogleAuthError("Invalid Google credential")
+        error_msg = str(e)
+        logger.warning(f"Google token verification failed: {error_msg}")
+        raise GoogleAuthError(f"Invalid Google credential: {error_msg}")
     except Exception as e:
         logger.error(f"Unexpected error during Google auth: {str(e)}")
         raise GoogleAuthError("Authentication failed")

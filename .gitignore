@@ -21,3 +21,8 @@ docs/work_plan.md
 
 # OpenCode
 opencode.json
+
+# Python
+venv/
+env/
+.venv/

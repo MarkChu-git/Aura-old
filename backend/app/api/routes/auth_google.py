@@ -64,9 +64,9 @@ async def google_auth(auth_data: GoogleAuthRequest, db: AsyncSession = Depends(g
             status_code=status.HTTP_400_BAD_REQUEST, detail="Google email not verified"
         )
 
-    except GoogleAuthError:
+    except GoogleAuthError as e:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Google credential"
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
         )
 
     # Find or create user by google_sub

@@ -28,9 +28,10 @@ def upgrade():
             "created_at",
             sa.DateTime(timezone=True),
             server_default=sa.text("now()"),
-            nullable=True,
+            nullable=False,
         ),
         sa.ForeignKeyConstraint(["admin_id"], ["users.id"], ondelete="SET NULL"),
+        sa.ForeignKeyConstraint(["target_user_id"], ["users.id"], ondelete="SET NULL"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(

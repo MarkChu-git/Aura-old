@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
-import { ArrowLeft, Plus, Trash2, Power, PowerOff, Eye, EyeOff, FileText, Pin, PinOff } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Power, PowerOff, Eye, FileText, Pin, PinOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';

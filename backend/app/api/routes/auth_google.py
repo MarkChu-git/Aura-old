@@ -65,9 +65,7 @@ async def google_auth(auth_data: GoogleAuthRequest, db: AsyncSession = Depends(g
         )
 
     except GoogleAuthError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
-        )
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
     # Find or create user by google_sub
     result = await db.execute(select(User).where(User.google_sub == google_user["sub"]))

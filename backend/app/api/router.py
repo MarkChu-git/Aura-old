@@ -25,9 +25,7 @@ api_router.include_router(admin_skus.router, prefix="/admin/skus", tags=["admin"
 api_router.include_router(
     admin_taxonomy.router, prefix="/admin/taxonomy", tags=["admin"]
 )
-api_router.include_router(
-    admin_users.router, prefix="/admin/users", tags=["admin"]
-)
+api_router.include_router(admin_users.router, prefix="/admin/users", tags=["admin"])
 api_router.include_router(
     admin_announcements.router, prefix="/admin/announcements", tags=["admin"]
 )

@@ -19,7 +19,7 @@ depends_on = None
 def upgrade():
     op.add_column(
         "announcements",
-        sa.Column("is_pinned", sa.Boolean(), server_default="false", nullable=True)
+        sa.Column("is_pinned", sa.Boolean(), server_default="false", nullable=True),
     )
 
 

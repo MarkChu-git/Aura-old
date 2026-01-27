@@ -30,9 +30,7 @@ class UserResponse(BaseModel):
 
 
 @router.get("", response_model=None)
-async def list_users(
-    skip: int = 0, limit: int = 50, _=Depends(get_current_admin_user)
-):
+async def list_users(skip: int = 0, limit: int = 50, _=Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(User).offset(skip).limit(limit).order_by(User.created_at.desc())
@@ -48,7 +46,7 @@ async def list_users(
                 "language": u.language,
                 "google_sub": u.google_sub,
                 "picture_url": u.picture_url,
-                "created_at": u.created_at.isoformat() if u.created_at else None
+                "created_at": u.created_at.isoformat() if u.created_at else None,
             }
             for u in users
         ]

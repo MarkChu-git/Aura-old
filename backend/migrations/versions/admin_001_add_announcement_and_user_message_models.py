@@ -50,9 +50,7 @@ def upgrade():
             server_default=sa.text("now()"),
             nullable=True,
         ),
-        sa.ForeignKeyConstraint(
-            ["user_id"], ["users.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
@@ -70,15 +68,9 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_index(
-        op.f("ix_user_messages_user_id"), table_name="user_messages"
-    )
-    op.drop_index(
-        op.f("ix_user_messages_id"), table_name="user_messages"
-    )
+    op.drop_index(op.f("ix_user_messages_user_id"), table_name="user_messages")
+    op.drop_index(op.f("ix_user_messages_id"), table_name="user_messages")
     op.drop_table("user_messages")
 
-    op.drop_index(
-        op.f("ix_announcements_id"), table_name="announcements"
-    )
+    op.drop_index(op.f("ix_announcements_id"), table_name="announcements")
     op.drop_table("announcements")

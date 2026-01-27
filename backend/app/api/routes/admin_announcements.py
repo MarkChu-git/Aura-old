@@ -31,8 +31,9 @@ class AnnouncementResponse(BaseModel):
 async def list_announcements(_=Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(
-            select(Announcement)
-            .order_by(Announcement.is_pinned.desc(), Announcement.created_at.desc())
+            select(Announcement).order_by(
+                Announcement.is_pinned.desc(), Announcement.created_at.desc()
+            )
         )
         announcements = result.scalars().all()
         announcement_list = [
@@ -42,7 +43,7 @@ async def list_announcements(_=Depends(get_current_admin_user)):
                 "content": a.content,
                 "is_active": a.is_active,
                 "is_pinned": a.is_pinned,
-                "created_at": a.created_at.isoformat() if a.created_at else None
+                "created_at": a.created_at.isoformat() if a.created_at else None,
             }
             for a in announcements
         ]
@@ -61,9 +62,7 @@ async def create_announcement(
 
 
 @router.delete("/{announcement_id}")
-async def delete_announcement(
-    announcement_id: int, _=Depends(get_current_admin_user)
-):
+async def delete_announcement(announcement_id: int, _=Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).filter(Announcement.id == announcement_id)
@@ -77,9 +76,7 @@ async def delete_announcement(
 
 
 @router.put("/{announcement_id}/toggle")
-async def toggle_announcement(
-    announcement_id: int, _=Depends(get_current_admin_user)
-):
+async def toggle_announcement(announcement_id: int, _=Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).filter(Announcement.id == announcement_id)
@@ -93,9 +90,7 @@ async def toggle_announcement(
 
 
 @router.put("/{announcement_id}/pin")
-async def pin_announcement(
-    announcement_id: int, _=Depends(get_current_admin_user)
-):
+async def pin_announcement(announcement_id: int, _=Depends(get_current_admin_user)):
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).filter(Announcement.id == announcement_id)
@@ -103,18 +98,18 @@ async def pin_announcement(
         announcement = result.scalars().first()
         if not announcement:
             raise HTTPException(status_code=404, detail="Announcement not found")
-        
+
         result = await session.execute(
             select(Announcement).filter(Announcement.is_pinned)
         )
         other_pinned = result.scalars().all()
-        
+
         if announcement.is_pinned:
             announcement.is_pinned = False
         else:
             for pinned_ann in other_pinned:
                 pinned_ann.is_pinned = False
             announcement.is_pinned = True
-        
+
         await session.commit()
         return success_response({"message": "Announcement pinned successfully"})

@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Shield, Bell } from 'lucide-react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LiquidButton from './LiquidButton';
 import Logo from './Logo';
@@ -16,24 +16,23 @@ export default function Header() {
     const { isAuthenticated, user, openAuthModal, logout } = useAuth();
     const isAdmin = user?.role === 'admin';
 
-    const loadUnreadCount = useCallback(async () => {
-        try {
-            const response = await api.getActiveAnnouncements();
-            const announcements = response.data || [];
-            const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
-            const unread = announcements.filter(a => !dismissedAnnouncements[a.id]).length;
-            setUnreadCount(unread);
-        } catch (error) {
-            console.error('Failed to load unread count:', error);
-        }
-    }, []);
-
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+        const loadUnreadCount = async () => {
+            try {
+                const response = await api.getActiveAnnouncements();
+                const announcements = response.data || [];
+                const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
+                const unread = announcements.filter(a => !dismissedAnnouncements[a.id]).length;
+                setUnreadCount(unread);
+            } catch (error) {
+                console.error('Failed to load unread count:', error);
+            }
+        };
+
         loadUnreadCount();
         const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
         return () => clearInterval(interval);
-    }, [loadUnreadCount]);
+    }, []);
 
     const isActive = (path) => location.pathname === path;
 

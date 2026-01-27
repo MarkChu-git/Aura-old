@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { api } from '../services/api';
 
 const AuthContext = createContext(null);
@@ -11,7 +11,7 @@ const AuthContext = createContext(null);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const [authModalMode, setAuthModalMode] = useState('login');
 
-    const loadUser = async () => {
+    const loadUser = useCallback(async () => {
         if (isAuthenticated) {
             setIsLoadingUser(true);
             try {
@@ -27,11 +27,11 @@ const AuthContext = createContext(null);
             setUser(null);
             setIsLoadingUser(false);
         }
-    };
+    }, [isAuthenticated]);
 
     useEffect(() => {
         loadUser();
-    }, [isAuthenticated]);
+    }, [loadUser]);
 
     const login = (newToken) => {
         localStorage.setItem('token', newToken);

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { X, Megaphone } from 'lucide-react';
 import { api } from '../services/api.js';
 import LiquidGlass from 'liquid-glass-react';
@@ -7,19 +7,16 @@ export default function AnnouncementBanner() {
     const [announcements, setAnnouncements] = useState([]);
     const [currentAnnouncement, setCurrentAnnouncement] = useState(null);
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [dismissed, setDismissed] = useState({});
+    const [dismissed, setDismissed] = useState(() => JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}'));
 
-    useEffect(() => {
-        loadAnnouncements();
-        loadDismissedAnnouncements();
-    }, []);
-
-    const loadAnnouncements = async () => {
+    const loadAnnouncements = useCallback(async () => {
         try {
             const response = await api.getActiveAnnouncements();
             const activeAnnouncements = response.data || [];
-            const dismissedIds = loadDismissedAnnouncements();
-            const filtered = activeAnnouncements.filter(a => !dismissedIds.includes(a.id));
+            // Read fresh from local storage to ensure accuracy
+            const dismissedData = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
+            // Check as object keys since that is the storage format used here
+            const filtered = activeAnnouncements.filter(a => !dismissedData[a.id]);
             setAnnouncements(filtered);
             if (filtered.length > 0) {
                 setCurrentAnnouncement(filtered[0]);
@@ -27,13 +24,12 @@ export default function AnnouncementBanner() {
         } catch (error) {
             console.error('Failed to load announcements:', error);
         }
-    };
+    }, []);
 
-    const loadDismissedAnnouncements = () => {
-        const dismissed = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
-        setDismissed(dismissed);
-        return dismissed;
-    };
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        loadAnnouncements();
+    }, [loadAnnouncements]);
 
     const handleDismiss = (id) => {
         const newDismissed = { ...dismissed, [id]: true };

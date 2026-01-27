@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Shield, Bell } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import LiquidButton from './LiquidButton';
 import Logo from './Logo';
@@ -16,13 +16,7 @@ export default function Header() {
     const { isAuthenticated, user, openAuthModal, logout } = useAuth();
     const isAdmin = user?.role === 'admin';
 
-    useEffect(() => {
-        loadUnreadCount();
-        const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
-        return () => clearInterval(interval);
-    }, []);
-
-    const loadUnreadCount = async () => {
+    const loadUnreadCount = useCallback(async () => {
         try {
             const response = await api.getActiveAnnouncements();
             const announcements = response.data || [];
@@ -32,7 +26,14 @@ export default function Header() {
         } catch (error) {
             console.error('Failed to load unread count:', error);
         }
-    };
+    }, []);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        loadUnreadCount();
+        const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
+        return () => clearInterval(interval);
+    }, [loadUnreadCount]);
 
     const isActive = (path) => location.pathname === path;
 
@@ -87,7 +88,7 @@ export default function Header() {
                             key={path}
                             to={path}
                             style={{
-                                opacity: isActive(path) ?1 : 0.6,
+                                opacity: isActive(path) ? 1 : 0.6,
                                 fontWeight: isActive(path) ? '500' : '400',
                                 fontSize: '0.9375rem',
                                 position: 'relative',
@@ -235,7 +236,7 @@ export default function Header() {
                             style={{
                                 fontSize: '1.1rem',
                                 fontWeight: isActive(path) ? '500' : '400',
-                                opacity: isActive(path) ?1 : 0.7,
+                                opacity: isActive(path) ? 1 : 0.7,
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '0.5rem',

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.db.session import AsyncSessionLocal
 from app.db.models.announcement import Announcement
 from app.api.deps import get_current_admin_user
@@ -105,7 +105,7 @@ async def pin_announcement(
             raise HTTPException(status_code=404, detail="Announcement not found")
         
         result = await session.execute(
-            select(Announcement).filter(Announcement.is_pinned == True)
+            select(Announcement).filter(Announcement.is_pinned)
         )
         other_pinned = result.scalars().all()
         

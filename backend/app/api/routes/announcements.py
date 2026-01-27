@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.db.session import AsyncSessionLocal
 from app.db.models.announcement import Announcement
 from app.core.errors import success_response
@@ -13,7 +13,7 @@ async def get_active_announcements():
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement)
-            .filter(Announcement.is_active == True)
+            .filter(Announcement.is_active)
             .order_by(Announcement.is_pinned.desc(), Announcement.created_at.desc())
         )
         announcements = result.scalars().all()

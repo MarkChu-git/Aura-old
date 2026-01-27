@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import AnnouncementBanner from '../AnnouncementBanner';
 
-vi.mock('../services/api.js', () => ({
+vi.mock('../../services/api.js', () => ({
   api: {
     getActiveAnnouncements: vi.fn(() => Promise.resolve({ data: [] })),
   },

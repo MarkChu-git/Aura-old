@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { api } from '../services/api.js';
 import { X, Info } from 'lucide-react';
 import LiquidGlass from 'liquid-glass-react';
@@ -7,9 +7,27 @@ export default function AnnouncementBar() {
     const [announcement, setAnnouncement] = useState(null);
     const [dismissed, setDismissed] = useState(false);
 
+    const loadAnnouncement = useCallback(async () => {
+        try {
+            const response = await api.getActiveAnnouncements();
+            const announcements = response.data || [];
+
+            if (announcements.length > 0) {
+                const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
+                const latestActive = announcements.find(a =>
+                    a.is_active && !dismissedAnnouncements.includes(a.id)
+                );
+                setAnnouncement(latestActive);
+            }
+        } catch (error) {
+            console.error('Failed to load announcement:', error);
+        }
+    }, []);
+
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         loadAnnouncement();
-        
+
         const handleStorage = (e) => {
             if (e.key === 'announcement-dismissed') {
                 setDismissed(true);
@@ -18,28 +36,11 @@ export default function AnnouncementBar() {
 
         window.addEventListener('storage', handleStorage);
         return () => window.removeEventListener('storage', handleStorage);
-    }, []);
-
-    const loadAnnouncement = async () => {
-        try {
-            const response = await api.getActiveAnnouncements();
-            const announcements = response.data || [];
-            
-            if (announcements.length > 0) {
-                const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
-                const latestActive = announcements.find(a => 
-                    a.is_active && !dismissedAnnouncements.includes(a.id)
-                );
-                setAnnouncement(latestActive);
-            }
-        } catch (error) {
-            console.error('Failed to load announcement:', error);
-        }
-    };
+    }, [loadAnnouncement]);
 
     const handleDismiss = () => {
         if (!announcement) return;
-        
+
         const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
         if (!dismissedAnnouncements.includes(announcement.id)) {
             dismissedAnnouncements.push(announcement.id);

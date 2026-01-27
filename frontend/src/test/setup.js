@@ -1,7 +1,7 @@
 import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
-global.localStorage = {
+globalThis.localStorage = {
   getItem: vi.fn(() => '[]'),
   setItem: vi.fn(),
   removeItem: vi.fn(),

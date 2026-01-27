@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
-import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText, Image as ImageIcon } from 'lucide-react';
+import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCircle, FileText, MessageSquare } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import UserMessages from '../components/UserMessages';
 
 export default function Profile() {
     const { isAuthenticated, logout } = useAuth();
@@ -14,7 +15,6 @@ export default function Profile() {
     const [saved, setSaved] = useState([]); // Mocked for now
 
     const [loadingProfile, setLoadingProfile] = useState(true);
-    const [loadingHistory, setLoadingHistory] = useState(true);
     const [error, setError] = useState('');
 
     // Password change state
@@ -31,7 +31,6 @@ export default function Profile() {
             loadData();
         } else {
             setLoadingProfile(false);
-            setLoadingHistory(false);
         }
     }, [isAuthenticated]);
 
@@ -48,7 +47,6 @@ export default function Profile() {
             setError("Failed to load profile data.");
         } finally {
             setLoadingProfile(false);
-            setLoadingHistory(false);
         }
     };
 
@@ -57,7 +55,7 @@ export default function Profile() {
         try {
             await api.clearHistory();
             setHistory([]);
-        } catch (err) {
+        } catch {
             alert("Failed to clear history");
         }
     };
@@ -120,15 +118,18 @@ export default function Profile() {
 
     if (loadingProfile) return <div className="container" style={{ padding: '4rem', textAlign: 'center' }}>{t('profile.loading')}</div>;
 
-    const Section = ({ title, icon: Icon, children }) => (
-        <section style={{ marginBottom: '3rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-                <Icon size={20} color="hsl(var(--color-text-muted))" />
-                <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>{title}</h2>
-            </div>
-            {children}
-        </section>
-    );
+    const Section = (props) => {
+        const Icon = props.icon;
+        return (
+            <section style={{ marginBottom: '3rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                    <Icon size={20} color="hsl(var(--color-text-muted))" />
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 600 }}>{props.title}</h2>
+                </div>
+                {props.children}
+            </section>
+        );
+    };
 
     const Card = ({ children, style }) => (
         <div className="liquid-glass" style={{
@@ -149,6 +150,31 @@ export default function Profile() {
                 <h1 style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', marginBottom: '0.5rem' }}>{t('profile.title')}</h1>
                 <p style={{ color: 'hsl(var(--color-text-muted))', fontSize: '1.1rem' }}>{t('profile.subtitle')}</p>
             </div>
+
+            {/* Error Display */}
+            {error && (
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '1rem 1.5rem',
+                    marginBottom: '2rem',
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    color: '#EF4444',
+                    borderRadius: '0.75rem',
+                    border: '1px solid rgba(239, 68, 68, 0.2)'
+                }}>
+                    <AlertCircle size={20} />
+                    <span>{error}</span>
+                </div>
+            )}
+
+            {/* Messages Section */}
+            {user?.role !== 'admin' && (
+                <Section title="Messages" icon={MessageSquare}>
+                    <UserMessages />
+                </Section>
+            )}
 
             {/* Account Section */}
             <Section title={t('profile.sections.account')} icon={User}>

@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Brain, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LiquidButton from '../components/LiquidButton';
+import AnnouncementBanner from '../components/AnnouncementBanner';
 
 export default function Home() {
     const { t } = useTranslation();
@@ -20,7 +21,9 @@ export default function Home() {
     }, []);
 
     return (
-        <div className="container">
+        <>
+            <AnnouncementBanner />
+            <div className="container">
             {/* Hero Section */}
             <section className="section" style={{
                 textAlign: 'center',
@@ -215,6 +218,7 @@ export default function Home() {
                     </p>
                 </div>
             </section>
-        </div>
+            </div>
+        </>
     );
 }

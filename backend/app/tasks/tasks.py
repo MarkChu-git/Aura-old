@@ -8,31 +8,32 @@ from app.db.models.input import Input
 from app.db.models.result import Result
 from app.db.models.recommendation import Recommendation
 from app.db.models.sku import SKU
-from app.db.models.sku_embedding import SKUEmbedding
-from app.db.models.sku_embedding import SKUEmbedding
 from app.core.config import settings
 from app.core.logging import job_id_context
 from app.ai.mock_adapter import MockAIAdapter
-from sqlalchemy import select, update
+from sqlalchemy import select
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 # Factory for adapter
 def get_ai_adapter():
     if settings.DEEPSEEK_API_KEY:
         from app.ai.real_adapter import RealAIAdapter
+
         return RealAIAdapter()
     if settings.AI_ADAPTER_TYPE == "mock":
         return MockAIAdapter()
-    return MockAIAdapter() # Fallback
+    return MockAIAdapter()  # Fallback
+
 
 async def process_job_async(job_id: str):
     adapter = get_ai_adapter()
-    
+
     # Set Logging Context
     token = job_id_context.set(job_id)
-    
+
     try:
         async with AsyncSessionLocal() as session:
             try:
@@ -47,7 +48,9 @@ async def process_job_async(job_id: str):
                     logger.error(f"Job {job_id} not found")
                     return
                 if job.status in [JobStatus.SUCCEEDED, JobStatus.FAILED]:
-                    logger.warning(f"Job {job_id} already reached terminal state {job.status}")
+                    logger.warning(
+                        f"Job {job_id} already reached terminal state {job.status}"
+                    )
                     return
 
                 job.status = JobStatus.RUNNING
@@ -56,12 +59,17 @@ async def process_job_async(job_id: str):
                 await session.commit()
 
                 # Fetch Input
-                result_input = await session.execute(select(Input).where(Input.id == job.input_id))
+                result_input = await session.execute(
+                    select(Input).where(Input.id == job.input_id)
+                )
                 job_input = result_input.scalar_one()
 
                 # 2. Extract Imagery
                 try:
-                    tags = await adapter.extract_imagery(text=job_input.text_content, image_key=job_input.image_object_key)
+                    tags = await adapter.extract_imagery(
+                        text=job_input.text_content,
+                        image_key=job_input.image_object_key,
+                    )
                 except Exception as e:
                     raise ValueError("AI_EXTRACTION_FAILED") from e
 
@@ -72,7 +80,7 @@ async def process_job_async(job_id: str):
                 # 3. Embed
                 try:
                     query_text = f"{tags.get('mood')} {tags.get('primary_scent_family')} {' '.join(tags.get('extracted_keywords', []))}"
-                    embedding = await adapter.embed(query_text)
+                    await adapter.embed(query_text)
                 except Exception as e:
                     raise ValueError("EMBEDDING_FAILED") from e
 
@@ -84,22 +92,22 @@ async def process_job_async(job_id: str):
                 # Fallback for empty DB: just pick 3 random SKUs
                 result_skus = await session.execute(select(SKU).limit(5))
                 skus = result_skus.scalars().all()
-                
+
                 recommendations = []
                 for i, sku in enumerate(skus):
                     explanation = await adapter.explain(sku.name, sku.tags or {}, tags)
                     rec = Recommendation(
                         job_id=job.id,
                         sku_id=sku.id,
-                        rank=i+1,
-                        score=0.9 - (i * 0.1), # Fake score
+                        rank=i + 1,
+                        score=0.9 - (i * 0.1),  # Fake score
                         reason_short=explanation,
                         reason_long=explanation,
-                        matched_tags={"common": ["fresh", "woody"]}
+                        matched_tags={"common": ["fresh", "woody"]},
                     )
                     session.add(rec)
                     recommendations.append(rec)
-                
+
                 # Update Step
                 job.progress_step = JobStep.EXPLAINING
                 await session.commit()
@@ -109,10 +117,10 @@ async def process_job_async(job_id: str):
                     job_id=job.id,
                     extracted_tags=tags,
                     scent_direction={"primary": tags.get("primary_scent_family")},
-                    summary=f"We analyzed your request for '{query_text}' and found these matches."
+                    summary=f"We analyzed your request for '{query_text}' and found these matches.",
                 )
                 session.add(final_result)
-                
+
                 # 6. Success
                 job.status = JobStatus.SUCCEEDED
                 job.progress_step = JobStep.DONE
@@ -123,7 +131,7 @@ async def process_job_async(job_id: str):
             except Exception as e:
                 logger.error(f"Job {job_id} failed: {e}")
                 await session.rollback()
-                
+
                 # Re-fetch job to update status safely
                 async with AsyncSessionLocal() as err_session:
                     stmt = select(Job).where(Job.id == UUID(job_id))
@@ -132,7 +140,7 @@ async def process_job_async(job_id: str):
                     if err_job:
                         err_job.status = JobStatus.FAILED
                         err_job.finished_at = datetime.utcnow()
-                        
+
                         # Determine Error Code
                         err_str = str(e)
                         if "AI_EXTRACTION_FAILED" in err_str:
@@ -141,11 +149,12 @@ async def process_job_async(job_id: str):
                             err_job.error_code = "EMBEDDING_FAILED"
                         else:
                             err_job.error_code = "UNKNOWN_ERROR"
-                        
+
                         err_job.error_message = str(e)
                         await err_session.commit()
     finally:
         job_id_context.reset(token)
+
 
 @shared_task
 def process_job(job_id: str):

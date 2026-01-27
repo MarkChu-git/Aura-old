@@ -1,9 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import List, Optional, Dict, Any
 
+
 class AIAdapter(ABC):
     @abstractmethod
-    async def extract_imagery(self, text: Optional[str] = None, image_key: Optional[str] = None) -> Dict[str, Any]:
+    async def extract_imagery(
+        self, text: Optional[str] = None, image_key: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
         Extract structured tags and sensory data from text or image input.
         Returns a dictionary of tags/attributes.

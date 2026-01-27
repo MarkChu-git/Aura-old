@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AURA</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e0e0; }
+        .header h1 { margin: 0; font-size: 2rem; }
+        .header button { padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; }
+        .section { background: white; padding: 1.5rem; border-radius: 0.5rem; margin-bottom: 1.5rem; border: 1px solid #e0e0e0; }
+        .section h2 { margin: 0 0 1rem 0; font-size: 1.25rem; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .stat { background: #f8f9fa; padding: 1.5rem; border-radius: 0.5rem; text-align: center; }
+        .stat h3 { margin: 0 0 0.5rem 0; font-size: 2rem; color: #3b82f6; }
+        .stat p { margin: 0; color: #6b7280; font-size: 0.875rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #e0e0e0; }
+        th { background: #f8f9fa; font-weight: 600; }
+        tr:hover { background: #f8f9fa; }
+        .btn { padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; cursor: pointer; }
+        .btn.danger { background: #ef4444; }
+        .btn.secondary { background: #6b7280; }
+        .actions { display: flex; gap: 0.5rem; }
+        .form { margin-bottom: 1rem; }
+        .form input, .form textarea { width: 100%; padding: 0.5rem; margin-bottom: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem; }
+        .form label { display: block; margin-bottom: 0.25rem; font-weight: 500; }
+        .alert { padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; }
+        .alert.success { background: #dcfce7; color: #059669; }
+        .alert.error { background: #fee2e2; color: #dc2626; }
+        .announcement { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem; margin-bottom: 1rem; }
+        .nav { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .nav button { background: #e0e0e0; color: #1f2937; border: 1px solid #d1d5db; }
+        .nav button.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .tab-btn { padding: 0.5rem 1rem; margin-right: 0.5rem; }
+        .tab-btn.active { background: #3b82f6; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Admin Panel</h1>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+        <div id="auth-section">
+            <div class="section">
+                <h2>Admin Login</h2>
+                <div class="form">
+                    <label>Email:</label>
+                    <input type="email" id="email" placeholder="Enter email">
+                    <label>Password:</label>
+                    <input type="password" id="password" placeholder="Enter password">
+                </div>
+                <button class="btn" onclick="login()">Login</button>
+            </div>
+        </div>
+
+        <div id="dashboard-section" style="display: none;">
+            <div class="nav">
+                <button class="tab-btn active" onclick="showSection('dashboard')">Dashboard</button>
+                <button class="tab-btn" onclick="showSection('users')">Users</button>
+                <button class="tab-btn" onclick="showSection('announcements')">Announcements</button>
+            </div>
+
+            <div id="dashboard-content">
+                <div class="stats">
+                    <div class="stat">
+                        <h3 id="total-users">0</h3>
+                        <p>Total Users</p>
+                    </div>
+                    <div class="stat">
+                        <h3 id="active-users">0</h3>
+                        <p>Active Users</p>
+                    </div>
+                    <div class="stat">
+                        <h3 id="total-announcements">0</h3>
+                        <p>Announcements</p>
+                    </div>
+                    <div class="stat">
+                        <h3 id="active-announcements">0</h3>
+                        <p>Active</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="users-content" style="display: none;">
+                <div class="section">
+                    <h2>Users Management</h2>
+                    <input type="text" id="search" placeholder="Search users..." class="form" oninput="loadUsers()">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-body">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="announcements-content" style="display: none;">
+                <div class="section">
+                    <h2>Announcements</h2>
+                    <button class="btn" onclick="showCreateAnnouncement()">Create Announcement</button>
+                    <div id="announcements-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="create-announcement-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center;">
+            <div style="background: white; padding: 2rem; border-radius: 0.5rem; max-width: 500px; width: 90%;">
+                <h2>Create Announcement</h2>
+                <div class="form">
+                    <label>Title:</label>
+                    <input type="text" id="announcement-title" placeholder="Announcement title">
+                    <label>Content:</label>
+                    <textarea id="announcement-content" rows="4" placeholder="Announcement content"></textarea>
+                </div>
+                <div class="actions">
+                    <button class="btn secondary" onclick="hideCreateAnnouncement()">Cancel</button>
+                    <button class="btn" onclick="createAnnouncement()">Create</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/v1';
+        let token = localStorage.getItem('token');
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            showAuth();
+        }
+
+        function showAuth() {
+            document.getElementById('auth-section').style.display = 'block';
+            document.getElementById('dashboard-section').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('dashboard-section').style.display = 'block';
+            loadStats();
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('dashboard-content').style.display = 'none';
+            document.getElementById('users-content').style.display = 'none';
+            document.getElementById('announcements-content').style.display = 'none';
+            document.getElementById(section + '-content').style.display = 'block';
+            
+            if (section === 'dashboard') loadStats();
+            if (section === 'users') loadUsers();
+            if (section === 'announcements') loadAnnouncements();
+        }
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const formData = new FormData();
+            formData.append('username', email);
+            formData.append('password', password);
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                token = data.access_token;
+                localStorage.setItem('token', token);
+                showDashboard();
+            } catch (error) {
+                alert('Login failed: ' + error.message);
+            }
+        }
+
+        async function loadStats() {
+            try {
+                const [usersRes, announcementsRes] = await Promise.all([
+                    axios.get(`${API_BASE}/admin/users`, { headers: { Authorization: `Bearer ${token}` } }),
+                    axios.get(`${API_BASE}/admin/announcements`, { headers: { Authorization: `Bearer ${token}` } })
+                ]);
+                
+                const users = usersRes.data.data || [];
+                const announcements = announcementsRes.data.data || [];
+                
+                document.getElementById('total-users').textContent = users.length;
+                document.getElementById('active-users').textContent = users.filter(u => u.is_active).length;
+                document.getElementById('total-announcements').textContent = announcements.length;
+                document.getElementById('active-announcements').textContent = announcements.filter(a => a.is_active).length;
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        async function loadUsers() {
+            try {
+                const response = await axios.get(`${API_BASE}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+                const users = response.data.data || [];
+                
+                const tbody = document.getElementById('users-body');
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.email}</td>
+                        <td>${user.name || '-'}</td>
+                        <td>${user.role}</td>
+                        <td>${user.is_active ? '<span style="color: #059669">Active</span>' : '<span style="color: #dc2626">Banned</span>'}</td>
+                        <td>
+                            <button class="btn" onclick="showSendMessage(${user.id})">Message</button>
+                            <button class="btn ${user.is_active ? 'danger' : ''}" onclick="toggleBan(${user.id}, ${user.is_active})">${user.is_active ? 'Ban' : 'Unban'}</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load users:', error);
+            }
+        }
+
+        async function toggleBan(userId, isActive) {
+            if (!confirm(`Are you sure you want to ${isActive ? 'ban' : 'unban'} this user?`)) return;
+            
+            try {
+                await axios({
+                    method: isActive ? 'POST' : 'DELETE',
+                    url: `${API_BASE}/admin/users/${userId}/ban`,
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                loadUsers();
+            } catch (error) {
+                alert(`Failed to ${isActive ? 'ban' : 'unban'} user: ` + error.message);
+            }
+        }
+
+        function showSendMessage(userId) {
+            const message = prompt('Enter message to send:');
+            if (!message) return;
+            
+            axios.post(`${API_BASE}/admin/users/${userId}/messages`, { content: message }, { headers: { Authorization: `Bearer ${token}` } })
+                .then(() => alert('Message sent successfully'))
+                .catch(error => alert('Failed to send message: ' + error.message));
+        }
+
+        async function loadAnnouncements() {
+            try {
+                const response = await axios.get(`${API_BASE}/admin/announcements`, { headers: { Authorization: `Bearer ${token}` } });
+                const announcements = response.data.data || [];
+                
+                const list = document.getElementById('announcements-list');
+                list.innerHTML = announcements.map(announcement => `
+                    <div class="announcement">
+                        <h3>${announcement.title}</h3>
+                        <p>${announcement.content}</p>
+                        <small>${new Date(announcement.created_at).toLocaleString()}</small><br>
+                        <small>Status: ${announcement.is_active ? 'Active' : 'Inactive'}</small><br>
+                        <div class="actions">
+                            <button class="btn secondary" onclick="toggleAnnouncement(${announcement.id})">Toggle</button>
+                            <button class="btn danger" onclick="deleteAnnouncement(${announcement.id})">Delete</button>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Failed to load announcements:', error);
+            }
+        }
+
+        function showCreateAnnouncement() {
+            document.getElementById('create-announcement-modal').style.display = 'flex';
+        }
+
+        function hideCreateAnnouncement() {
+            document.getElementById('create-announcement-modal').style.display = 'none';
+        }
+
+        async function createAnnouncement() {
+            const title = document.getElementById('announcement-title').value;
+            const content = document.getElementById('announcement-content').value;
+            
+            if (!title || !content) {
+                alert('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                await axios.post(`${API_BASE}/admin/announcements`, { title, content }, { headers: { Authorization: `Bearer ${token}` } });
+                document.getElementById('announcement-title').value = '';
+                document.getElementById('announcement-content').value = '';
+                hideCreateAnnouncement();
+                loadAnnouncements();
+            } catch (error) {
+                alert('Failed to create announcement: ' + error.message);
+            }
+        }
+
+        async function toggleAnnouncement(id) {
+            try {
+                await axios.put(`${API_BASE}/admin/announcements/${id}/toggle`, {}, { headers: { Authorization: `Bearer ${token}` } });
+                loadAnnouncements();
+            } catch (error) {
+                alert('Failed to toggle announcement: ' + error.message);
+            }
+        }
+
+        async function deleteAnnouncement(id) {
+            if (!confirm('Are you sure you want to delete this announcement?')) return;
+            
+            try {
+                await axios.delete(`${API_BASE}/admin/announcements/${id}`, { headers: { Authorization: `Bearer ${token}` } });
+                loadAnnouncements();
+            } catch (error) {
+                alert('Failed to delete announcement: ' + error.message);
+            }
+        }
+
+        if (token) {
+            showDashboard();
+        } else {
+            showAuth();
+        }
+    </script>
+</body>
+</html>

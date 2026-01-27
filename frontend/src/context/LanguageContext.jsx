@@ -9,13 +9,6 @@ export const LanguageProvider = ({ children }) => {
     const { i18n } = useTranslation();
     const { isAuthenticated } = useAuth();
 
-    // Sync language preference with backend when user is authenticated
-    useEffect(() => {
-        if (isAuthenticated) {
-            syncLanguageWithBackend();
-        }
-    }, [isAuthenticated]);
-
     const syncLanguageWithBackend = async () => {
         try {
             const response = await api.getUserLanguage();
@@ -26,6 +19,14 @@ export const LanguageProvider = ({ children }) => {
             console.error('Failed to sync language with backend:', error);
         }
     };
+
+    // Sync language preference with backend when user is authenticated
+    useEffect(() => {
+        if (isAuthenticated) {
+            syncLanguageWithBackend();
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isAuthenticated]);
 
     const changeLanguage = async (lng) => {
         await i18n.changeLanguage(lng);
@@ -51,4 +52,5 @@ export const LanguageProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useLanguage = () => useContext(LanguageContext);

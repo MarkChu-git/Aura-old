@@ -1,17 +1,38 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, LogOut } from 'lucide-react';
-import { useState } from 'react';
+import { Menu, X, LogOut, Shield, Bell } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import LiquidButton from './LiquidButton';
 import Logo from './Logo';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '../context/AuthContext';
+import { api } from '../services/api';
 
 export default function Header() {
     const { t } = useTranslation();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const location = useLocation();
-    const { isAuthenticated, openAuthModal, logout } = useAuth();
+    const { isAuthenticated, user, openAuthModal, logout } = useAuth();
+    const isAdmin = user?.role === 'admin';
+
+    useEffect(() => {
+        const loadUnreadCount = async () => {
+            try {
+                const response = await api.getActiveAnnouncements();
+                const announcements = response.data || [];
+                const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
+                const unread = announcements.filter(a => !dismissedAnnouncements[a.id]).length;
+                setUnreadCount(unread);
+            } catch (error) {
+                console.error('Failed to load unread count:', error);
+            }
+        };
+
+        loadUnreadCount();
+        const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
+        return () => clearInterval(interval);
+    }, []);
 
     const isActive = (path) => location.pathname === path;
 
@@ -58,8 +79,10 @@ export default function Header() {
                     {[
                         { path: '/', label: t('header.home') },
                         { path: '/chat', label: t('header.explore') },
-                        { path: '/profile', label: t('header.profile') }
-                    ].map(({ path, label }) => (
+                        { path: '/announcements', label: t('header.announcements'), icon: Bell, badge: unreadCount },
+                        { path: '/profile', label: t('header.profile') },
+                        ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : [])
+                    ].map(({ path, label, icon: Icon, badge }) => (
                         <Link
                             key={path}
                             to={path}
@@ -69,10 +92,36 @@ export default function Header() {
                                 fontSize: '0.9375rem',
                                 position: 'relative',
                                 transition: 'all var(--transition-base)',
-                                letterSpacing: '0.01em'
+                                letterSpacing: '0.01em',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                ...(path === '/admin' ? {
+                                    color: '#667eea'
+                                } : {})
                             }}
                         >
+                            {path === '/admin' && <Shield size={14} style={{ display: 'inline', marginRight: '0.25rem' }} />}
+                            {Icon && <Icon size={16} />}
                             {label}
+                            {badge > 0 && (
+                                <span style={{
+                                    background: '#EF4444',
+                                    color: '#fff',
+                                    fontSize: '0.65rem',
+                                    fontWeight: '600',
+                                    padding: '0.125rem 0.375rem',
+                                    borderRadius: '999px',
+                                    minWidth: '1.25rem',
+                                    height: '1.25rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    marginLeft: '-0.125rem'
+                                }}>
+                                    {badge}
+                                </span>
+                            )}
                             {isActive(path) && (
                                 <span style={{
                                     position: 'absolute',
@@ -80,7 +129,7 @@ export default function Header() {
                                     left: 0,
                                     right: 0,
                                     height: '1px',
-                                    background: 'hsl(var(--color-text-main))',
+                                    background: path === '/admin' ? '#667eea' : 'hsl(var(--color-text-main))',
                                     borderRadius: '1px'
                                 }} />
                             )}
@@ -175,8 +224,10 @@ export default function Header() {
                     {[
                         { path: '/', label: t('header.home') },
                         { path: '/chat', label: t('header.explore') },
-                        { path: '/profile', label: t('header.profile') }
-                    ].map(({ path, label }) => (
+                        { path: '/announcements', label: t('header.announcements'), icon: Bell, badge: unreadCount },
+                        { path: '/profile', label: t('header.profile') },
+                        ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : [])
+                    ].map(({ path, label, icon: Icon, badge }) => (
                         <Link
                             key={path}
                             to={path}
@@ -184,10 +235,35 @@ export default function Header() {
                             style={{
                                 fontSize: '1.1rem',
                                 fontWeight: isActive(path) ? '500' : '400',
-                                opacity: isActive(path) ? 1 : 0.7
+                                opacity: isActive(path) ? 1 : 0.7,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                ...(path === '/admin' ? {
+                                    color: '#667eea'
+                                } : {})
                             }}
                         >
+                            {path === '/admin' && <Shield size={16} style={{ display: 'inline', marginRight: '0.5rem', verticalAlign: 'middle' }} />}
+                            {Icon && <Icon size={18} />}
                             {label}
+                            {badge > 0 && (
+                                <span style={{
+                                    background: '#EF4444',
+                                    color: '#fff',
+                                    fontSize: '0.7rem',
+                                    fontWeight: '600',
+                                    padding: '0.15rem 0.4rem',
+                                    borderRadius: '999px',
+                                    minWidth: '1.3rem',
+                                    height: '1.3rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {badge}
+                                </span>
+                            )}
                         </Link>
                     ))}
                     <div style={{ height: '1px', background: 'hsl(var(--color-border))', margin: '0.5rem 0' }} />

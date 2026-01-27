@@ -1,8 +1,22 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import LiquidButton from '../components/LiquidButton';
 import { UserPlus, Check, X, Eye, EyeOff } from 'lucide-react';
+
+const RequirementItem = ({ met, text }) => (
+    <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem',
+        fontSize: '0.85rem',
+        color: met ? '#10B981' : '#EF4444',
+        transition: 'color 0.3s ease'
+    }}>
+        {met ? <Check size={14} /> : <X size={14} />}
+        <span>{text}</span>
+    </div>
+);
 
 export default function Register() {
     const [email, setEmail] = useState('');
@@ -14,24 +28,14 @@ export default function Register() {
     const [success, setSuccess] = useState('');
     const navigate = useNavigate();
 
-    // Password requirements state
-    const [requirements, setRequirements] = useState({
-        length: false,
-        upper: false,
-        lower: false,
-        number: false,
-        special: false
-    });
-
-    useEffect(() => {
-        setRequirements({
-            length: password.length >= 12,
-            upper: /[A-Z]/.test(password),
-            lower: /[a-z]/.test(password),
-            number: /\d/.test(password),
-            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
-        });
-    }, [password]);
+    // Derive requirements directly from password state
+    const requirements = {
+        length: password.length >= 12,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /\d/.test(password),
+        special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
 
     const isPasswordValid = Object.values(requirements).every(Boolean);
 
@@ -58,20 +62,6 @@ export default function Register() {
             setError(err.message);
         }
     };
-
-    const RequirementItem = ({ met, text }) => (
-        <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            fontSize: '0.85rem',
-            color: met ? '#10B981' : '#EF4444',
-            transition: 'color 0.3s ease'
-        }}>
-            {met ? <Check size={14} /> : <X size={14} />}
-            <span>{text}</span>
-        </div>
-    );
 
     return (
         <div className="container" style={{
@@ -227,3 +217,4 @@ export default function Register() {
         </div>
     );
 }
+

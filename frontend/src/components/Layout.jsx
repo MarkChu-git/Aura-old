@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import AuthModal from './AuthModal';
+import AnnouncementBanner from './AnnouncementBanner';
 import { useAuth } from '../context/AuthContext';
 
 export default function Layout({ children }) {
@@ -9,6 +10,7 @@ export default function Layout({ children }) {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <AnnouncementBanner />
             <Header />
             <main style={{ flex: 1 }}>
                 {children || <Outlet />}

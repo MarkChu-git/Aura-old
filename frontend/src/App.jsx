@@ -6,6 +6,7 @@ import Explore from './pages/Explore';
 import Analyzing from './pages/Analyzing';
 import Result from './pages/Result';
 import Profile from './pages/Profile';
+import Announcements from './pages/Announcements';
 import Privacy from './pages/Privacy';
 import Terms from './pages/Terms';
 import Login from './pages/Login';
@@ -16,6 +17,10 @@ import Background from './components/Background';
 import { AuthProvider } from './context/AuthContext';
 import { LanguageProvider } from './context/LanguageContext';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminRoute from './components/AdminRoute';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminAnnouncements from './pages/admin/AdminAnnouncements';
 
 function App() {
   return (
@@ -29,11 +34,15 @@ function App() {
           <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
           <Route path="/chat" element={<Layout><Chat /></Layout>} />
           <Route path="/explore" element={<Layout><Explore /></Layout>} />
+          <Route path="/announcements" element={<Layout><Announcements /></Layout>} />
           <Route path="/analyzing" element={<Layout><Analyzing /></Layout>} />
           <Route path="/result" element={<Layout><Result /></Layout>} />
           <Route path="/profile" element={<Layout><Profile /></Layout>} />
           <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
           <Route path="/terms" element={<Layout><Terms /></Layout>} />
+          <Route path="/admin" element={<AdminRoute><Layout><AdminDashboard /></Layout></AdminRoute>} />
+          <Route path="/admin/users" element={<AdminRoute><Layout><AdminUsers /></Layout></AdminRoute>} />
+          <Route path="/admin/announcements" element={<AdminRoute><Layout><AdminAnnouncements /></Layout></AdminRoute>} />
           {/* Fallback */}
           <Route path="*" element={<Layout><div style={{ padding: '4rem', textAlign: 'center' }}>Page not found</div></Layout>} />
         </Routes>
@@ -44,3 +53,4 @@ function App() {
 }
 
 export default App;
+

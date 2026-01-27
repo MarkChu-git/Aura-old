@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function LiquidButton({ children, className = '', to, onClick, disabled, type = 'button', style = {} }) {

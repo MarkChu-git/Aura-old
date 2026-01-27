@@ -2,6 +2,7 @@
     "header": {
         "home": "Home",
         "explore": "Explore",
+        "announcements": "Announcements",
         "profile": "Profile",
         "signIn": "Sign In",
         "getStarted": "Get Started",

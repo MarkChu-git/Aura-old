@@ -5,25 +5,29 @@ from app.core.config import settings
 from app.core.logging import setup_logging, request_id_context
 from app.core.errors import http_exception_handler
 from app.api.router import api_router
-from app.tasks.celery_app import celery_app # Ensure Celery app is loaded
 
 # Initialize Logging
 print(f"DEBUG: REDIS_URL={settings.REDIS_URL}")
 setup_logging()
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    openapi_url=f"{settings.API_V1_STR}/openapi.json"
+    title=settings.PROJECT_NAME, openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
 # CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost", "http://127.0.0.1", "http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost",
+        "http://127.0.0.1",
+        "http://localhost:5173",
+        "http://localhost:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # Middleware for request_id
 @app.middleware("http")
@@ -38,11 +42,13 @@ async def request_id_middleware(request: Request, call_next):
     finally:
         request_id_context.reset(token)
 
+
 # Exception Handling
 app.add_exception_handler(Exception, http_exception_handler)
 
 # Routes
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
 
 @app.get("/")
 def read_root():
@@ -50,8 +56,9 @@ def read_root():
         "message": "Welcome to AURA API",
         "docs": "/docs",
         "redoc": "/redoc",
-        "health": "/health"
+        "health": "/health",
     }
+
 
 @app.get("/health")
 def health_check():

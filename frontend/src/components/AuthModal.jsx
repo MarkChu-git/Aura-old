@@ -6,15 +6,15 @@ import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal({ isOpen, onClose }) {
     const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
 
     const { login } = useAuth();
     const { t } = useTranslation();
     const googleButtonRef = useRef(null);
 
     useEffect(() => {
-        setError('');
-    }, [isOpen]);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        if (isOpen) setError('');
+    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
 
     useEffect(() => {
         if (!isOpen) return;
@@ -27,15 +27,12 @@ export default function AuthModal({ isOpen, onClose }) {
                     client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
                     callback: async (response) => {
                         try {
-                            setLoading(true);
                             const data = await api.googleAuth(response.credential);
                             login(data.access_token);
                             onClose();
                         } catch (error) {
                             console.error("Google auth error:", error);
                             setError(error.message || t('auth.error'));
-                        } finally {
-                            setLoading(false);
                         }
                     },
                     auto_select: false,

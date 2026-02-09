@@ -60,7 +60,16 @@ while [ $TIMEOUT -gt 0 ]; do
 done
 echo ""
 
-# 5. Verify
+# 5. Run Database Migrations
+echo -e "${BLUE}>>> Running database migrations...${NC}"
+if docker compose -f docker-compose.prod.yml exec api alembic upgrade head; then
+    echo -e "${GREEN}Database migrations applied successfully.${NC}"
+else
+    echo -e "${RED}Error: Failed to apply database migrations.${NC}"
+    exit 1
+fi
+
+# 6. Verify
 echo -e "${BLUE}>>> Verifying deployment...${NC}"
 if curl -s -f http://localhost/health > /dev/null; then
     echo -e "${GREEN}SUCCESS: API is reachable at http://localhost/health${NC}"

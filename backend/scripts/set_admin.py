@@ -10,12 +10,19 @@ from dotenv import load_dotenv
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Load env vars from backend/.env
-# Note: On server, you might need to adjust the path or rely on system env vars
-load_dotenv(os.path.join(os.getcwd(), "backend/.env"))
+# Load env vars from backend/.env if it exists (for local dev)
+# In Docker, env vars are already set, so this is optional but harmless if file missing
+env_path = os.path.join(os.getcwd(), "backend/.env")
+if os.path.exists(env_path):
+    load_dotenv(env_path)
 
-# Add parent directory to path
-sys.path.append(os.path.join(os.getcwd(), "backend"))
+# Add correct directory to path
+# Case 1: Running inside Docker or inside backend dir -> app/ is in current dir
+if os.path.isdir(os.path.join(os.getcwd(), "app")):
+    sys.path.append(os.getcwd())
+# Case 2: Running from project root (local dev) -> backend/app/ exists
+elif os.path.isdir(os.path.join(os.getcwd(), "backend")):
+    sys.path.append(os.path.join(os.getcwd(), "backend"))
 
 from app.db.session import AsyncSessionLocal
 from app.db.models.user import User

@@ -9,12 +9,18 @@
 .DS_Store
 .idea/
 .vscode/
+opencode.json
 
 # Build
 dist/
 build/
 *.egg-info/
 __pycache__/
+
+# Python virtual environments
+venv/
+.venv/
+env/
 
 # Documentation
 docs/work_plan.md

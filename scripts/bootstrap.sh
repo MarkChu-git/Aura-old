@@ -68,4 +68,19 @@ else
     echo -e "${RED}WARNING: API health check failed.${NC}"
 fi
 
+# 6. Auto-configure Admin
+TARGET_ADMIN="markchu2022@gmail.com"
+echo -e "${BLUE}>>> Attempting to grant admin permissions to ${TARGET_ADMIN}...${NC}"
+# Try to run the script inside the 'api' container. 
+# We use 'exec -T' to disable pseudo-tty allocation which can cause issues in some envs, 
+# but standard 'exec' is usually fine for scripts.
+if docker compose -f docker-compose.prod.yml exec api python scripts/set_admin.py "${TARGET_ADMIN}"; then
+    echo -e "${GREEN}Admin permissions checked/granted.${NC}"
+else
+    echo -e "${RED}Note: Could not set admin role automatically.${NC}"
+    echo -e "Reason: The user '${TARGET_ADMIN}' might not be registered yet."
+    echo -e "Action: Please register an account with this email first, then run:"
+    echo -e "${BLUE}docker compose -f docker-compose.prod.yml exec api python scripts/set_admin.py ${TARGET_ADMIN}${NC}"
+fi
+
 echo -e "${GREEN}>>> Bootstrap Complete! Access via http://<YOUR_IP>/${NC}"

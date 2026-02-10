@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { X, Megaphone } from 'lucide-react';
 import { api } from '../services/api.js';
-import LiquidGlass from 'liquid-glass-react';
 
 export default function AnnouncementBanner() {
     const [announcements, setAnnouncements] = useState([]);
@@ -52,14 +51,16 @@ export default function AnnouncementBanner() {
     }
 
     return (
-        <LiquidGlass
-            displacementScale={70}
-            blurAmount={0.0625}
-            overLight={true}
-            elasticity={0.15}
+        <div
             style={{
                 padding: '1rem',
                 position: 'relative',
+                background: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                zIndex: 40
             }}
         >
             <div className="container" style={{ display: 'flex', alignItems: 'center', gap: '1rem', maxWidth: '1200px', margin: '0 auto' }}>
@@ -75,14 +76,8 @@ export default function AnnouncementBanner() {
                 {announcements.length > 1 && (
                     <div style={{ display: 'flex', gap: '0.5rem', marginRight: '0.5rem' }}>
                         {announcements.map((_, idx) => (
-                            <LiquidGlass
+                            <div
                                 key={idx}
-                                displacementScale={70}
-                                blurAmount={0.0625}
-                                overLight={true}
-                                elasticity={0.15}
-                                cornerRadius={999}
-                                padding="4px"
                                 onClick={() => {
                                     setCurrentIndex(idx);
                                     setCurrentAnnouncement(announcements[idx]);
@@ -92,32 +87,36 @@ export default function AnnouncementBanner() {
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                     cursor: 'pointer',
-                                    width: '8px',
-                                    height: '8px',
-                                    background: idx === currentIndex ? 'rgba(102, 126, 234, 0.8)' : 'rgba(102, 126, 234, 0.3)'
+                                    width: '10px',
+                                    height: '10px',
+                                    borderRadius: '50%',
+                                    background: idx === currentIndex ? 'rgba(102, 126, 234, 0.9)' : 'rgba(102, 126, 234, 0.3)',
+                                    transition: 'all 0.2s',
+                                    border: '1px solid rgba(255, 255, 255, 0.5)'
                                 }}
                             />
                         ))}
                     </div>
                 )}
-                <LiquidGlass
-                    displacementScale={70}
-                    blurAmount={0.0625}
-                    overLight={true}
-                    elasticity={0.15}
-                    cornerRadius={8}
-                    padding="0.25rem"
+                <div
                     onClick={() => handleDismiss(currentAnnouncement.id)}
                     style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        padding: '0.25rem',
+                        borderRadius: '8px',
+                        background: 'rgba(255, 255, 255, 0.4)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        transition: 'all 0.2s'
                     }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.4)'}
                 >
                     <X size={20} />
-                </LiquidGlass>
+                </div>
             </div>
-        </LiquidGlass>
+        </div>
     );
 }

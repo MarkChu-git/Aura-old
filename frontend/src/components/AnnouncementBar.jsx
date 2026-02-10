@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '../services/api.js';
 import { X, Info } from 'lucide-react';
-import LiquidGlass from 'liquid-glass-react';
 
 export default function AnnouncementBar() {
     const [announcement, setAnnouncement] = useState(null);
@@ -54,17 +53,19 @@ export default function AnnouncementBar() {
     }
 
     return (
-        <LiquidGlass
-            displacementScale={70}
-            blurAmount={0.0625}
-            overLight={true}
-            elasticity={0.15}
+        <div
             style={{
                 padding: '1rem',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1rem',
-                position: 'relative'
+                position: 'relative',
+                background: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                borderBottom: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
+                zIndex: 50
             }}
         >
             <Info size={20} style={{ flexShrink: 0, color: '#667eea' }} />
@@ -76,23 +77,24 @@ export default function AnnouncementBar() {
                     {announcement.content}
                 </div>
             </div>
-            <LiquidGlass
-                displacementScale={70}
-                blurAmount={0.0625}
-                overLight={true}
-                elasticity={0.15}
-                cornerRadius={8}
-                padding="0.25rem"
+            <div
                 onClick={handleDismiss}
                 style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    padding: '0.25rem',
+                    borderRadius: '8px',
+                    background: 'rgba(255, 255, 255, 0.4)',
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    transition: 'all 0.2s'
                 }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.6)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.4)'}
             >
                 <X size={18} />
-            </LiquidGlass>
-        </LiquidGlass>
+            </div>
+        </div>
     );
 }

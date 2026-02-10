@@ -64,7 +64,12 @@ export default function Header() {
         <header className="liquid-glass animate-fade-in" style={{
             position: 'sticky',
             top: 0,
-            zIndex: 100
+            zIndex: 100,
+            background: 'rgba(255, 255, 255, 0.9)',
+            backdropFilter: 'saturate(180%) blur(20px)',
+            WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+            boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
         }}>
             <div className="container" style={{
                 height: '75px',

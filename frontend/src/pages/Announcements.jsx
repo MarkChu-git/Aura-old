@@ -7,11 +7,9 @@ import remarkGfm from 'remark-gfm';
 export default function Announcements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [dismissed, setDismissed] = useState({});
 
     useEffect(() => {
         loadAnnouncements();
-        loadDismissedState();
     }, []);
 
     const loadAnnouncements = async () => {
@@ -23,18 +21,6 @@ export default function Announcements() {
         } finally {
             setLoading(false);
         }
-    };
-
-    const loadDismissedState = () => {
-        const dismissedState = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
-        setDismissed(dismissedState);
-    };
-
-    const handleDismiss = (id) => {
-        const newDismissed = { ...dismissed, [id]: true };
-        localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));
-        setDismissed(newDismissed);
-        window.dispatchEvent(new Event('storage'));
     };
 
     const formatDate = (dateString) => {
@@ -55,8 +41,6 @@ export default function Announcements() {
             </div>
         );
     }
-
-    const activeAnnouncements = announcements.filter(a => !dismissed[a.id]);
 
     return (
         <div className="container" style={{ padding: '4rem 2rem', maxWidth: '900px', margin: '0 auto' }}>
@@ -87,7 +71,7 @@ export default function Announcements() {
                 </p>
             </div>
 
-            {activeAnnouncements.length === 0 ? (
+            {announcements.length === 0 ? (
                 <div 
                     className="liquid-glass"
                     style={{
@@ -118,7 +102,7 @@ export default function Announcements() {
                 </div>
             ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    {activeAnnouncements.map((announcement) => (
+                    {announcements.map((announcement) => (
                         <div
                             key={announcement.id}
                             className="liquid-glass"
@@ -133,36 +117,6 @@ export default function Announcements() {
                                 transition: 'all 0.3s ease'
                             }}
                         >
-                            <button
-                                onClick={() => handleDismiss(announcement.id)}
-                                style={{
-                                    position: 'absolute',
-                                    top: '1rem',
-                                    right: '1rem',
-                                    background: 'transparent',
-                                    border: 'none',
-                                    color: 'hsl(var(--color-text-muted))',
-                                    cursor: 'pointer',
-                                    padding: '0.5rem',
-                                    borderRadius: '0.5rem',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    transition: 'all 0.2s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.background = 'hsl(var(--color-border))';
-                                    e.target.style.color = 'hsl(var(--color-text-main))';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.background = 'transparent';
-                                    e.target.style.color = 'hsl(var(--color-text-muted))';
-                                }}
-                                title="Dismiss"
-                            >
-                                <X size={18} />
-                            </button>
-
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'center',

@@ -18,6 +18,30 @@ export default function Header() {
 
     useEffect(() => {
         const loadUnreadCount = async () => {
+            // If user is already on announcements page, don't show unread count
+            if (location.pathname === '/announcements') {
+                setUnreadCount(0);
+                // Mark all current as read in local storage to prevent count reappearing on navigation
+                try {
+                    const response = await api.getActiveAnnouncements();
+                    const announcements = response.data || [];
+                    const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
+                    let changed = false;
+                    announcements.forEach(a => {
+                        if (!dismissedAnnouncements[a.id]) {
+                            dismissedAnnouncements[a.id] = true;
+                            changed = true;
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem('dismissedAnnouncements', JSON.stringify(dismissedAnnouncements));
+                    }
+                } catch (error) {
+                    console.error('Failed to sync read status:', error);
+                }
+                return;
+            }
+
             try {
                 const response = await api.getActiveAnnouncements();
                 const announcements = response.data || [];
@@ -32,7 +56,7 @@ export default function Header() {
         loadUnreadCount();
         const interval = setInterval(loadUnreadCount, 30000); // Check every 30 seconds
         return () => clearInterval(interval);
-    }, []);
+    }, [location.pathname]); // Re-run when location changes
 
     const isActive = (path) => location.pathname === path;
 

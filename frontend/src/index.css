@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;700&family=Playfair+Display:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
   /* Minimalist Color Palette - Refined */
@@ -20,8 +20,11 @@
   /* Deep muted purple for fragrance accents */
 
   /* Typography - Premium Hierarchy */
-  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-serif: Georgia, 'Times New Roman', Times, serif; /* English Serif */
+  --font-serif-cn: 'Noto Serif SC', 'Songti SC', 'Songti', 'STSong', 'SimSun', serif; /* Chinese Serif */
+  
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-sans-cn: 'Inter', 'Noto Sans SC', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', system-ui, sans-serif;
 
   /* Liquid Glass Effects */
   --glass-bg: rgba(255, 255, 255, 0.9);
@@ -381,11 +384,18 @@ h6 {
 .gradient-text-interactive {
   font-style: italic;
   font-weight: 500;
+  background-clip: text !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
+  color: transparent !important;
   display: inline-block;
   transition: background 0.3s ease;
+  
+  /* Critical fix for font clipping */
+  padding-bottom: 0.1em; 
+  padding-top: 0.1em;
+  padding-right: 0.1em; /* Add right padding for italic slant */
+  vertical-align: baseline; /* Align with baseline */
 }
 
 /* Responsive */

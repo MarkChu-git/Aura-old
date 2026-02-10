@@ -6,10 +6,13 @@ import LiquidButton from '../components/LiquidButton';
 import { api } from '../services/api';
 
 export default function Explore() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [mode, setMode] = useState('text');
     const [inputValue, setInputValue] = useState('');
     const navigate = useNavigate();
+
+    const isChinese = i18n.language.startsWith('zh');
+    const serifFont = isChinese ? 'var(--font-serif-cn)' : 'var(--font-serif)';
 
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -42,7 +45,7 @@ export default function Explore() {
                         marginBottom: '1rem',
                         fontWeight: '300',
                         letterSpacing: '-0.01em',
-                        fontFamily: 'var(--font-serif)'
+                        fontFamily: serifFont
                     }}>
                         {t('explore.hero.title')}
                     </h1>

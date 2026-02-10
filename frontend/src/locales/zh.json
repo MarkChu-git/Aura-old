@@ -3,249 +3,283 @@
         "home": "首页",
         "explore": "探索",
         "announcements": "公告",
-        "profile": "个人资料",
+        "profile": "个人中心",
+        "admin": "管理后台",
         "signIn": "登录",
-        "getStarted": "开始使用",
-        "signOut": "退出"
+        "getStarted": "即刻开启",
+        "signOut": "退出登录"
     },
     "home": {
         "hero": {
             "title": "探索香氛",
-            "titleThrough": "通过",
-            "titleFeeling": "感知",
-            "subtitle": "将朦胧的感官体验转化为专属的香氛方案",
-            "cta": "开启您的香氛之旅"
+            "titleThrough": "以",
+            "titleFeeling": "感官",
+            "subtitle": "化朦胧感知，为专属香韵",
+            "cta": "开启寻香之旅"
         },
         "howItWorks": {
-            "title": "如何运作",
-            "subtitle": "精致的香水发现方法",
+            "title": "寻香之旅",
+            "subtitle": "以精致之法，邂逅灵魂香气",
             "step1": {
-                "number": "一",
-                "title": "描述",
-                "description": "分享您珍视的感觉、记忆或意象"
+                "number": "壹",
+                "title": "描绘",
+                "description": "分享您珍视的记忆、心境或意象"
             },
             "step2": {
-                "number": "二",
-                "title": "分析",
-                "description": "我们的系统将您的输入解码为感官数据"
+                "number": "贰",
+                "title": "解析",
+                "description": "系统将您的心声解码为感官数据"
             },
             "step3": {
-                "number": "三",
-                "title": "发现",
-                "description": "获得个性化的香水方案"
+                "number": "叁",
+                "title": "邂逅",
+                "description": "获知专属于您的香氛方案"
             }
         },
         "trust": {
-            "message": "每个推荐都是可以解释的。",
-            "submessage": "我们相信透明度和理解，而不仅仅是算法。"
+            "message": "每一份推荐，皆有迹可循。",
+            "submessage": "我们坚信，理解与透明远胜于冰冷的算法。"
         }
     },
     "profile": {
-        "title": "个人资料",
-        "subtitle": "您的账户、历史记录和收藏项目",
+        "title": "个人中心",
+        "subtitle": "您的账户、足迹与珍藏",
+        "messages": "消息",
         "account": {
-            "title": "账户",
-            "email": "电子邮件",
+            "title": "账户信息",
+            "email": "电子邮箱",
             "activeMember": "活跃会员",
-            "signOut": "退出"
+            "signOut": "退出登录"
         },
         "history": {
-            "title": "历史记录",
+            "title": "探索足迹",
             "empty": {
-                "title": "还没有探索历史",
-                "message": "开始探索以在此处查看您的历史记录。",
+                "title": "暂无探索记录",
+                "message": "开启探索，记录您的寻香历程。",
                 "cta": "前往探索"
             },
             "text": "文本",
-            "openResult": "打开结果"
+            "openResult": "查看结果"
         },
         "saved": {
-            "title": "收藏",
+            "title": "珍藏",
             "empty": {
-                "title": "还没有收藏项目",
-                "message": "保存结果或项目以将其保留在此处。",
+                "title": "暂无珍藏",
+                "message": "保存您心仪的结果，以便随时回味。",
                 "cta": "前往探索"
             }
         },
         "security": {
-            "title": "安全",
-            "changePassword": "更改密码",
-            "changePasswordTitle": "更改您的密码",
+            "title": "安全设置",
+            "changePassword": "修改密码",
+            "changePasswordTitle": "修改您的密码",
             "currentPassword": "当前密码",
             "newPassword": "新密码",
             "confirmPassword": "确认新密码",
-            "passwordHint": "至少10个字符，包含大写字母、小写字母、数字和特殊字符",
+            "passwordHint": "至少10个字符，包含大小写字母、数字及特殊符号",
             "savePassword": "保存新密码",
             "saving": "保存中...",
             "cancel": "取消",
-            "success": "密码更改成功！",
+            "success": "密码修改成功！",
             "errors": {
-                "allRequired": "所有字段都是必填的",
-                "noMatch": "新密码不匹配",
-                "tooShort": "密码必须至少10个字符",
-                "failed": "更改密码失败"
+                "allRequired": "所有字段均为必填项",
+                "noMatch": "新密码输入不一致",
+                "tooShort": "密码长度至少需10个字符",
+                "failed": "密码修改失败"
             }
         },
         "dataControls": {
-            "title": "数据控制",
+            "title": "数据管理",
             "clearHistory": "清除历史记录",
-            "clearSaved": "清除收藏",
-            "confirmClearHistory": "清除您的历史记录？这将从此设备/账户中删除您的探索历史记录。",
-            "confirmClearSaved": "清除收藏的项目？这将从您的收藏列表中删除所有项目。"
+            "clearSaved": "清除珍藏",
+            "confirmClearHistory": "确定要清除历史记录吗？这将从您的账户中永久删除探索记录。",
+            "confirmClearSaved": "确定要清除珍藏吗？这将清空您的所有收藏项目。"
         },
         "notAuthenticated": {
-            "title": "请登录",
-            "message": "您需要登录才能查看您的个人资料。",
+            "title": "请先登录",
+            "message": "登录后方可查看您的个人资料。",
             "cta": "前往登录"
         },
         "loading": "加载中...",
         "sections": {
             "account": "账户",
-            "history": "历史记录",
-            "saved": "收藏",
+            "history": "足迹",
+            "saved": "珍藏",
             "security": "安全",
-            "dataControls": "数据控制"
+            "dataControls": "数据"
         },
         "account": {
-            "email": "电子邮件",
+            "email": "电子邮箱",
             "activeMember": "活跃会员",
-            "signOut": "退出"
+            "signOut": "退出登录"
         },
         "history": {
-            "emptyTitle": "暂无探索历史",
-            "emptyMessage": "开始探索以在此查看您的历史记录。",
+            "emptyTitle": "暂无探索记录",
+            "emptyMessage": "开启探索，记录您的寻香历程。",
             "cta": "前往探索",
             "openResult": "查看结果",
             "untitled": "未命名对话",
             "text": "文本"
         },
         "saved": {
-            "emptyTitle": "暂无收藏项目",
-            "emptyMessage": "保存结果或项目以便在此查看。",
+            "emptyTitle": "暂无珍藏",
+            "emptyMessage": "保存您心仪的结果，以便随时回味。",
             "cta": "前往探索"
         },
         "security": {
-            "changePassword": "更改密码",
-            "changePasswordTitle": "更改您的密码",
+            "changePassword": "修改密码",
+            "changePasswordTitle": "修改您的密码",
             "currentPassword": "当前密码",
             "newPassword": "新密码",
             "confirmPassword": "确认新密码",
-            "passwordHint": "至少10个字符，包含大写字母、小写字母、数字和特殊字符",
+            "passwordHint": "至少10个字符，包含大小写字母、数字及特殊符号",
             "savePassword": "保存新密码",
             "saving": "保存中...",
             "cancel": "取消",
-            "success": "密码更改成功！",
+            "success": "密码修改成功！",
             "errors": {
-                "allRequired": "所有字段均为必填",
-                "noMatch": "新密码不匹配",
-                "tooShort": "密码至少需要10个字符",
-                "failed": "更改密码失败"
+                "allRequired": "所有字段均为必填项",
+                "noMatch": "新密码输入不一致",
+                "tooShort": "密码长度至少需10个字符",
+                "failed": "密码修改失败"
             }
         },
         "dataControls": {
             "clearHistory": "清除历史记录",
-            "clearSaved": "清除收藏",
-            "confirmClearHistory": "清除历史记录？这将从此设备/账户中删除您的探索记录。",
-            "confirmClearSaved": "清除收藏项目？这将删除您的所有收藏。"
+            "clearSaved": "清除珍藏",
+            "confirmClearHistory": "确定要清除历史记录吗？这将从您的账户中永久删除探索记录。",
+            "confirmClearSaved": "确定要清除珍藏吗？这将清空您的所有收藏项目。"
         },
         "notAuthenticated": {
-            "title": "请登录",
-            "message": "您需要登录才能查看个人资料。",
+            "title": "请先登录",
+            "message": "登录后方可查看您的个人资料。",
             "cta": "前往登录"
-        },
-        "chat": {
-            "title": "聊天",
-            "placeholder": "描述一种感觉、记忆或时刻...",
-            "send": "发送",
-            "newChat": "新对话",
-            "welcomeMessage": "你好。我是 Aura。告诉我一段记忆、一种心情或一个地方，我将为您描述它的气息。",
-            "sidebar": {
-                "loginPrompt": "登录以保存您的香氛之旅并查看历史记录。",
-                "signIn": "登录",
-                "recent": "最近",
-                "noHistory": "暂无历史记录。开始探索吧！"
-            },
-            "error": "我现在无法感知到这一点。请再试一次。"
-        },
-        "explore": {
-            "title": "探索",
-            "subtitle": "发现香水",
-            "searchPlaceholder": "搜索香水...",
-            "filters": "筛选",
-            "noResults": "未找到结果"
-        },
-        "auth": {
-            "login": {
-                "title": "登录",
-                "email": "电子邮件",
-                "password": "密码",
-                "submit": "登录",
-                "forgotPassword": "忘记密码？",
-                "noAccount": "还没有账户？",
-                "register": "注册"
-            },
-            "register": {
-                "title": "创建账户",
-                "email": "电子邮件",
-                "password": "密码",
-                "confirmPassword": "确认密码",
-                "submit": "创建账户",
-                "hasAccount": "已有账户？",
-                "signIn": "登录"
-            },
-            "forgotPassword": {
-                "title": "重置密码",
-                "subtitle": "输入您的电子邮件以接收密码重置链接",
-                "email": "电子邮件",
-                "submit": "发送重置链接",
-                "backToLogin": "返回登录",
-                "success": "请检查您的电子邮件以获取重置链接"
-            },
-            "resetPassword": {
-                "title": "设置新密码",
-                "newPassword": "新密码",
-                "confirmPassword": "确认密码",
-                "submit": "重置密码",
-                "success": "密码重置成功"
-            },
-            "welcome": "欢迎回来",
-            "subtitle": "登录以继续您的香氛之旅",
-            "processing": "正在安全登录...",
-            "error": "Google 认证失败",
-            "continueAs": "继续以"
-        },
-        "analyzing": {
-            "title": "分析中",
-            "message": "正在分析您的输入...",
-            "please": "请稍候"
-        },
-        "result": {
-            "title": "您的结果",
-            "recommendations": "推荐",
-            "noResults": "未找到结果",
-            "tryAgain": "再试一次"
-        },
-        "footer": {
-            "privacy": "隐私政策",
-            "terms": "服务条款",
-            "copyright": "© 2026 Aura. 版权所有。"
-        },
-        "common": {
-            "loading": "加载中...",
-            "error": "发生错误",
-            "retry": "重试",
-            "cancel": "取消",
-            "save": "保存",
-            "delete": "删除",
-            "edit": "编辑",
-            "close": "关闭",
-            "confirm": "确认",
-            "pageNotFound": "找不到页面"
-        },
-        "language": {
-            "select": "选择语言",
-            "en": "English",
-            "zh": "中文",
-            "ms": "Bahasa Melayu"
         }
-    }}
+    },
+    "chat": {
+        "title": "灵感对话",
+        "placeholder": "描述一种感觉、一段记忆或一个瞬间...",
+        "send": "发送",
+        "newChat": "新对话",
+        "welcomeMessage": "你好，我是 Aura。告诉我一段记忆、一种心境或一个地方，我将为您描绘它的气息。",
+        "sidebar": {
+            "loginPrompt": "登录以珍藏您的香氛之旅。",
+            "signIn": "登录",
+            "recent": "最近",
+            "noHistory": "暂无记录，开启您的探索之旅吧！"
+        },
+        "error": "抱歉，我暂时无法感知，请重试。"
+    },
+    "explore": {
+        "title": "探索",
+        "subtitle": "发现香氛",
+        "searchPlaceholder": "搜索香氛...",
+        "filters": "筛选",
+        "noResults": "未找到相关结果",
+        "hero": {
+            "title": "此刻，您感受到了什么？",
+            "subtitle": "描述您的心境，或上传一张能映照您此刻情绪的图片。"
+        },
+        "modes": {
+            "text": "文字",
+            "image": "图片"
+        },
+        "textInput": {
+            "placeholder": "描绘一种感觉、一个场景或某个动人瞬间...",
+            "examples": "或是尝试这些灵感："
+        },
+        "imageInput": {
+            "upload": "点击上传图片",
+            "description": "我们将解析其中的情绪、色彩与氛围。"
+        },
+        "actions": {
+            "connecting": "连接中...",
+            "analyze": "解析感知"
+        },
+        "errors": {
+            "failed": "暂时无法触达感官核心，请重试。"
+        },
+        "tags": {
+             "Rainy Forest": "雨后森林",
+             "Warm Blanket": "温暖毛毯",
+             "Crisp Morning": "清冽晨光",
+             "Old Library": "古老图书馆",
+             "Ocean Breeze": "海风轻拂",
+             "Cozy Fireplace": "舒适壁炉"
+        }
+    },
+    "auth": {
+        "login": {
+            "title": "登录",
+            "email": "电子邮箱",
+            "password": "密码",
+            "submit": "登录",
+            "forgotPassword": "忘记密码？",
+            "noAccount": "还没有账户？",
+            "register": "注册"
+        },
+        "register": {
+            "title": "创建账户",
+            "email": "电子邮箱",
+            "password": "密码",
+            "confirmPassword": "确认密码",
+            "submit": "创建账户",
+            "hasAccount": "已有账户？",
+            "signIn": "登录"
+        },
+        "forgotPassword": {
+            "title": "重置密码",
+            "subtitle": "输入您的邮箱以接收重置链接",
+            "email": "电子邮箱",
+            "submit": "发送重置链接",
+            "backToLogin": "返回登录",
+            "success": "请检查您的邮箱以获取重置链接"
+        },
+        "resetPassword": {
+            "title": "设置新密码",
+            "newPassword": "新密码",
+            "confirmPassword": "确认密码",
+            "submit": "重置密码",
+            "success": "密码重置成功"
+        },
+        "welcome": "欢迎回来",
+        "subtitle": "登录以延续您的香氛之旅",
+        "processing": "安全登录中...",
+        "error": "Google 认证失败",
+        "continueAs": "继续以"
+    },
+    "analyzing": {
+        "title": "解析中",
+        "message": "正在解读您的心声...",
+        "please": "请稍候"
+    },
+    "result": {
+        "title": "专属结果",
+        "recommendations": "为您推荐",
+        "noResults": "未找到匹配结果",
+        "tryAgain": "重试"
+    },
+    "footer": {
+        "privacy": "隐私政策",
+        "terms": "服务条款",
+        "copyright": "© 2026 Aura. 保留所有权利。"
+    },
+    "common": {
+        "loading": "加载中...",
+        "error": "发生错误",
+        "retry": "重试",
+        "cancel": "取消",
+        "save": "保存",
+        "delete": "删除",
+        "edit": "编辑",
+        "close": "关闭",
+        "confirm": "确认",
+        "pageNotFound": "页面未找到"
+    },
+    "language": {
+        "select": "选择语言",
+        "en": "English",
+        "zh": "中文",
+        "ms": "Bahasa Melayu"
+    }
+}

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Image, Type, Sparkles } from 'lucide-react';
 import LiquidButton from '../components/LiquidButton';
 import { api } from '../services/api';
 
 export default function Explore() {
+    const { t } = useTranslation();
     const [mode, setMode] = useState('text');
     const [inputValue, setInputValue] = useState('');
     const navigate = useNavigate();
@@ -23,7 +25,7 @@ export default function Explore() {
             navigate('/analyzing', { state: { jobId: data.job_id } });
         } catch (err) {
             console.error(err);
-            setError('Unable to reach the sensory core. Please try again.');
+            setError(t('explore.errors.failed'));
         } finally {
             setIsLoading(false);
         }
@@ -42,7 +44,7 @@ export default function Explore() {
                         letterSpacing: '-0.01em',
                         fontFamily: 'var(--font-serif)'
                     }}>
-                        What are you sensing?
+                        {t('explore.hero.title')}
                     </h1>
                     <p style={{
                         fontSize: '1.0625rem',
@@ -51,7 +53,7 @@ export default function Explore() {
                         margin: '0 auto',
                         fontWeight: '300'
                     }}>
-                        Describe your feelings or upload an image that captures the mood you're seeking.
+                        {t('explore.hero.subtitle')}
                     </p>
                 </div>
 
@@ -75,7 +77,7 @@ export default function Explore() {
                             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
                         }}
                     >
-                        <Type size={18} /> Text
+                        <Type size={18} /> {t('explore.modes.text')}
                     </LiquidButton>
                     <LiquidButton
                         onClick={() => setMode('image')}
@@ -89,7 +91,7 @@ export default function Explore() {
                             boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)'
                         }}
                     >
-                        <Image size={18} /> Image
+                        <Image size={18} /> {t('explore.modes.image')}
                     </LiquidButton>
                 </div>
 
@@ -107,7 +109,7 @@ export default function Explore() {
                                 <textarea
                                     value={inputValue}
                                     onChange={(e) => setInputValue(e.target.value)}
-                                    placeholder="Describe a feeling, scene, or moment you like..."
+                                    placeholder={t('explore.textInput.placeholder')}
                                     style={{
                                         width: '100%',
                                         height: '250px',
@@ -132,7 +134,7 @@ export default function Explore() {
                                     color: 'hsl(var(--color-text-muted))',
                                     marginBottom: '1rem'
                                 }}>
-                                    Try these examples:
+                                    {t('explore.textInput.examples')}
                                 </p>
                                 <div style={{ display: 'flex', gap: '0.625rem', flexWrap: 'wrap' }}>
                                     {exampleTags.map((tag, idx) => (
@@ -152,7 +154,7 @@ export default function Explore() {
                                                 opacity: 0
                                             }}
                                         >
-                                            {tag}
+                                            {t(`explore.tags.${tag}`, tag)}
                                         </button>
                                     ))}
                                 </div>
@@ -184,10 +186,10 @@ export default function Explore() {
                                     margin: '0 auto 1.5rem'
                                 }} />
                                 <p style={{ fontSize: '1.0625rem', marginBottom: '0.5rem', color: 'hsl(var(--color-text-main))' }}>
-                                    Click to upload an image
+                                    {t('explore.imageInput.upload')}
                                 </p>
                                 <p style={{ fontSize: '0.875rem', marginTop: '1rem' }}>
-                                    We analyze the mood, colors, and atmosphere.
+                                    {t('explore.imageInput.description')}
                                 </p>
                             </div>
                         </div>
@@ -210,7 +212,7 @@ export default function Explore() {
                         }}
                     >
                         <Sparkles size={18} />
-                        {isLoading ? 'Connecting...' : 'Analyze Feeling'}
+                        {isLoading ? t('explore.actions.connecting') : t('explore.actions.analyze')}
                     </LiquidButton>
                     {error && (
                         <p className="animate-fade-in" style={{

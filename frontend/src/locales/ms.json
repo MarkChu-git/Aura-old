@@ -1,27 +1,28 @@
 {
     "header": {
-        "home": "Halaman Utama",
+        "home": "Laman Utama",
         "explore": "Terokai",
         "announcements": "Pengumuman",
         "profile": "Profil",
+        "admin": "Admin",
         "signIn": "Log Masuk",
-        "getStarted": "Mula",
+        "getStarted": "Mula Sekarang",
         "signOut": "Log Keluar"
     },
     "home": {
         "hero": {
             "title": "Terokai dunia wangian",
-            "titleThrough": "melalui",
-            "titleFeeling": "perasaan",
-            "subtitle": "Terjemahkan deria rasa anda kepada seleksi wangian yang bermakna",
+            "titleThrough": "menerusi",
+            "titleFeeling": "naluri",
+            "subtitle": "Terjemahkan rasa yang tersirat kepada wangian yang tersurat",
             "cta": "Mulakan Kembara Anda"
         },
         "howItWorks": {
-            "title": "Cara ia berfungsi",
-            "subtitle": "Pendekatan halus untuk penemuan wangian",
+            "title": "Kembara Wangian",
+            "subtitle": "Pendekatan halus untuk menemui aroma jiwa",
             "step1": {
                 "number": "I",
-                "title": "Huraikan",
+                "title": "Luahkan",
                 "description": "Kongsikan perasaan, kenangan, atau imej yang anda hargai"
             },
             "step2": {
@@ -32,43 +33,44 @@
             "step3": {
                 "number": "III",
                 "title": "Temui",
-                "description": "Terima pelan wangian yang diperibadikan"
+                "description": "Terima pelan wangian yang diperibadikan khas untuk anda"
             }
         },
         "trust": {
-            "message": "Setiap cadangan boleh dijelaskan.",
-            "submessage": "Kami percaya pada ketelusan dan pemahaman, bukan hanya algoritma."
+            "message": "Setiap syor mempunyai kisahnya.",
+            "submessage": "Kami utamakan kefahaman dan ketelusan, bukan sekadar algoritma semata-mata."
         }
     },
     "profile": {
         "title": "Profil",
         "subtitle": "Akaun, sejarah, dan item simpanan anda",
+        "messages": "Mesej",
         "account": {
-            "title": "Akaun",
+            "title": "Maklumat Akaun",
             "email": "E-mel",
             "activeMember": "Ahli Aktif",
             "signOut": "Log Keluar"
         },
         "history": {
-            "title": "Sejarah",
+            "title": "Jejak Penerokaan",
             "empty": {
                 "title": "Belum ada sejarah penerokaan",
-                "message": "Mula meneroka untuk melihat sejarah anda di sini.",
+                "message": "Mula meneroka untuk merekodkan perjalanan wangian anda.",
                 "cta": "Pergi ke Terokai"
             },
             "text": "Teks",
-            "openResult": "Buka Hasil"
+            "openResult": "Lihat Hasil"
         },
         "saved": {
-            "title": "Disimpan",
+            "title": "Koleksi",
             "empty": {
-                "title": "Belum ada item yang disimpan",
-                "message": "Simpan hasil atau item untuk menyimpannya di sini.",
+                "title": "Belum ada koleksi",
+                "message": "Simpan hasil kegemaran anda untuk rujukan masa depan.",
                 "cta": "Pergi ke Terokai"
             }
         },
         "security": {
-            "title": "Keselamatan",
+            "title": "Tetapan Keselamatan",
             "changePassword": "Tukar Kata Laluan",
             "changePasswordTitle": "Tukar Kata Laluan Anda",
             "currentPassword": "Kata Laluan Semasa",
@@ -87,11 +89,11 @@
             }
         },
         "dataControls": {
-            "title": "Kawalan Data",
+            "title": "Pengurusan Data",
             "clearHistory": "Kosongkan Sejarah",
-            "clearSaved": "Kosongkan Simpanan",
-            "confirmClearHistory": "Kosongkan sejarah anda? Ini akan memadam sejarah penerokaan anda dari peranti/akaun ini.",
-            "confirmClearSaved": "Kosongkan item yang disimpan? Ini akan membuang semua item dari senarai Simpanan anda."
+            "clearSaved": "Kosongkan Koleksi",
+            "confirmClearHistory": "Adakah anda pasti mahu mengosongkan sejarah? Ini akan memadamkan rekod penerokaan anda secara kekal.",
+            "confirmClearSaved": "Adakah anda pasti mahu mengosongkan koleksi? Ini akan membuang semua item yang disimpan."
         },
         "notAuthenticated": {
             "title": "Sila Log Masuk",
@@ -102,9 +104,9 @@
         "sections": {
             "account": "Akaun",
             "history": "Sejarah",
-            "saved": "Disimpan",
+            "saved": "Koleksi",
             "security": "Keselamatan",
-            "dataControls": "Kawalan Data"
+            "dataControls": "Data"
         },
         "account": {
             "email": "E-mel",
@@ -113,15 +115,15 @@
         },
         "history": {
             "emptyTitle": "Belum ada sejarah penerokaan",
-            "emptyMessage": "Mula meneroka untuk melihat sejarah anda di sini.",
+            "emptyMessage": "Mula meneroka untuk merekodkan perjalanan wangian anda.",
             "cta": "Pergi ke Terokai",
-            "openResult": "Buka Hasil",
+            "openResult": "Lihat Hasil",
             "untitled": "Sembang Tanpa Tajuk",
             "text": "Teks"
         },
         "saved": {
-            "emptyTitle": "Belum ada item yang disimpan",
-            "emptyMessage": "Simpan hasil atau item untuk menyimpannya di sini.",
+            "emptyTitle": "Belum ada koleksi",
+            "emptyMessage": "Simpan hasil kegemaran anda untuk rujukan masa depan.",
             "cta": "Pergi ke Terokai"
         },
         "security": {
@@ -144,108 +146,140 @@
         },
         "dataControls": {
             "clearHistory": "Kosongkan Sejarah",
-            "clearSaved": "Kosongkan Simpanan",
-            "confirmClearHistory": "Kosongkan sejarah anda? Ini akan memadam sejarah penerokaan anda dari peranti/akaun ini.",
-            "confirmClearSaved": "Kosongkan item yang disimpan? Ini akan membuang semua item dari senarai Simpanan anda."
+            "clearSaved": "Kosongkan Koleksi",
+            "confirmClearHistory": "Adakah anda pasti mahu mengosongkan sejarah? Ini akan memadamkan rekod penerokaan anda secara kekal.",
+            "confirmClearSaved": "Adakah anda pasti mahu mengosongkan koleksi? Ini akan membuang semua item yang disimpan."
         },
         "notAuthenticated": {
             "title": "Sila Log Masuk",
             "message": "Anda perlu log masuk untuk melihat profil anda.",
             "cta": "Pergi ke Log Masuk"
-        },
-        "chat": {
-            "title": "Sembang",
-            "placeholder": "Huraikan perasaan, kenangan, atau detik...",
-            "send": "Hantar",
-            "newChat": "Sembang Baru",
-            "welcomeMessage": "Helo. Saya Aura. Ceritakan tentang kenangan, perasaan, atau tempat, dan saya akan huraikan baunya.",
-            "sidebar": {
-                "loginPrompt": "Log masuk untuk menyimpan kembara haruman anda dan melihat sejarah.",
-                "signIn": "Log Masuk",
-                "recent": "Terkini",
-                "noHistory": "Tiada sejarah lagi. Mula meneroka!"
-            },
-            "error": "Saya mengalami kesukaran mengesan perkara itu sekarang. Sila cuba lagi."
-        },
-        "explore": {
-            "title": "Terokai",
-            "subtitle": "Temui wangian",
-            "searchPlaceholder": "Cari wangian...",
-            "filters": "Penapis",
-            "noResults": "Tiada hasil ditemui"
-        },
-        "auth": {
-            "login": {
-                "title": "Log Masuk",
-                "email": "E-mel",
-                "password": "Kata Laluan",
-                "submit": "Log Masuk",
-                "forgotPassword": "Terlupa kata laluan?",
-                "noAccount": "Tidak mempunyai akaun?",
-                "register": "Daftar"
-            },
-            "register": {
-                "title": "Cipta Akaun",
-                "email": "E-mel",
-                "password": "Kata Laluan",
-                "confirmPassword": "Sahkan Kata Laluan",
-                "submit": "Cipta Akaun",
-                "hasAccount": "Sudah mempunyai akaun?",
-                "signIn": "Log Masuk"
-            },
-            "forgotPassword": {
-                "title": "Tetapkan Semula Kata Laluan",
-                "subtitle": "Masukkan e-mel anda untuk menerima pautan tetapan semula kata laluan",
-                "email": "E-mel",
-                "submit": "Hantar Pautan Tetapan Semula",
-                "backToLogin": "Kembali ke Log Masuk",
-                "success": "Semak e-mel anda untuk pautan tetapan semula"
-            },
-            "resetPassword": {
-                "title": "Tetapkan Kata Laluan Baru",
-                "newPassword": "Kata Laluan Baru",
-                "confirmPassword": "Sahkan Kata Laluan",
-                "submit": "Tetapkan Semula Kata Laluan",
-                "success": "Kata laluan berjaya ditetapkan semula"
-            },
-            "welcome": "Selamat Kembali",
-            "subtitle": "Log masuk untuk meneruskan kembara haruman anda",
-            "processing": "Memproses log masuk selamat...",
-            "error": "Pengesahan Google gagal",
-            "continueAs": "Teruskan sebagai"
-        },
-        "analyzing": {
-            "title": "Menganalisis",
-            "message": "Menganalisis input anda...",
-            "please": "Sila tunggu"
-        },
-        "result": {
-            "title": "Hasil Anda",
-            "recommendations": "Cadangan",
-            "noResults": "Tiada hasil ditemui",
-            "tryAgain": "Cuba Lagi"
-        },
-        "footer": {
-            "privacy": "Dasar Privasi",
-            "terms": "Terma Perkhidmatan",
-            "copyright": "© 2026 Aura. Hak cipta terpelihara."
-        },
-        "common": {
-            "loading": "Memuatkan...",
-            "error": "Ralat berlaku",
-            "retry": "Cuba Semula",
-            "cancel": "Batal",
-            "save": "Simpan",
-            "delete": "Padam",
-            "edit": "Edit",
-            "close": "Tutup",
-            "confirm": "Sahkan",
-            "pageNotFound": "Halaman tidak dijumpai"
-        },
-        "language": {
-            "select": "Pilih Bahasa",
-            "en": "English",
-            "zh": "中文",
-            "ms": "Bahasa Melayu"
         }
-    }}
+    },
+    "chat": {
+        "title": "Sembang Inspirasi",
+        "placeholder": "Huraikan perasaan, kenangan, atau detik indah...",
+        "send": "Hantar",
+        "newChat": "Sembang Baru",
+        "welcomeMessage": "Helo. Saya Aura. Ceritakan tentang kenangan, perasaan, atau tempat, dan saya akan lakarkan harumannya.",
+        "sidebar": {
+            "loginPrompt": "Log masuk untuk menyimpan kembara haruman anda.",
+            "signIn": "Log Masuk",
+            "recent": "Terkini",
+            "noHistory": "Tiada sejarah lagi. Mulakan penerokaan anda!"
+        },
+        "error": "Maaf, saya tidak dapat mengesan perkara itu sekarang. Sila cuba lagi."
+    },
+    "explore": {
+        "title": "Terokai",
+        "subtitle": "Temui Wangian",
+        "searchPlaceholder": "Cari wangian...",
+        "filters": "Penapis",
+        "noResults": "Tiada hasil ditemui",
+        "hero": {
+            "title": "Apa yang anda rasakan?",
+            "subtitle": "Gambarkan perasaan anda atau muat naik imej yang mencerminkan suasana yang anda cari."
+        },
+        "modes": {
+            "text": "Teks",
+            "image": "Imej"
+        },
+        "textInput": {
+            "placeholder": "Gambarkan perasaan, pemandangan, atau detik yang anda suka...",
+            "examples": "Cuba contoh-contoh ini:"
+        },
+        "imageInput": {
+            "upload": "Klik untuk muat naik imej",
+            "description": "Kami menganalisis suasana, warna, dan atmosfera."
+        },
+        "actions": {
+            "connecting": "Menyambung...",
+            "analyze": "Analisis Perasaan"
+        },
+        "errors": {
+            "failed": "Tidak dapat mencapai teras deria. Sila cuba lagi."
+        },
+        "tags": {
+             "Rainy Forest": "Hutan Hujan",
+             "Warm Blanket": "Selimut Hangat",
+             "Crisp Morning": "Pagi Yang Segar",
+             "Old Library": "Perpustakaan Lama",
+             "Ocean Breeze": "Bayu Laut",
+             "Cozy Fireplace": "Perapian Selesa"
+        }
+    },
+    "auth": {
+        "login": {
+            "title": "Log Masuk",
+            "email": "E-mel",
+            "password": "Kata Laluan",
+            "submit": "Log Masuk",
+            "forgotPassword": "Terlupa kata laluan?",
+            "noAccount": "Tiada akaun?",
+            "register": "Daftar"
+        },
+        "register": {
+            "title": "Cipta Akaun",
+            "email": "E-mel",
+            "password": "Kata Laluan",
+            "confirmPassword": "Sahkan Kata Laluan",
+            "submit": "Cipta Akaun",
+            "hasAccount": "Sudah mempunyai akaun?",
+            "signIn": "Log Masuk"
+        },
+        "forgotPassword": {
+            "title": "Tetapkan Semula Kata Laluan",
+            "subtitle": "Masukkan e-mel anda untuk menerima pautan tetapan semula",
+            "email": "E-mel",
+            "submit": "Hantar Pautan",
+            "backToLogin": "Kembali ke Log Masuk",
+            "success": "Semak e-mel anda untuk pautan tetapan semula"
+        },
+        "resetPassword": {
+            "title": "Tetapkan Kata Laluan Baru",
+            "newPassword": "Kata Laluan Baru",
+            "confirmPassword": "Sahkan Kata Laluan",
+            "submit": "Tetapkan Semula",
+            "success": "Kata laluan berjaya ditetapkan semula"
+        },
+        "welcome": "Selamat Kembali",
+        "subtitle": "Log masuk untuk meneruskan kembara haruman anda",
+        "processing": "Sedang log masuk...",
+        "error": "Pengesahan Google gagal",
+        "continueAs": "Teruskan sebagai"
+    },
+    "analyzing": {
+        "title": "Menganalisis",
+        "message": "Sedang menafsir input anda...",
+        "please": "Sila tunggu sebentar"
+    },
+    "result": {
+        "title": "Hasil Anda",
+        "recommendations": "Syor Untuk Anda",
+        "noResults": "Tiada hasil ditemui",
+        "tryAgain": "Cuba Lagi"
+    },
+    "footer": {
+        "privacy": "Dasar Privasi",
+        "terms": "Terma Perkhidmatan",
+        "copyright": "© 2026 Aura. Hak cipta terpelihara."
+    },
+    "common": {
+        "loading": "Memuatkan...",
+        "error": "Ralat berlaku",
+        "retry": "Cuba Semula",
+        "cancel": "Batal",
+        "save": "Simpan",
+        "delete": "Padam",
+        "edit": "Edit",
+        "close": "Tutup",
+        "confirm": "Sahkan",
+        "pageNotFound": "Halaman tidak dijumpai"
+    },
+    "language": {
+        "select": "Pilih Bahasa",
+        "en": "English",
+        "zh": "中文",
+        "ms": "Bahasa Melayu"
+    }
+}

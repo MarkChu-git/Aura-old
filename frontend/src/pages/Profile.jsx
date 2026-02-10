@@ -51,17 +51,17 @@ export default function Profile() {
     };
 
     const handleClearHistory = async () => {
-        if (!confirm("Clear your history? This will delete your exploration history from this device/account.")) return;
+        if (!confirm(t('profile.dataControls.confirmClearHistory'))) return;
         try {
             await api.clearHistory();
             setHistory([]);
         } catch {
-            alert("Failed to clear history");
+            alert(t('common.error'));
         }
     };
 
     const handleClearSaved = () => {
-        if (!confirm("Clear saved items? This will remove all items from your Saved list.")) return;
+        if (!confirm(t('profile.dataControls.confirmClearSaved'))) return;
         setSaved([]);
     };
 
@@ -78,31 +78,31 @@ export default function Profile() {
 
         // Validation
         if (!oldPassword || !newPassword || !confirmPassword) {
-            setPasswordError('All fields are required');
+            setPasswordError(t('profile.security.errors.allRequired'));
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setPasswordError('New passwords do not match');
+            setPasswordError(t('profile.security.errors.noMatch'));
             return;
         }
 
         if (newPassword.length < 10) {
-            setPasswordError('Password must be at least 10 characters');
+            setPasswordError(t('profile.security.errors.tooShort'));
             return;
         }
 
         setChangingPassword(true);
         try {
             await api.changePassword({ old_password: oldPassword, new_password: newPassword });
-            setPasswordSuccess('Password changed successfully!');
+            setPasswordSuccess(t('profile.security.success'));
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
             setShowPasswordForm(false);
             setTimeout(() => setPasswordSuccess(''), 3000);
         } catch (err) {
-            setPasswordError(err.response?.data?.detail || 'Failed to change password');
+            setPasswordError(err.response?.data?.detail || t('profile.security.errors.failed'));
         } finally {
             setChangingPassword(false);
         }
@@ -171,7 +171,7 @@ export default function Profile() {
 
             {/* Messages Section */}
             {user?.role !== 'admin' && (
-                <Section title="Messages" icon={MessageSquare}>
+                <Section title={t('profile.messages')} icon={MessageSquare}>
                     <UserMessages />
                 </Section>
             )}

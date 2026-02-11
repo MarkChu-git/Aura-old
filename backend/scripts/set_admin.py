@@ -24,8 +24,8 @@ if os.path.isdir(os.path.join(os.getcwd(), "app")):
 elif os.path.isdir(os.path.join(os.getcwd(), "backend")):
     sys.path.append(os.path.join(os.getcwd(), "backend"))
 
-from app.db.session import AsyncSessionLocal
-from app.db.models.user import User
+from app.db.session import AsyncSessionLocal  # noqa: E402
+from app.db.models.user import User  # noqa: E402
 
 async def set_admin_role(email):
     async with AsyncSessionLocal() as db:

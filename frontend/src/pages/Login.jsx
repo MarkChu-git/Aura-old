@@ -66,7 +66,7 @@ export default function Login() {
             return () => clearTimeout(timer);
         }
 
-    }, [login, navigate, from]);
+    }, [login, navigate, from, t]);
 
     return (
         <div className="container" style={{

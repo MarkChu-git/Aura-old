@@ -14,7 +14,7 @@ export default function AuthModal({ isOpen, onClose }) {
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         if (isOpen) setError('');
-    }, [isOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     useEffect(() => {
         if (!isOpen) return;

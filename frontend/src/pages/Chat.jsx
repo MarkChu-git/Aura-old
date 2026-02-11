@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Send, User, Bot, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock, Trash2, Copy, Check } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
@@ -94,7 +94,7 @@ const MessageBubble = ({ msg, isAi }) => {
                     ol: ({ ...props }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }} {...props} />,
                     li: ({ ...props }) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
                     strong: ({ ...props }) => <strong style={{ fontWeight: 600 }} {...props} />,
-                    code: ({ node, inline, className, children, ...props }) => {
+                    code: ({ inline, className, children, ...props }) => {
                         const match = /language-(\w+)/.exec(className || '');
                         return !inline && match ? (
                             <CodeBlock language={match[1]}>
@@ -183,14 +183,17 @@ export default function Chat() {
             // It sets id.
             // Good enough.
         }
-    }, [location.state, isAuthenticated]);
+    }, [location.state, isAuthenticated, loadConversation]);
 
     // Update welcome message when language changes if it's the only message
     useEffect(() => {
         if (messages.length === 1 && messages[0].role === 'assistant') {
-            setMessages([{ role: 'assistant', content: t('chat.welcomeMessage') }]);
+            const newContent = t('chat.welcomeMessage');
+            if (messages[0].content !== newContent) {
+                setMessages([{ role: 'assistant', content: newContent }]);
+            }
         }
-    }, [t, i18n.language]);
+    }, [t, i18n.language, messages]);
 
     const fetchHistory = async () => {
         try {
@@ -209,7 +212,7 @@ export default function Chat() {
         scrollToBottom();
     }, [messages]);
 
-    const loadConversation = async (id) => {
+    const loadConversation = useCallback(async (id) => {
         if (loading) return;
         setHistoryLoading(true);
         try {
@@ -226,7 +229,7 @@ export default function Chat() {
         } finally {
             setHistoryLoading(false);
         }
-    };
+    }, [loading]);
 
     const startNewChat = () => {
         setConversationId(null);

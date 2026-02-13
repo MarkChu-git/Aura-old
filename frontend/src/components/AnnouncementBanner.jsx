@@ -1,3 +1,13 @@
+/**
+ * Announcement Banner Component
+ * -----------------------------
+ * A dismissible banner that displays system announcements at the top of the page.
+ * Supports multiple announcements and cycles through them.
+ * Persists dismissed state to localStorage.
+ *
+ * @component
+ */
+
 import { useEffect, useState, useCallback } from 'react';
 import { X, Megaphone } from 'lucide-react';
 import { api } from '../services/api.js';
@@ -8,6 +18,10 @@ export default function AnnouncementBanner() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [dismissed, setDismissed] = useState(() => JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}'));
 
+    /**
+     * Fetch active announcements from the API.
+     * Filters out already dismissed announcements.
+     */
     const loadAnnouncements = useCallback(async () => {
         try {
             const response = await api.getActiveAnnouncements();
@@ -26,10 +40,15 @@ export default function AnnouncementBanner() {
     }, []);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         loadAnnouncements();
     }, [loadAnnouncements]);
 
+    /**
+     * Handle dismissal of an announcement.
+     * Updates localStorage and state.
+     * 
+     * @param {number} id - The announcement ID.
+     */
     const handleDismiss = (id) => {
         const newDismissed = { ...dismissed, [id]: true };
         localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));

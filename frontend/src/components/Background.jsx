@@ -1,6 +1,18 @@
+/**
+ * Background Component
+ * --------------------
+ * Renders an interactive, animated background using HTML5 Canvas.
+ * Simulates an "Ink Wash" effect with water-like ripples and particle trails.
+ *
+ * @component
+ */
+
 import { useEffect, useRef } from 'react';
 
-// Ink Particle Class - Simulating "Ripples" (荡漾)
+/**
+ * Ink Particle Class
+ * Represents a single drop or ripple of ink on the canvas.
+ */
 class InkParticle {
     constructor(x, y) {
         this.x = x;
@@ -22,6 +34,9 @@ class InkParticle {
         this.color = colors[Math.floor(Math.random() * colors.length)];
     }
 
+    /**
+     * Update particle state (growth, fade).
+     */
     update() {
         this.age++;
         // Logarithmic growth for "ripple" feel
@@ -32,6 +47,10 @@ class InkParticle {
         this.opacity = 1 - progress;
     }
 
+    /**
+     * Draw the particle on the canvas context.
+     * @param {CanvasRenderingContext2D} ctx - The canvas context.
+     */
     draw(ctx) {
         ctx.beginPath();
         // Radial gradient to simulate the ring ripple
@@ -70,8 +89,6 @@ export default function Background() {
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-
-
         const handleMouseMove = (e) => {
             // Spawn ink drops more frequently only if mouse moves fast? 
             // For now, spawn freely but limit count to avoid lag
@@ -84,16 +101,8 @@ export default function Background() {
         };
 
         const animate = () => {
-            // Clear but leave trails? No, for ink wash we want accumulation or clear?
-            // "Interactive" usually implies clearing. 
-            // But real ink stays. 
-            // Let's try attempting a "fading canvas" effect for trails.
-
             // Clear canvas completely each frame for now to simulate floating ink
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Optional: Draw a base subtle background gradient
-            // ctx.fillStyle = 'rgba(255, 255, 255, 0.)'; // or theme bg
 
             // Draw all particles
             particles.forEach((p, index) => {
@@ -105,9 +114,6 @@ export default function Background() {
                     particles.splice(index, 1);
                 }
             });
-
-            // Ambient ink blobs (optional, for background life)
-            // ...
 
             animationFrameId = requestAnimationFrame(animate);
         };

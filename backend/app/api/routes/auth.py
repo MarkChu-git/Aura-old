@@ -1,3 +1,13 @@
+"""
+Authentication API Routes
+-------------------------
+This module handles user authentication, registration, password management,
+and user profile updates.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from datetime import timedelta, datetime
 from typing import Any
 import secrets
@@ -29,7 +39,20 @@ async def login_access_token(
     db: AsyncSession = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
-    OAuth2 compatible token login, get an access token for future requests.
+    OAuth2 compatible token login.
+
+    Authenticates a user using email and password, and returns a JWT access token.
+
+    Args:
+        db (AsyncSession): Database session.
+        form_data (OAuth2PasswordRequestForm): Login credentials (username=email, password).
+
+    Returns:
+        dict: Access token and token type.
+    
+    Raises:
+        HTTPException(401): If authentication fails.
+        HTTPException(400): If user is inactive.
     """
     # Async query
     result = await db.execute(select(User).filter(User.email == form_data.username))
@@ -60,6 +83,18 @@ async def login_access_token(
 async def register(user_in: UserCreate, db: AsyncSession = Depends(get_db)) -> Any:
     """
     Register a new user.
+
+    Creates a new user account if the email is not already taken and password requirements are met.
+
+    Args:
+        user_in (UserCreate): User registration data.
+        db (AsyncSession): Database session.
+
+    Returns:
+        User: The created user object.
+
+    Raises:
+        HTTPException(400): If password is weak or user already exists.
     """
     # 1. Validate password strength
     if not security.validate_password_strength(user_in.password):
@@ -96,7 +131,13 @@ def read_user_me(
     current_user: User = Depends(get_current_active_user),
 ) -> Any:
     """
-    Get current user.
+    Get current user profile.
+
+    Args:
+        current_user (User): The currently authenticated user.
+
+    Returns:
+        User: The user profile.
     """
     return current_user
 
@@ -109,6 +150,19 @@ async def change_password(
 ) -> Any:
     """
     Change password for current user.
+
+    Verifies the old password and sets a new one.
+
+    Args:
+        password_change (PasswordChange): Old and new password data.
+        current_user (User): The currently authenticated user.
+        db (AsyncSession): Database session.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(400): If old password is incorrect, new password is same as old, or new password is weak.
     """
     # 1. Verify old password
     if not security.verify_password(
@@ -146,7 +200,17 @@ async def forgot_password(
     request: PasswordResetRequest, db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
-    Generate password reset token for user (simplified version without email).
+    Request a password reset.
+
+    Generates a password reset token for the given email (if exists).
+    Note: In a production environment, this would send an email. Currently it returns the token for testing.
+
+    Args:
+        request (PasswordResetRequest): Request containing the email address.
+        db (AsyncSession): Database session.
+
+    Returns:
+        dict: Success message and token information.
     """
     # 1. Find user
     result = await db.execute(select(User).filter(User.email == request.email))
@@ -184,7 +248,18 @@ async def reset_password(
     reset_data: PasswordReset, db: AsyncSession = Depends(get_db)
 ) -> Any:
     """
-    Reset password using token.
+    Reset password using a valid token.
+
+    Args:
+        reset_data (PasswordReset): Token and new password.
+        db (AsyncSession): Database session.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(400): If token is invalid, expired, or used.
+        HTTPException(404): If user associated with token is not found.
     """
     # 1. Find and validate token
     result = await db.execute(
@@ -234,6 +309,7 @@ async def reset_password(
 
 
 class LanguageUpdate(BaseModel):
+    """Schema for updating user language preference."""
     language: str
 
 
@@ -243,6 +319,12 @@ async def get_user_language(
 ) -> Any:
     """
     Get current user's language preference.
+
+    Args:
+        current_user (User): The currently authenticated user.
+
+    Returns:
+        dict: Language code (e.g., 'en', 'zh').
     """
     return {"language": current_user.language or "en"}
 
@@ -255,6 +337,17 @@ async def update_user_language(
 ) -> Any:
     """
     Update current user's language preference.
+
+    Args:
+        language_update (LanguageUpdate): New language code.
+        current_user (User): The currently authenticated user.
+        db (AsyncSession): Database session.
+
+    Returns:
+        dict: Success message and new language.
+
+    Raises:
+        HTTPException(400): If language code is invalid.
     """
     # Validate language code
     allowed_languages = ["en", "zh", "ms"]

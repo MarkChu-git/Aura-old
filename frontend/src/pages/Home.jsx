@@ -1,3 +1,12 @@
+/**
+ * Home Page Component
+ * -------------------
+ * The landing page of the application.
+ * Features a hero section with interactive text effects, process explanation, and testimonials.
+ *
+ * @component
+ */
+
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Brain, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';

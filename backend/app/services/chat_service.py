@@ -1,3 +1,14 @@
+"""
+Chat Service Layer
+------------------
+This module handles the core business logic for the chat functionality.
+It manages message persistence, conversation context, AI adapter interaction,
+and background tasks like title generation.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 import logging
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
@@ -11,6 +22,10 @@ logger = logging.getLogger(__name__)
 
 
 class ChatService:
+    """
+    Service class for managing chat operations.
+    """
+
     @staticmethod
     async def process_chat(
         db: AsyncSession,
@@ -19,6 +34,27 @@ class ChatService:
         user_id: Optional[int],
         background_tasks: BackgroundTasks,
     ) -> ChatResponse:
+        """
+        Process a chat message from a user.
+
+        1. Sends the message history to the AI adapter.
+        2. Receives the AI response.
+        3. Persists the conversation and messages to the database (if authenticated).
+        4. Triggers background tasks (e.g., title generation).
+
+        Args:
+            db (AsyncSession): Database session.
+            messages (List[Dict[str, str]]): List of message dicts (role, content).
+            conversation_id (Optional[str]): ID of existing conversation (if any).
+            user_id (Optional[int]): ID of the authenticated user (if any).
+            background_tasks (BackgroundTasks): FastAPI background task manager.
+
+        Returns:
+            ChatResponse: Object containing the AI reply and conversation ID.
+
+        Raises:
+            ValueError: If conversation is not found or access is denied.
+        """
         adapter = get_ai_adapter()
 
         # 1. Generate AI Response
@@ -81,11 +117,17 @@ class ChatService:
     @staticmethod
     async def check_and_trigger_title_gen(conversation_id: str, messages: List[Dict]):
         """
-        Background task to update title if signal thresholds are met.
-        "Deep Think" Robust implementation:
-        1. Query DB for exact message count (Single Source of Truth).
-        2. If count > 4, fetch latest context.
-        3. Generate and Update.
+        Background task to update conversation title based on context.
+
+        Logic:
+        1. Checks if enough messages exist to generate a meaningful title.
+        2. Checks if the title is still in 'initial' state.
+        3. Uses the AI adapter to generate a concise title.
+        4. Updates the database.
+
+        Args:
+            conversation_id (str): The conversation ID.
+            messages (List[Dict]): The message history.
         """
         try:
             from app.db.session import AsyncSessionLocal

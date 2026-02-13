@@ -1,3 +1,12 @@
+/**
+ * Analyzing Page Component
+ * ------------------------
+ * Displays a loading animation while the backend processes the user's input.
+ * Polls the job status endpoint and redirects to the result page upon completion.
+ *
+ * @component
+ */
+
 import { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
@@ -6,22 +15,23 @@ export default function Analyzing() {
     const navigate = useNavigate();
     const location = useLocation();
     const jobId = location.state?.jobId;
-    // const [status, setStatus] = useState('initializing');
     const hasNavigated = useRef(false);
 
     useEffect(() => {
         if (!jobId) {
-            // If no job ID, mock passing through or redirect back
-            const timer = setTimeout(() => navigate('/result'), 3000); // Fallback for dev without backend
+            // If no job ID, mock passing through or redirect back (fallback for dev)
+            const timer = setTimeout(() => navigate('/result'), 3000); 
             return () => clearTimeout(timer);
         }
 
+        /**
+         * Poll job status every second.
+         */
         const pollInterval = setInterval(async () => {
             if (hasNavigated.current) return;
 
             try {
                 const job = await api.getJobStatus(jobId);
-                // setStatus(job.progress_step);
 
                 if (job.status === 'succeeded') {
                     hasNavigated.current = true;

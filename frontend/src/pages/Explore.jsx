@@ -1,3 +1,11 @@
+/**
+ * @file Explore.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description The main exploration interface where users input text or images
+ * to initiate the fragrance analysis process. Acts as the entry point for the core AI workflow.
+ */
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -5,6 +13,21 @@ import { Image, Type, Sparkles } from 'lucide-react';
 import LiquidButton from '../components/LiquidButton';
 import { api } from '../services/api';
 
+/**
+ * Explore Page Component.
+ * 
+ * Provides inputs for Text and Image modes (Image mode is currently a placeholder UI).
+ * Initiates the analysis job via the API and redirects to the 'Analyzing' page.
+ * 
+ * Features:
+ * - Toggle between Text and Image input modes
+ * - Preset example tags for quick testing
+ * - API integration to start analysis jobs
+ * - Internationalization support
+ * 
+ * @component
+ * @returns {JSX.Element} The Explore page
+ */
 export default function Explore() {
     const { t, i18n } = useTranslation();
     const [mode, setMode] = useState('text');
@@ -17,6 +40,11 @@ export default function Explore() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
 
+    /**
+     * Handles the start of the analysis process.
+     * Sends the input text to the backend to create a new job.
+     * Redirects to the /analyzing page with the returned job ID.
+     */
     const handleStartAnalysis = async () => {
         if (!inputValue) return;
 

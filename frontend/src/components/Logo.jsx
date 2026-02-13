@@ -1,3 +1,14 @@
+/**
+ * Logo Component
+ * --------------
+ * Renders the application logo as an SVG.
+ * The logo features staggered lines representing scent/breeze.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {number} [props.size=32] - Width and height in pixels.
+ * @param {string} [props.className] - Additional CSS classes.
+ */
 
 export default function Logo({ size = 32, className = '' }) {
     return (

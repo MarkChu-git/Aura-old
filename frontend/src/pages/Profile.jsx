@@ -1,3 +1,11 @@
+/**
+ * @file Profile.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description User profile page. Displays user information, interaction history,
+ * security settings (change password), and data control options.
+ */
+
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +14,20 @@ import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCir
 import { Link, useNavigate } from 'react-router-dom';
 import UserMessages from '../components/UserMessages';
 
+/**
+ * Profile Page Component.
+ * 
+ * Manages user profile interactions.
+ * Features:
+ * - View Account Details (Email, status)
+ * - View History of analyses
+ * - Change Password
+ * - Clear History / Saved Data
+ * - User Messages (inbox for admin messages)
+ * 
+ * @component
+ * @returns {JSX.Element} The Profile page
+ */
 export default function Profile() {
     const { isAuthenticated, logout } = useAuth();
     const { t } = useTranslation();
@@ -26,6 +48,7 @@ export default function Profile() {
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [changingPassword, setChangingPassword] = useState(false);
 
+    // Load profile data when authenticated
     useEffect(() => {
         if (isAuthenticated) {
             loadData();
@@ -34,6 +57,9 @@ export default function Profile() {
         }
     }, [isAuthenticated]);
 
+    /**
+     * Fetches profile and history data from the API.
+     */
     const loadData = async () => {
         try {
             const [profileData, historyData] = await Promise.all([
@@ -50,6 +76,9 @@ export default function Profile() {
         }
     };
 
+    /**
+     * Clears the user's interaction history.
+     */
     const handleClearHistory = async () => {
         if (!confirm(t('profile.dataControls.confirmClearHistory'))) return;
         try {
@@ -60,6 +89,9 @@ export default function Profile() {
         }
     };
 
+    /**
+     * Clears saved items (Mock implementation).
+     */
     const handleClearSaved = () => {
         if (!confirm(t('profile.dataControls.confirmClearSaved'))) return;
         setSaved([]);
@@ -71,6 +103,12 @@ export default function Profile() {
         });
     };
 
+    /**
+     * Handles the change password form submission.
+     * Validates input and sends request to API.
+     * 
+     * @param {Event} e - Form submission event
+     */
     const handleChangePassword = async (e) => {
         e.preventDefault();
         setPasswordError('');

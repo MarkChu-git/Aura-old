@@ -1,3 +1,12 @@
+"""
+User Message Routes
+-------------------
+This module provides endpoints for users to retrieve and manage their messages.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 
@@ -12,6 +21,15 @@ router = APIRouter()
 
 @router.get("")
 async def get_user_messages(current_user: User = Depends(get_current_active_user)):
+    """
+    Get all messages for the current user.
+
+    Args:
+        current_user (User): The authenticated user.
+
+    Returns:
+        dict: List of messages.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(UserMessage)
@@ -36,6 +54,20 @@ async def get_user_messages(current_user: User = Depends(get_current_active_user
 async def mark_message_read(
     message_id: int, current_user: User = Depends(get_current_active_user)
 ):
+    """
+    Mark a specific message as read.
+
+    Args:
+        message_id (int): The ID of the message.
+        current_user (User): The authenticated user.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If message not found.
+        HTTPException(403): If message belongs to another user.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(UserMessage).filter(UserMessage.id == message_id)

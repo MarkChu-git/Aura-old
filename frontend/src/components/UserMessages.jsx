@@ -1,3 +1,12 @@
+/**
+ * User Messages Component
+ * -----------------------
+ * Displays a list of system messages for the current user.
+ * Allows marking messages as read or deleting (closing) them.
+ *
+ * @component
+ */
+
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { MessageSquare, Check, X } from 'lucide-react';
@@ -10,6 +19,9 @@ export default function UserMessages() {
         loadMessages();
     }, []);
 
+    /**
+     * Fetch messages from the API.
+     */
     const loadMessages = async () => {
         try {
             const response = await api.getMessages();
@@ -21,6 +33,10 @@ export default function UserMessages() {
         }
     };
 
+    /**
+     * Mark a message as read.
+     * @param {number} messageId - The message ID.
+     */
     const handleMarkAsRead = async (messageId) => {
         try {
             await api.markMessageRead(messageId);
@@ -32,6 +48,12 @@ export default function UserMessages() {
         }
     };
 
+    /**
+     * Close (delete/hide) a message.
+     * Currently implemented as marking read and removing from view, 
+     * but could be a delete endpoint in future.
+     * @param {number} messageId - The message ID.
+     */
     const handleClose = async (messageId) => {
         try {
             await api.markMessageRead(messageId);

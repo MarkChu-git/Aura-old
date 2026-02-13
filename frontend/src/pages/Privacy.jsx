@@ -1,3 +1,11 @@
+/**
+ * @file Privacy.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Static page displaying the Privacy Policy.
+ * Outlines data collection, usage, security, and user rights.
+ */
+
 export default function Privacy() {
     return (
         <div className="container">

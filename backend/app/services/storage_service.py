@@ -1,3 +1,13 @@
+"""
+Storage Service Layer
+---------------------
+This module handles file storage operations, specifically generating presigned URLs
+for secure client-side uploads to S3 (or a mock alternative).
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from abc import ABC, abstractmethod
 from typing import Optional, Dict
 from uuid import uuid4
@@ -10,14 +20,32 @@ logger = logging.getLogger(__name__)
 
 
 class StorageAdapter(ABC):
+    """
+    Abstract base class for storage adapters.
+    Defines the interface for generating presigned upload URLs.
+    """
     @abstractmethod
     def generate_presigned_url(
         self, filename: str, content_type: str
     ) -> Dict[str, str]:
+        """
+        Generate a presigned URL for uploading a file.
+
+        Args:
+            filename (str): Name of the file.
+            content_type (str): MIME type of the file.
+
+        Returns:
+            Dict[str, str]: Dictionary containing 'upload_url' and 'object_key'.
+        """
         pass
 
 
 class MockStorageAdapter(StorageAdapter):
+    """
+    Mock implementation of StorageAdapter for development/testing.
+    Does not interact with real S3.
+    """
     def generate_presigned_url(
         self, filename: str, content_type: str
     ) -> Dict[str, str]:
@@ -34,6 +62,10 @@ class MockStorageAdapter(StorageAdapter):
 
 
 class S3StorageAdapter(StorageAdapter):
+    """
+    AWS S3 implementation of StorageAdapter.
+    Uses boto3 to generate real presigned URLs.
+    """
     def __init__(self):
         self.s3_client = boto3.client(
             "s3",
@@ -66,10 +98,20 @@ class S3StorageAdapter(StorageAdapter):
 
 
 class StorageService:
+    """
+    Service class/Facade for storage operations.
+    Automatically selects the appropriate adapter based on configuration.
+    """
     _adapter: Optional[StorageAdapter] = None
 
     @classmethod
     def get_adapter(cls) -> StorageAdapter:
+        """
+        Factory method to get the singleton storage adapter instance.
+        
+        Returns:
+            StorageAdapter: The configured storage adapter.
+        """
         if cls._adapter is None:
             # Decide based on config
             if settings.S3_ACCESS_KEY and settings.S3_SECRET_KEY:
@@ -84,6 +126,17 @@ class StorageService:
     def validate_file(
         filename: str, content_type: str, size_bytes: Optional[int] = None
     ):
+        """
+        Validate file metadata before allowing upload.
+
+        Args:
+            filename (str): Name of the file.
+            content_type (str): MIME type.
+            size_bytes (Optional[int]): File size in bytes.
+
+        Raises:
+            ValueError: If file type is not allowed or file is too large.
+        """
         ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
         MAX_SIZE = 5 * 1024 * 1024  # 5MB
 
@@ -99,6 +152,16 @@ class StorageService:
 
     @classmethod
     def presign(cls, filename: str, content_type: str) -> Dict[str, str]:
+        """
+        Validate file and generate a presigned upload URL.
+
+        Args:
+            filename (str): Name of the file.
+            content_type (str): MIME type.
+
+        Returns:
+            Dict[str, str]: Presigned URL and object key.
+        """
         cls.validate_file(filename, content_type)
         adapter = cls.get_adapter()
         return adapter.generate_presigned_url(filename, content_type)

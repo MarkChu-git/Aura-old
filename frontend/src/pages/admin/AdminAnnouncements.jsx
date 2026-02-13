@@ -1,3 +1,11 @@
+/**
+ * @file AdminAnnouncements.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Admin page for managing system announcements. Allows admins to create, edit,
+ * delete, pin, and toggle the active status of announcements. Includes a Markdown preview feature.
+ */
+
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
 import { ArrowLeft, Plus, Trash2, Power, PowerOff, Eye, FileText, Pin, PinOff } from 'lucide-react';
@@ -5,6 +13,14 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+/**
+ * Component to render Markdown content with custom styling.
+ * 
+ * @component
+ * @param {Object} props - Component props
+ * @param {string} props.content - The markdown string to render
+ * @returns {JSX.Element} Rendered markdown content
+ */
 const MarkdownRenderer = ({ content }) => {
     return (
         <ReactMarkdown
@@ -53,6 +69,20 @@ const MarkdownRenderer = ({ content }) => {
     );
 };
 
+/**
+ * AdminAnnouncements Page Component.
+ * 
+ * Provides an interface for administrators to manage announcements.
+ * Features:
+ * - List all announcements
+ * - Create new announcements with Markdown support
+ * - Toggle active/inactive status
+ * - Pin/Unpin announcements
+ * - Delete announcements
+ * 
+ * @component
+ * @returns {JSX.Element} The AdminAnnouncements page
+ */
 export default function AdminAnnouncements() {
     const navigate = useNavigate();
     const [announcements, setAnnouncements] = useState([]);
@@ -62,10 +92,15 @@ export default function AdminAnnouncements() {
     const [creating, setCreating] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
 
+    // Load announcements on component mount
     useEffect(() => {
         loadAnnouncements();
     }, []);
 
+    /**
+     * Fetches all announcements from the API.
+     * Updates the local state with the fetched data.
+     */
     const loadAnnouncements = async () => {
         try {
             const response = await api.admin.getAnnouncements();
@@ -77,6 +112,10 @@ export default function AdminAnnouncements() {
         }
     };
 
+    /**
+     * Handles the creation of a new announcement.
+     * Validates input, sends request to API, and refreshes the list.
+     */
     const handleCreate = async () => {
         if (!formData.title.trim() || !formData.content.trim()) {
             alert('Please fill in all fields');
@@ -96,6 +135,12 @@ export default function AdminAnnouncements() {
         }
     };
 
+    /**
+     * Deletes an announcement by ID.
+     * Prompts for confirmation before deleting.
+     * 
+     * @param {string} id - The ID of the announcement to delete
+     */
     const handleDelete = async (id) => {
         if (!confirm('Are you sure you want to delete this announcement?')) return;
 
@@ -107,6 +152,11 @@ export default function AdminAnnouncements() {
         }
     };
 
+    /**
+     * Toggles the active status of an announcement.
+     * 
+     * @param {string} id - The ID of the announcement to toggle
+     */
     const handleToggle = async (id) => {
         try {
             await api.admin.toggleAnnouncement(id);
@@ -116,6 +166,11 @@ export default function AdminAnnouncements() {
         }
     };
 
+    /**
+     * Toggles the pinned status of an announcement.
+     * 
+     * @param {string} id - The ID of the announcement to pin/unpin
+     */
     const handlePin = async (id) => {
         try {
             await api.admin.pinAnnouncement(id);
@@ -125,6 +180,12 @@ export default function AdminAnnouncements() {
         }
     };
 
+    /**
+     * Formats a date string into a readable format.
+     * 
+     * @param {string} dateString - ISO date string
+     * @returns {string} Formatted date (e.g., "Jan 1, 2024, 10:00 AM")
+     */
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short', day: 'numeric', year: 'numeric',

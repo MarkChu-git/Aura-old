@@ -1,3 +1,13 @@
+"""
+Result Retrieval Routes
+-----------------------
+This module provides endpoints to fetch the final results of a completed job,
+including recommendations and analysis summaries.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from fastapi import APIRouter, HTTPException, Path
 from uuid import UUID
 from sqlalchemy import select
@@ -12,6 +22,21 @@ router = APIRouter()
 
 @router.get("/{job_id}")
 async def get_job_result(job_id: UUID = Path(..., title="The ID of the job")):
+    """
+    Get the final results for a completed job.
+
+    Retrieves the analysis summary, extracted tags, scent direction,
+    and product recommendations.
+
+    Args:
+        job_id (UUID): The unique identifier of the job.
+
+    Returns:
+        dict: The result object containing summary and recommendations.
+
+    Raises:
+        HTTPException(404): If the result is not found (or job is not yet finished).
+    """
     async with AsyncSessionLocal() as session:
         # Fetch Result
         result_q = await session.execute(select(Result).where(Result.job_id == job_id))

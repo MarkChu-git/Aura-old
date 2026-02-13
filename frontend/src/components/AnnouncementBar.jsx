@@ -1,3 +1,12 @@
+/**
+ * Announcement Bar Component
+ * --------------------------
+ * A simplified version of the announcement display, typically used for single critical alerts.
+ * Listens for storage events to sync dismissal across tabs.
+ *
+ * @component
+ */
+
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '../services/api.js';
 import { X, Info } from 'lucide-react';
@@ -6,6 +15,9 @@ export default function AnnouncementBar() {
     const [announcement, setAnnouncement] = useState(null);
     const [dismissed, setDismissed] = useState(false);
 
+    /**
+     * Load the latest active announcement that hasn't been dismissed.
+     */
     const loadAnnouncement = useCallback(async () => {
         try {
             const response = await api.getActiveAnnouncements();
@@ -24,9 +36,9 @@ export default function AnnouncementBar() {
     }, []);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         loadAnnouncement();
 
+        // Listen for dismissal in other tabs/components
         const handleStorage = (e) => {
             if (e.key === 'announcement-dismissed') {
                 setDismissed(true);
@@ -37,6 +49,9 @@ export default function AnnouncementBar() {
         return () => window.removeEventListener('storage', handleStorage);
     }, [loadAnnouncement]);
 
+    /**
+     * Dismiss the current announcement.
+     */
     const handleDismiss = () => {
         if (!announcement) return;
 

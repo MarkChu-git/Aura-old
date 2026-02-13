@@ -1,3 +1,11 @@
+/**
+ * Language Switcher Component
+ * ---------------------------
+ * A dropdown component that allows users to change the application language.
+ *
+ * @component
+ */
+
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Globe } from 'lucide-react';
@@ -17,6 +25,7 @@ export default function LanguageSwitcher() {
 
     const currentLang = languages.find(lang => lang.code === i18n.language) || languages[0];
 
+    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -28,6 +37,10 @@ export default function LanguageSwitcher() {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    /**
+     * Handle language selection.
+     * @param {string} langCode - The selected language code.
+     */
     const handleLanguageChange = async (langCode) => {
         await changeLanguage(langCode);
         setIsOpen(false);

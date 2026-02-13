@@ -1,3 +1,15 @@
+/**
+ * Authentication Modal Component
+ * ------------------------------
+ * Displays a modal dialog for user login/registration.
+ * Integrates Google OAuth2 login button.
+ *
+ * @component
+ * @param {Object} props - Component props.
+ * @param {boolean} props.isOpen - Whether the modal is visible.
+ * @param {Function} props.onClose - Callback to close the modal.
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, AlertCircle } from 'lucide-react';
@@ -12,10 +24,12 @@ export default function AuthModal({ isOpen, onClose }) {
     const googleButtonRef = useRef(null);
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         if (isOpen) setError('');
     }, [isOpen]);
 
+    /**
+     * Initialize and render the Google Sign-In button when modal opens.
+     */
     useEffect(() => {
         if (!isOpen) return;
 
@@ -154,4 +168,3 @@ export default function AuthModal({ isOpen, onClose }) {
         </div>
     );
 }
-

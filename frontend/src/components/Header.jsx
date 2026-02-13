@@ -1,3 +1,13 @@
+/**
+ * Header Component
+ * ----------------
+ * The main navigation bar of the application.
+ * It handles responsive navigation, user actions (login/logout),
+ * and displays notification badges for announcements.
+ *
+ * @component
+ */
+
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Shield, Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -16,6 +26,10 @@ export default function Header() {
     const { isAuthenticated, user, openAuthModal, logout } = useAuth();
     const isAdmin = user?.role === 'admin';
 
+    /**
+     * Effect to load and update the unread announcements count.
+     * Polls every 30 seconds.
+     */
     useEffect(() => {
         const loadUnreadCount = async () => {
             // If user is already on announcements page, don't show unread count
@@ -58,6 +72,11 @@ export default function Header() {
         return () => clearInterval(interval);
     }, [location.pathname]); // Re-run when location changes
 
+    /**
+     * Check if the given path matches the current location.
+     * @param {string} path - The path to check.
+     * @returns {boolean} True if active.
+     */
     const isActive = (path) => location.pathname === path;
 
     return (

@@ -1,5 +1,14 @@
-import { Share2, Heart, ExternalLink, ArrowRight, Sparkles } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+/**
+ * Result Page Component
+ * ---------------------
+ * Displays the results of the AI analysis, including recommendations and scent profile.
+ * Fetches data from the API based on the job ID passed in location state.
+ *
+ * @component
+ */
+
+import { Share2, Heart, ExternalLink, Sparkles } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import LiquidButton from '../components/LiquidButton';
 import { api } from '../services/api';

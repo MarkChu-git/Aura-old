@@ -1,3 +1,13 @@
+"""
+Chat API Routes
+---------------
+This module provides endpoints for the conversational interface (chat).
+It handles message processing, history retrieval, and conversation management.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from fastapi import APIRouter, HTTPException, Depends, BackgroundTasks
 from typing import Optional
 from app.api.deps import get_current_user_optional, get_db
@@ -21,8 +31,22 @@ async def chat(
     db: AsyncSession = Depends(get_db),
 ):
     """
-    Direct synchronous chat endpoint.
-    Delegates to ChatService for processing.
+    Send a message to the chat assistant.
+
+    Delegates processing to the ChatService. Can be used anonymously or by authenticated users.
+
+    Args:
+        request (ChatRequest): The message content and context.
+        background_tasks (BackgroundTasks): FastAPI background tasks.
+        current_user (Optional[User]): The authenticated user (if any).
+        db (AsyncSession): Database session.
+
+    Returns:
+        ChatResponse: The assistant's response.
+
+    Raises:
+        HTTPException(404): If referenced conversation is not found.
+        HTTPException(500): If processing fails.
     """
     try:
         # Pydantic models to dicts for service layer
@@ -50,6 +74,21 @@ async def delete_conversation(
     current_user: User = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Delete a specific conversation.
+
+    Args:
+        conversation_id (str): The ID of the conversation to delete.
+        current_user (User): The authenticated user.
+        db (AsyncSession): Database session.
+
+    Returns:
+        dict: Success status.
+
+    Raises:
+        HTTPException(401): If not authenticated.
+        HTTPException(404): If conversation not found or doesn't belong to user.
+    """
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -77,6 +116,19 @@ async def get_history(
     ),  # Should force auth here? Yes history is for auth users
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Get conversation history for the current user.
+
+    Args:
+        current_user (User): The authenticated user.
+        db (AsyncSession): Database session.
+
+    Returns:
+        list[Conversation]: List of conversation objects.
+
+    Raises:
+        HTTPException(401): If not authenticated.
+    """
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -97,6 +149,21 @@ async def get_conversation_messages(
     current_user: User = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Get messages for a specific conversation.
+
+    Args:
+        conversation_id (str): The ID of the conversation.
+        current_user (User): The authenticated user.
+        db (AsyncSession): Database session.
+
+    Returns:
+        list[Message]: List of message objects in the conversation.
+
+    Raises:
+        HTTPException(401): If not authenticated.
+        HTTPException(404): If conversation not found.
+    """
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
@@ -125,16 +192,24 @@ async def clear_history(
     current_user: User = Depends(get_current_user_optional),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Clear all conversation history for the current user.
+
+    Args:
+        current_user (User): The authenticated user.
+        db (AsyncSession): Database session.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(401): If not authenticated.
+    """
     if not current_user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     # Delete all conversations for user
-    # Cascade delete should handle messages if configured, otherwise delete messages first?
-    # Usually SQLAlchemy cascade='all, delete-orphan' on relationship handles it.
-    # Let's assume cascade is set up or do a bulk delete.
-    # To be safe/simple:
-
-    # Check simple delete
+    # Cascade delete should handle messages if configured
     stmt = select(Conversation).filter(Conversation.user_id == current_user.id)
     result = await db.execute(stmt)
     conversations = result.scalars().all()

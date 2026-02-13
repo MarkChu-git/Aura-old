@@ -1,9 +1,24 @@
+/**
+ * @file Register.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description User registration page. Provides a form for creating a new account
+ * with email and password. Includes real-time password strength validation.
+ */
+
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../services/api';
 import LiquidButton from '../components/LiquidButton';
 import { UserPlus, Check, X, Eye, EyeOff } from 'lucide-react';
 
+/**
+ * Helper component to display a single password requirement.
+ * 
+ * @param {Object} props
+ * @param {boolean} props.met - Whether the requirement is met
+ * @param {string} props.text - The requirement description
+ */
 const RequirementItem = ({ met, text }) => (
     <div style={{
         display: 'flex',
@@ -18,6 +33,19 @@ const RequirementItem = ({ met, text }) => (
     </div>
 );
 
+/**
+ * Register Page Component.
+ * 
+ * Handles user sign-up.
+ * Features:
+ * - Email and Password inputs
+ * - Password confirmation
+ * - Real-time password strength/requirement checking (Length, Uppercase, Lowercase, Number, Symbol)
+ * - Error handling
+ * 
+ * @component
+ * @returns {JSX.Element} The Register page
+ */
 export default function Register() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -39,6 +67,12 @@ export default function Register() {
 
     const isPasswordValid = Object.values(requirements).every(Boolean);
 
+    /**
+     * Handles the form submission for registration.
+     * Validates password match and requirements before sending to API.
+     * 
+     * @param {Event} e - Form submission event
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -217,4 +251,3 @@ export default function Register() {
         </div>
     );
 }
-

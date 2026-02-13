@@ -1,7 +1,29 @@
+/**
+ * @file AdminDashboard.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description The main dashboard for the admin area. Displays key statistics
+ * (users, announcements) and provides quick access links to other admin management pages.
+ */
+
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../../services/api';
 
+/**
+ * AdminDashboard Page Component.
+ * 
+ * Fetches and displays system-wide statistics including:
+ * - Total users
+ * - Active users
+ * - Total announcements
+ * - Active announcements
+ * 
+ * Also provides navigation buttons to specific management sections.
+ * 
+ * @component
+ * @returns {JSX.Element} The AdminDashboard page
+ */
 export default function AdminDashboard() {
     const navigate = useNavigate();
     const [stats, setStats] = useState({
@@ -12,10 +34,16 @@ export default function AdminDashboard() {
     });
     const [loading, setLoading] = useState(true);
 
+    // Fetch stats on mount
     useEffect(() => {
         loadStats();
     }, []);
 
+    /**
+     * Fetches statistics from the API.
+     * Uses Promise.all to fetch users and announcements concurrently.
+     * Calculates derived stats like 'active users' on the client side.
+     */
     const loadStats = async () => {
         try {
             const [usersRes, announcementsRes] = await Promise.all([
@@ -47,6 +75,14 @@ export default function AdminDashboard() {
         );
     }
 
+    /**
+     * Helper component to display a single statistic card.
+     * 
+     * @param {Object} props
+     * @param {string} props.title - Title of the statistic
+     * @param {number} props.value - Value to display
+     * @param {string} props.color - Text color for the value
+     */
     const StatCard = ({ title, value, color }) => (
         <div
             className="liquid-glass"
@@ -78,6 +114,14 @@ export default function AdminDashboard() {
         </div>
     );
 
+    /**
+     * Helper component for dashboard action buttons.
+     * 
+     * @param {Object} props
+     * @param {Function} props.onClick - Click handler
+     * @param {React.ReactNode} props.children - Button content
+     * @param {string} props.color - Border color
+     */
     const QuickAction = ({ onClick, children, color }) => (
         <button
             onClick={onClick}

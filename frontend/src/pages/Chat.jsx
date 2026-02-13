@@ -1,6 +1,19 @@
+/**
+ * Chat Page Component
+ * -------------------
+ * The main chat interface. Features:
+ * - Real-time chat with AI
+ * - Sidebar with conversation history
+ * - Markdown rendering for messages
+ * - Code syntax highlighting
+ * - Mobile responsive layout
+ *
+ * @component
+ */
+
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, User, Bot, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock, Trash2, Copy, Check } from 'lucide-react';
+import { Send, User, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock, Trash2, Copy, Check } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -9,6 +22,10 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
+/**
+ * CodeBlock Component
+ * Renders code snippets with syntax highlighting and copy functionality.
+ */
 const CodeBlock = ({ language, children }) => {
     const [copied, setCopied] = useState(false);
 
@@ -60,6 +77,10 @@ const CodeBlock = ({ language, children }) => {
     );
 };
 
+/**
+ * MessageBubble Component
+ * Renders a single chat message (user or AI) with Markdown support.
+ */
 const MessageBubble = ({ msg, isAi }) => {
     const [copied, setCopied] = useState(false);
 
@@ -177,11 +198,6 @@ export default function Chat() {
     useEffect(() => {
         if (location.state?.conversationId && isAuthenticated) {
             loadConversation(location.state.conversationId);
-            // Clear state to prevent loop if we were to act on it differently, but here it's fine.
-            // Actually, we might want to ensure we don't reload if already loaded?
-            // loadConversation checks 'loading' but not if current id matches. 
-            // It sets id.
-            // Good enough.
         }
     }, [location.state, isAuthenticated, loadConversation]);
 
@@ -212,6 +228,10 @@ export default function Chat() {
         scrollToBottom();
     }, [messages]);
 
+    /**
+     * Load a specific conversation from history.
+     * @param {string} id - Conversation ID.
+     */
     const loadConversation = useCallback(async (id) => {
         if (loading) return;
         setHistoryLoading(true);
@@ -220,7 +240,6 @@ export default function Chat() {
             // Format DB messages to UI format
             const formatted = msgs.map(m => ({ role: m.role, content: m.content }));
 
-            // If empty (shouldn't happen), add welcome? No, just show history.
             setMessages(formatted);
             setConversationId(id);
             if (window.innerWidth < 768) setShowSidebar(false); // Auto close on mobile
@@ -231,6 +250,9 @@ export default function Chat() {
         }
     }, [loading]);
 
+    /**
+     * Reset chat state for a new conversation.
+     */
     const startNewChat = () => {
         setConversationId(null);
         setMessages([
@@ -238,7 +260,12 @@ export default function Chat() {
         ]);
         if (window.innerWidth < 768) setShowSidebar(false);
     };
-    // Delete Handler
+
+    /**
+     * Delete a conversation.
+     * @param {Event} e - Click event.
+     * @param {string} id - Conversation ID.
+     */
     const handleDeleteChat = async (e, id) => {
         e.preventDefault(); // Prevent default link/button behavior
         e.stopPropagation(); // Prevent opening the chat when deleting
@@ -258,6 +285,10 @@ export default function Chat() {
         }
     };
 
+    /**
+     * Handle sending a new message.
+     * @param {Event} e - Form submit event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input.trim() || loading) return;
@@ -283,12 +314,7 @@ export default function Chat() {
             }
 
             // Trigger History Refresh
-            // We do this on EVERY message to catch title updates (which happen around msg #5)
-            // The backend runs in background, so we poll a few times
             if (isAuthenticated) {
-                // Immediate update not strictly needed for title, but good for "last updated" sort
-                // fetchHistory(); 
-
                 // Poll for AI Title generation
                 setTimeout(fetchHistory, 2000);
                 setTimeout(fetchHistory, 5000);
@@ -341,8 +367,7 @@ export default function Chat() {
                         right: 0,
                         bottom: 0,
                         backgroundColor: 'transparent',
-                        zIndex: 40, // Higher than sidebar (20) - WAIT, sidebar needs to be on TOP. Sidebar is z=50. So 40 is correct.
-                        // Display handled by CSS class now
+                        zIndex: 40,
                     }}
                     onClick={() => setShowSidebar(false)}
                 />
@@ -359,7 +384,6 @@ export default function Chat() {
                 borderRight: '1px solid hsl(var(--color-border))',
                 paddingRight: '1rem',
                 transition: 'transform 0.3s ease',
-                // zIndex removed from inline to allow CSS override (mobile needs 50 > overlay 40)
             }}>
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <button

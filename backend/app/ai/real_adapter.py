@@ -1,3 +1,11 @@
+"""
+Real AI Adapter (DeepSeek / OpenAI).
+
+This module implements the `AIAdapter` interface using the DeepSeek API (via the OpenAI SDK).
+It handles actual calls to Large Language Models (LLMs) for text analysis,
+chat completion, and potentially embeddings (though currently using a fallback/standard model).
+"""
+
 import json
 import logging
 from typing import List, Optional, Dict, Any
@@ -9,7 +17,14 @@ logger = logging.getLogger(__name__)
 
 
 class RealAIAdapter(AIAdapter):
+    """
+    Concrete implementation of AIAdapter using external AI APIs.
+    """
+
     def __init__(self):
+        """
+        Initializes the AsyncOpenAI client configured for DeepSeek.
+        """
         # Initialize OpenAI client pointing to DeepSeek
         self.client = AsyncOpenAI(
             base_url="https://api.deepseek.com",
@@ -24,7 +39,21 @@ class RealAIAdapter(AIAdapter):
         self, text: Optional[str] = None, image_key: Optional[str] = None
     ) -> Dict[str, Any]:
         """
-        Multimodal extraction using OpenRouter (GPT-4o or similar).
+        Extracts structured sensory data using an LLM.
+
+        Constructs a prompt instructing the AI to act as a perfumer and return JSON.
+        Handles JSON parsing and basic error recovery.
+
+        Args:
+            text (Optional[str]): User input text.
+            image_key (Optional[str]): Image key (DeepSeek currently does not support image input).
+
+        Returns:
+            Dict[str, Any]: The extracted JSON data.
+
+        Raises:
+            ValueError: If the AI returns empty content.
+            Exception: For API errors or parsing failures.
         """
         messages: List[Dict[str, Any]] = [
             {
@@ -101,8 +130,17 @@ class RealAIAdapter(AIAdapter):
 
     async def embed(self, text: str) -> List[float]:
         """
-        Generate embeddings. OpenRouter supports this via standard endpoint usually,
-        or we might need a specific model.
+        Generates vector embeddings for the text.
+
+        Currently uses the standard OpenAI embeddings endpoint structure.
+        Note: If using DeepSeek, this might fail if they don't support this endpoint.
+        A fallback to a zero-vector is implemented for robustness.
+
+        Args:
+            text (str): Input text.
+
+        Returns:
+            List[float]: Vector embedding.
         """
         try:
             # Note: OpenRouter might route embeddings differently or strict OpenAI compatibility.
@@ -122,7 +160,15 @@ class RealAIAdapter(AIAdapter):
         self, sku_name: str, sku_tags: Dict[str, Any], user_context: Dict[str, Any]
     ) -> str:
         """
-        Generate explanation.
+        Generates a persuasive explanation for a recommendation.
+
+        Args:
+            sku_name (str): Product name.
+            sku_tags (Dict): Product tags.
+            user_context (Dict): User preferences.
+
+        Returns:
+            str: Generated explanation text.
         """
         prompt = (
             f"Explain why the perfume '{sku_name}' (Tags: {sku_tags}) matches "
@@ -144,8 +190,13 @@ class RealAIAdapter(AIAdapter):
 
     async def chat(self, messages: List[Dict[str, str]]) -> str:
         """
-        Direct chat completion.
-        messages: [{"role": "user", "content": "..."}]
+        Handles direct chat interaction.
+
+        Args:
+            messages (List[Dict]): List of message objects (role, content).
+
+        Returns:
+            str: The AI's response text.
         """
         try:
             # Strict openai types vs simple dicts
@@ -160,8 +211,17 @@ class RealAIAdapter(AIAdapter):
 
     async def generate_title(self, messages: List[Dict[str, str]]) -> str:
         """
-        Generate a descriptive title (<=40 chars) using full context.
-        Matches user spec: Unique, Specific, Max 40 chars.
+        Generates a concise title for a chat conversation.
+        
+        Uses a strict system prompt to ensure the title is short, descriptive,
+        and safe (no PII, specific length constraints). Includes a post-processing
+        pipeline to clean and validate the output.
+
+        Args:
+            messages (List[Dict]): The conversation history.
+
+        Returns:
+            str: A generated title or "Untitled" if generation fails.
         """
         # strict instructions for the model
         system_prompt = (

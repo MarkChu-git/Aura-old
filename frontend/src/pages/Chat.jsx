@@ -183,6 +183,7 @@ export default function Chat() {
     const [showSidebar, setShowSidebar] = useState(false); // Default hidden on mobile
 
     const messagesEndRef = useRef(null);
+    const welcomeMessageRef = useRef(t('chat.welcomeMessage'));
 
     // Fetch History on Mount/Auth Change
     useEffect(() => {
@@ -203,13 +204,15 @@ export default function Chat() {
 
     // Update welcome message when language changes if it's the only message
     useEffect(() => {
-        if (messages.length === 1 && messages[0].role === 'assistant') {
-            const newContent = t('chat.welcomeMessage');
-            if (messages[0].content !== newContent) {
-                setMessages([{ role: 'assistant', content: newContent }]);
+        const newContent = t('chat.welcomeMessage');
+        setMessages(prevMessages => {
+            if (prevMessages.length === 1 && prevMessages[0].role === 'assistant' && prevMessages[0].content === welcomeMessageRef.current) {
+                welcomeMessageRef.current = newContent;
+                return [{ role: 'assistant', content: newContent }];
             }
-        }
-    }, [t, i18n.language, messages]);
+            return prevMessages;
+        });
+    }, [t, i18n.language]);
 
     const fetchHistory = async () => {
         try {
@@ -233,7 +236,6 @@ export default function Chat() {
      * @param {string} id - Conversation ID.
      */
     const loadConversation = useCallback(async (id) => {
-        if (loading) return;
         setHistoryLoading(true);
         try {
             const msgs = await api.getConversation(id);
@@ -248,7 +250,7 @@ export default function Chat() {
         } finally {
             setHistoryLoading(false);
         }
-    }, [loading]);
+    }, []);
 
     /**
      * Reset chat state for a new conversation.

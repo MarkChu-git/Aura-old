@@ -135,7 +135,7 @@ docker compose -f docker-compose.prod.yml up -d
 sleep 45
 
 # 4. Verify
-curl http://localhost/health
+curl -H "Host: aura.your-domain.com" http://localhost/health
 docker compose -f docker-compose.prod.yml ps
 ```
 

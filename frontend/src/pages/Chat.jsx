@@ -183,7 +183,7 @@ export default function Chat() {
     const [showSidebar, setShowSidebar] = useState(false); // Default hidden on mobile
 
     const messagesEndRef = useRef(null);
-    const welcomeMessageRef = useRef(t('chat.welcomeMessage'));
+    const loadingConversationRef = useRef(false);
 
     // Fetch History on Mount/Auth Change
     useEffect(() => {
@@ -206,8 +206,9 @@ export default function Chat() {
     useEffect(() => {
         const newContent = t('chat.welcomeMessage');
         setMessages(prevMessages => {
-            if (prevMessages.length === 1 && prevMessages[0].role === 'assistant' && prevMessages[0].content === welcomeMessageRef.current) {
-                welcomeMessageRef.current = newContent;
+            // Only update if there's exactly one message and it's from the assistant
+            // This indicates it's likely the welcome message
+            if (prevMessages.length === 1 && prevMessages[0].role === 'assistant') {
                 return [{ role: 'assistant', content: newContent }];
             }
             return prevMessages;
@@ -236,6 +237,8 @@ export default function Chat() {
      * @param {string} id - Conversation ID.
      */
     const loadConversation = useCallback(async (id) => {
+        if (loadingConversationRef.current) return;
+        loadingConversationRef.current = true;
         setHistoryLoading(true);
         try {
             const msgs = await api.getConversation(id);
@@ -249,6 +252,7 @@ export default function Chat() {
             console.error("Failed to load conversation", err);
         } finally {
             setHistoryLoading(false);
+            loadingConversationRef.current = false;
         }
     }, []);
 

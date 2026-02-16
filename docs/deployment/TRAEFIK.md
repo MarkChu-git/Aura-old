@@ -28,8 +28,22 @@ This script will:
 4. Start the Traefik container.
 
 ### 2. Verify Installation
-Visit your server's IP with port 8080: `http://<YOUR-SERVER-IP>:8080`.
-You should see the Traefik Dashboard.
+Check if Traefik is running:
+```bash
+docker ps | grep traefik
+```
+
+**⚠️ Security Note:** The Traefik dashboard is disabled by default for security. The dashboard can expose sensitive information about your infrastructure, including internal services, routes, and certificates. 
+
+If you need to access the dashboard for troubleshooting:
+1. Uncomment the `--api.dashboard=true` line in `~/traefik-gateway/docker-compose.yml`
+2. Restart Traefik: `cd ~/traefik-gateway && docker compose restart`
+3. Access via SSH tunnel (never expose publicly):
+   ```bash
+   ssh -L 8080:localhost:8080 user@your-server
+   ```
+4. Visit `http://localhost:8080` in your local browser
+5. When done, disable the dashboard again and restart Traefik
 
 ---
 

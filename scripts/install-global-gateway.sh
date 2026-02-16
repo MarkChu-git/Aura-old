@@ -44,9 +44,9 @@ services:
     container_name: traefik_gateway
     restart: always
     command:
-      # API & Dashboard
-      - "--api.insecure=true" # For testing. In prod, use BasicAuth middleware.
-      - "--api.dashboard=true"
+      # API & Dashboard (disabled by default for security)
+      # To enable: bind to localhost only and use SSH tunneling or VPN
+      # - "--api.dashboard=true"
       
       # Docker Provider
       - "--providers.docker=true"
@@ -69,7 +69,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080" # Dashboard (Restrict access in firewall if possible)
+      # Dashboard port removed for security. Use SSH tunneling if dashboard needed:
+      # ssh -L 8080:localhost:8080 user@server
     
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock:ro"
@@ -91,8 +92,12 @@ echo ""
 echo "✅ Global Traefik Gateway installed successfully!"
 echo "-----------------------------------------------------"
 echo "📂 Location:  ${INSTALL_DIR}"
-echo "🌐 Dashboard: http://<YOUR-SERVER-IP>:8080"
 echo "🔌 Network:   ${NETWORK_NAME}"
+echo "-----------------------------------------------------"
+echo "⚠️  Security: Dashboard is disabled by default."
+echo "    To enable for troubleshooting, uncomment api.dashboard"
+echo "    in docker-compose.yml and access via SSH tunnel:"
+echo "    ssh -L 8080:localhost:8080 user@server"
 echo "-----------------------------------------------------"
 echo "Usage for your projects (e.g., Aura):"
 echo "1. In docker-compose.yml, add external network:"

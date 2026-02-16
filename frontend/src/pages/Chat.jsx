@@ -183,6 +183,7 @@ export default function Chat() {
     const [showSidebar, setShowSidebar] = useState(false); // Default hidden on mobile
 
     const messagesEndRef = useRef(null);
+    const loadingConversationRef = useRef(false);
 
     // Fetch History on Mount/Auth Change
     useEffect(() => {
@@ -203,13 +204,16 @@ export default function Chat() {
 
     // Update welcome message when language changes if it's the only message
     useEffect(() => {
-        if (messages.length === 1 && messages[0].role === 'assistant') {
-            const newContent = t('chat.welcomeMessage');
-            if (messages[0].content !== newContent) {
-                setMessages([{ role: 'assistant', content: newContent }]);
+        const newContent = t('chat.welcomeMessage');
+        setMessages(prevMessages => {
+            // Only update if there's exactly one message and it's from the assistant
+            // This indicates it's likely the welcome message
+            if (prevMessages.length === 1 && prevMessages[0].role === 'assistant') {
+                return [{ role: 'assistant', content: newContent }];
             }
-        }
-    }, [t, i18n.language, messages]);
+            return prevMessages;
+        });
+    }, [t, i18n.language]);
 
     const fetchHistory = async () => {
         try {
@@ -233,7 +237,8 @@ export default function Chat() {
      * @param {string} id - Conversation ID.
      */
     const loadConversation = useCallback(async (id) => {
-        if (loading) return;
+        if (loadingConversationRef.current) return;
+        loadingConversationRef.current = true;
         setHistoryLoading(true);
         try {
             const msgs = await api.getConversation(id);
@@ -247,8 +252,9 @@ export default function Chat() {
             console.error("Failed to load conversation", err);
         } finally {
             setHistoryLoading(false);
+            loadingConversationRef.current = false;
         }
-    }, [loading]);
+    }, []);
 
     /**
      * Reset chat state for a new conversation.

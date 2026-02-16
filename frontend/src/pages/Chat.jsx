@@ -19,15 +19,48 @@ import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import bash from 'react-syntax-highlighter/dist/esm/languages/prism/bash';
+import javascript from 'react-syntax-highlighter/dist/esm/languages/prism/javascript';
+import jsx from 'react-syntax-highlighter/dist/esm/languages/prism/jsx';
+import json from 'react-syntax-highlighter/dist/esm/languages/prism/json';
+import markdown from 'react-syntax-highlighter/dist/esm/languages/prism/markdown';
+import python from 'react-syntax-highlighter/dist/esm/languages/prism/python';
+import tsx from 'react-syntax-highlighter/dist/esm/languages/prism/tsx';
+import typescript from 'react-syntax-highlighter/dist/esm/languages/prism/typescript';
+import yaml from 'react-syntax-highlighter/dist/esm/languages/prism/yaml';
+
+SyntaxHighlighter.registerLanguage('bash', bash);
+SyntaxHighlighter.registerLanguage('javascript', javascript);
+SyntaxHighlighter.registerLanguage('jsx', jsx);
+SyntaxHighlighter.registerLanguage('json', json);
+SyntaxHighlighter.registerLanguage('markdown', markdown);
+SyntaxHighlighter.registerLanguage('python', python);
+SyntaxHighlighter.registerLanguage('tsx', tsx);
+SyntaxHighlighter.registerLanguage('typescript', typescript);
+SyntaxHighlighter.registerLanguage('yaml', yaml);
 
 /**
  * CodeBlock Component
  * Renders code snippets with syntax highlighting and copy functionality.
  */
-const CodeBlock = ({ language, children }) => {
+function CodeBlock({ language, children }) {
     const [copied, setCopied] = useState(false);
+    const normalizedLanguage = (() => {
+        const lang = (language || '').toLowerCase();
+        const map = {
+            js: 'javascript',
+            jsx: 'jsx',
+            ts: 'typescript',
+            tsx: 'tsx',
+            py: 'python',
+            sh: 'bash',
+            shell: 'bash',
+            yml: 'yaml',
+        };
+        return map[lang] || lang || 'text';
+    })();
 
     const handleCopy = () => {
         navigator.clipboard.writeText(children);
@@ -66,7 +99,7 @@ const CodeBlock = ({ language, children }) => {
                 </button>
             </div>
             <SyntaxHighlighter
-                language={language}
+                language={normalizedLanguage}
                 style={oneDark}
                 customStyle={{ margin: 0, borderRadius: 0, fontSize: '0.9rem', maxWidth: '100%', overflowX: 'auto' }}
                 wrapLines={true}
@@ -75,13 +108,13 @@ const CodeBlock = ({ language, children }) => {
             </SyntaxHighlighter>
         </div>
     );
-};
+}
 
 /**
  * MessageBubble Component
  * Renders a single chat message (user or AI) with Markdown support.
  */
-const MessageBubble = ({ msg, isAi }) => {
+function MessageBubble({ msg, isAi }) {
     const [copied, setCopied] = useState(false);
 
     const handleCopyMessage = () => {
@@ -164,7 +197,7 @@ const MessageBubble = ({ msg, isAi }) => {
             </button>
         </div>
     );
-};
+}
 
 export default function Chat() {
     const { isAuthenticated, openAuthModal } = useAuth();
@@ -184,6 +217,40 @@ export default function Chat() {
 
     const messagesEndRef = useRef(null);
     const loadingConversationRef = useRef(false);
+
+    // Helper functions defined before useEffect to avoid initialization issues
+    const loadConversation = useCallback(async (id) => {
+        if (loadingConversationRef.current) return;
+        loadingConversationRef.current = true;
+        setHistoryLoading(true);
+        try {
+            const msgs = await api.getConversation(id);
+            // Format DB messages to UI format
+            const formatted = msgs.map(m => ({ role: m.role, content: m.content }));
+
+            setMessages(formatted);
+            setConversationId(id);
+            if (window.innerWidth < 768) setShowSidebar(false); // Auto close on mobile
+        } catch (err) {
+            console.error("Failed to load conversation", err);
+        } finally {
+            setHistoryLoading(false);
+            loadingConversationRef.current = false;
+        }
+    }, []);
+
+    const fetchHistory = async () => {
+        try {
+            const data = await api.getHistory();
+            setHistoryList(data);
+        } catch (err) {
+            console.error("Failed to load history", err);
+        }
+    };
+
+    const scrollToBottom = () => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
 
     // Fetch History on Mount/Auth Change
     useEffect(() => {
@@ -215,46 +282,9 @@ export default function Chat() {
         });
     }, [t, i18n.language]);
 
-    const fetchHistory = async () => {
-        try {
-            const data = await api.getHistory();
-            setHistoryList(data);
-        } catch (err) {
-            console.error("Failed to load history", err);
-        }
-    };
-
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
-
     useEffect(() => {
         scrollToBottom();
     }, [messages]);
-
-    /**
-     * Load a specific conversation from history.
-     * @param {string} id - Conversation ID.
-     */
-    const loadConversation = useCallback(async (id) => {
-        if (loadingConversationRef.current) return;
-        loadingConversationRef.current = true;
-        setHistoryLoading(true);
-        try {
-            const msgs = await api.getConversation(id);
-            // Format DB messages to UI format
-            const formatted = msgs.map(m => ({ role: m.role, content: m.content }));
-
-            setMessages(formatted);
-            setConversationId(id);
-            if (window.innerWidth < 768) setShowSidebar(false); // Auto close on mobile
-        } catch (err) {
-            console.error("Failed to load conversation", err);
-        } finally {
-            setHistoryLoading(false);
-            loadingConversationRef.current = false;
-        }
-    }, []);
 
     /**
      * Reset chat state for a new conversation.
@@ -327,7 +357,11 @@ export default function Chat() {
             }
         } catch (err) {
             console.error(err);
-            setMessages(prev => [...prev, { role: 'assistant', content: t('chat.error') }]);
+            const errorMessage = err instanceof Error ? err.message : '';
+            setMessages(prev => [
+                ...prev,
+                { role: 'assistant', content: errorMessage ? errorMessage : t('chat.error') }
+            ]);
         } finally {
             setLoading(false);
         }

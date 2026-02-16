@@ -19,10 +19,14 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
-      # ROUTER: Frontend (Catch-all for domain)
+      - "traefik.docker.network=proxy"
+      # ROUTER: Frontend (HTTP)
       - "traefik.http.routers.aura-frontend.rule=Host(`withaura.cc`) || Host(`localhost`)"
-      - "traefik.http.routers.aura-frontend.entrypoints=websecure"
-      - "traefik.http.routers.aura-frontend.tls.certresolver=myresolver"
+      - "traefik.http.routers.aura-frontend.entrypoints=web"
+      # ROUTER: Frontend (HTTPS)
+      - "traefik.http.routers.aura-frontend-secure.rule=Host(`withaura.cc`) || Host(`localhost`)"
+      - "traefik.http.routers.aura-frontend-secure.entrypoints=websecure"
+      - "traefik.http.routers.aura-frontend-secure.tls.certresolver=myresolver"
       # SERVICE
       - "traefik.http.services.aura-frontend.loadbalancer.server.port=80"
 
@@ -54,11 +58,15 @@ services:
       - proxy
     labels:
       - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
       # ROUTER: API (Higher priority paths)
       # Matches: /v1, /health, /docs, /redoc, /openapi.json
       - "traefik.http.routers.aura-api.rule=(Host(`withaura.cc`) || Host(`localhost`)) && (PathPrefix(`/v1`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || Path(`/health`) || Path(`/openapi.json`))"
-      - "traefik.http.routers.aura-api.entrypoints=websecure"
-      - "traefik.http.routers.aura-api.tls.certresolver=myresolver"
+      - "traefik.http.routers.aura-api.entrypoints=web"
+      # ROUTER: API (HTTPS)
+      - "traefik.http.routers.aura-api-secure.rule=(Host(`withaura.cc`) || Host(`localhost`)) && (PathPrefix(`/v1`) || PathPrefix(`/docs`) || PathPrefix(`/redoc`) || Path(`/health`) || Path(`/openapi.json`))"
+      - "traefik.http.routers.aura-api-secure.entrypoints=websecure"
+      - "traefik.http.routers.aura-api-secure.tls.certresolver=myresolver"
       # SERVICE
       - "traefik.http.services.aura-api.loadbalancer.server.port=8000"
 

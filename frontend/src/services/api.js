@@ -84,13 +84,44 @@ export const api = {
         const body = { messages: history };
         if (conversationId) body.conversation_id = conversationId;
 
-        const response = await fetch(`${API_BASE}/chat`, {
-            method: 'POST',
-            headers: await getHeaders(),
-            body: JSON.stringify(body)
-        });
-        if (!response.ok) throw new Error('Chat failed');
-        return response.json();
+        let response;
+        try {
+            response = await fetch(`${API_BASE}/chat`, {
+                method: 'POST',
+                headers: await getHeaders(),
+                body: JSON.stringify(body)
+            });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : String(err);
+            throw new Error(`Chat network error: ${message}`);
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+        let data;
+        if (contentType.includes("application/json")) {
+            try {
+                data = await response.json();
+            } catch {
+                data = null;
+            }
+        } else {
+            try {
+                data = await response.text();
+            } catch {
+                data = "";
+            }
+        }
+
+        if (!response.ok) {
+            const detail =
+                typeof data === "string"
+                    ? data
+                    : (data && (data.detail || data.message)) || "";
+            const suffix = detail ? `: ${detail}` : "";
+            throw new Error(`Chat failed (${response.status})${suffix}`);
+        }
+
+        return data;
     },
 
     /**

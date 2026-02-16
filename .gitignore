@@ -4,6 +4,7 @@
 !.env.example
 *.pem
 *.key
+deploy/traefik/acme.json
 
 # System
 .DS_Store

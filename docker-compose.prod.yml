@@ -109,9 +109,9 @@ services:
   nginx:
     image: nginx:alpine
     restart: always
-    ports:
-      - "127.0.0.1:80:80"
-      # - "443:443" # Uncomment when SSL is configured
+    # No public ports; Traefik routes traffic here via Docker network
+    expose:
+      - "80"
     volumes:
       - ./deploy/nginx/aura.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
@@ -121,10 +121,21 @@ services:
         condition: service_healthy
     networks:
       - aura-network
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      # ROUTER: Aura App
+      - "traefik.http.routers.aura.rule=Host(`aura.your-domain.com`)"
+      - "traefik.http.routers.aura.entrypoints=websecure"
+      - "traefik.http.routers.aura.tls.certresolver=myresolver"
+      # SERVICE: Point to internal Nginx on port 80
+      - "traefik.http.services.aura.loadbalancer.server.port=80"
 
 networks:
   aura-network:
     driver: bridge
+  proxy:
+    external: true
 
 volumes:
   postgres_data_prod:

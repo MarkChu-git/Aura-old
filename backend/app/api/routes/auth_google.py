@@ -1,5 +1,11 @@
 """
 Google Authentication Routes
+----------------------------
+This module handles authentication using Google OAuth2.
+It verifies Google ID tokens and creates/updates local user accounts accordingly.
+
+Author: Aura Team
+Created: 2024-01-01
 """
 
 from typing import Optional
@@ -19,10 +25,14 @@ router = APIRouter()
 
 
 class GoogleAuthRequest(BaseModel):
+    """Request schema for Google authentication."""
+
     credential: str  # Google ID token JWT
 
 
 class UserResponse(BaseModel):
+    """Response schema for user data."""
+
     id: int
     email: str
     name: Optional[str] = None
@@ -34,6 +44,8 @@ class UserResponse(BaseModel):
 
 
 class GoogleAuthResponse(BaseModel):
+    """Response schema for successful Google authentication."""
+
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
@@ -46,9 +58,20 @@ async def google_auth(auth_data: GoogleAuthRequest, db: AsyncSession = Depends(g
     """
     Authenticate user with Google ID token.
 
-    - Verifies Google ID token
-    - Creates or updates user record
-    - Returns JWT access token
+    Verifies the provided Google ID token. If valid, it finds an existing user
+    by their Google ID (sub) or creates a new one. Returns a JWT access token
+    for the API.
+
+    Args:
+        auth_data (GoogleAuthRequest): The Google ID token.
+        db (AsyncSession): Database session.
+
+    Returns:
+        GoogleAuthResponse: Access token and user details.
+
+    Raises:
+        HTTPException(400): If credential is missing or email is not verified by Google.
+        HTTPException(401): If token verification fails.
     """
     if not auth_data.credential:
         raise HTTPException(

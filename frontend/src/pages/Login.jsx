@@ -1,3 +1,11 @@
+/**
+ * @file Login.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Authentication page for user login. Currently supports Google OAuth 2.0 via Google Identity Services.
+ * Handles the initialization of the Google Sign-In button and processes the JWT credential returned by Google.
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -5,6 +13,19 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { Lock, AlertCircle } from 'lucide-react';
 
+/**
+ * Login Page Component.
+ * 
+ * Renders the login interface. Currently, the primary method is Google Sign-In.
+ * 
+ * Features:
+ * - Google Identity Services integration (Sign-In with Google)
+ * - Automatic redirect to the previous page after successful login
+ * - Error handling for failed authentication attempts
+ * 
+ * @component
+ * @returns {JSX.Element} The Login page
+ */
 export default function Login() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -12,11 +33,21 @@ export default function Login() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const location = useLocation();
+    
+    // Determine where to redirect after login (default to /chat)
     const from = location.state?.from?.pathname || '/chat';
+    
+    // Reference for the Google Sign-In button container
     const googleButtonRef = useRef(null);
 
     useEffect(() => {
-        // Function to render the button
+        /**
+         * Initializes the Google Sign-In client and renders the button.
+         * 
+         * This function checks for the availability of the global `google` object,
+         * initializes the client with the project's Client ID, and renders the
+         * button into the referenced DOM element.
+         */
         const renderGoogleButton = () => {
             if (window.google?.accounts?.id && googleButtonRef.current) {
                 // Initialize the client
@@ -27,8 +58,11 @@ export default function Login() {
                         console.log("Google Sign-In callback received", response);
                         try {
                             setLoading(true);
+                            // Verify the Google token with our backend
                             const data = await api.googleAuth(response.credential);
                             console.log("Backend auth success:", data);
+                            
+                            // Log the user in via context and redirect
                             login(data.access_token);
                             navigate(from, { replace: true });
                         } catch (error) {
@@ -66,7 +100,7 @@ export default function Login() {
             return () => clearTimeout(timer);
         }
 
-    }, [login, navigate, from]);
+    }, [login, navigate, from, t]);
 
     return (
         <div className="container" style={{

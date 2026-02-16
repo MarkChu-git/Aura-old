@@ -1,8 +1,27 @@
+/**
+ * @file ForgotPassword.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Page to initiate the password reset process. Allows users to request
+ * a password reset token by providing their email address.
+ */
+
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft, AlertCircle, CheckCircle, Copy } from 'lucide-react';
 import { api } from '../services/api';
 
+/**
+ * ForgotPassword Page Component.
+ * 
+ * Handles the "Forgot Password" flow.
+ * 1. User enters email.
+ * 2. System validates and (in this dev version) returns a token or sends an email.
+ * 3. User copies token or proceeds to reset link.
+ * 
+ * @component
+ * @returns {JSX.Element} The ForgotPassword page
+ */
 export default function ForgotPassword() {
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
@@ -11,6 +30,11 @@ export default function ForgotPassword() {
     const [expiresAt, setExpiresAt] = useState('');
     const [copied, setCopied] = useState(false);
 
+    /**
+     * Handles the form submission to request a reset token.
+     * 
+     * @param {Event} e - Form submission event
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
@@ -19,6 +43,8 @@ export default function ForgotPassword() {
         try {
             const response = await api.forgotPassword(email);
             if (response.token) {
+                // In a real production app, this token would be emailed.
+                // For this implementation, we display it to the user.
                 setToken(response.token);
                 setExpiresAt(response.expires_at);
             } else {
@@ -31,6 +57,9 @@ export default function ForgotPassword() {
         }
     };
 
+    /**
+     * Copies the generated token to the clipboard.
+     */
     const copyToken = () => {
         navigator.clipboard.writeText(token);
         setCopied(true);

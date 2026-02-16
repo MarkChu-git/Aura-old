@@ -1,3 +1,12 @@
+/**
+ * Home Page Component
+ * -------------------
+ * The landing page of the application.
+ * Features a hero section with interactive text effects, process explanation, and testimonials.
+ *
+ * @component
+ */
+
 import { Link } from 'react-router-dom';
 import { ArrowRight, Sparkles, Brain, Package } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -6,8 +15,11 @@ import LiquidButton from '../components/LiquidButton';
 import AnnouncementBanner from '../components/AnnouncementBanner';
 
 export default function Home() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
+
+    const isChinese = i18n.language.startsWith('zh');
+    const serifFont = isChinese ? 'var(--font-serif-cn)' : 'var(--font-serif)';
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -49,7 +61,7 @@ export default function Home() {
                         lineHeight: 1.1,
                         marginBottom: '2rem',
                         letterSpacing: '-0.02em',
-                        fontFamily: 'Georgia, serif'
+                        fontFamily: serifFont
                     }}>
                         {t('home.hero.title')} <br />
                         {t('home.hero.titleThrough')} <span
@@ -70,7 +82,7 @@ export default function Home() {
                     margin: '0 auto 3.5rem',
                     lineHeight: '1.8',
                     fontWeight: '300',
-                    fontFamily: 'Georgia, serif'
+                    fontFamily: serifFont
                 }}>
                     {t('home.hero.subtitle')}
                 </p>
@@ -92,7 +104,7 @@ export default function Home() {
                     textAlign: 'center',
                     marginBottom: '1rem',
                     fontWeight: '400',
-                    fontFamily: 'Georgia, serif',
+                    fontFamily: serifFont,
                     letterSpacing: '-0.02em'
                 }}>
                     {t('home.howItWorks.title')}
@@ -102,7 +114,7 @@ export default function Home() {
                     color: 'hsl(var(--color-text-muted))',
                     marginBottom: '5rem',
                     fontSize: '0.9375rem',
-                    fontFamily: 'Georgia, serif'
+                    fontFamily: serifFont
                 }}>
                     {t('home.howItWorks.subtitle')}
                 </p>
@@ -167,7 +179,7 @@ export default function Home() {
                                     marginBottom: '1rem',
                                     fontWeight: '400',
                                     letterSpacing: '0.15em',
-                                    fontFamily: 'Georgia, serif'
+                                    fontFamily: serifFont
                                 }}>
                                     {item.step}
                                 </span>
@@ -175,7 +187,7 @@ export default function Home() {
                                     fontSize: '1.5rem',
                                     marginBottom: '0.75rem',
                                     fontWeight: '500',
-                                    fontFamily: 'Georgia, serif',
+                                    fontFamily: serifFont,
                                     letterSpacing: '-0.01em'
                                 }}>
                                     {item.title}
@@ -186,7 +198,7 @@ export default function Home() {
                                     fontSize: '0.9375rem',
                                     fontWeight: '300',
                                     maxWidth: '240px',
-                                    fontFamily: 'Georgia, serif'
+                                    fontFamily: serifFont
                                 }}>
                                     {item.desc}
                                 </p>
@@ -209,7 +221,7 @@ export default function Home() {
                         fontSize: '1.25rem',
                         lineHeight: '1.9',
                         color: 'hsl(var(--color-text-muted))',
-                        fontFamily: 'Georgia, serif',
+                        fontFamily: serifFont,
                         fontWeight: '400',
                         fontStyle: 'italic'
                     }}>

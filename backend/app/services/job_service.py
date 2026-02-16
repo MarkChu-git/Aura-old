@@ -1,3 +1,13 @@
+"""
+Job Service Layer
+-----------------
+This module handles the creation, retrieval, and status management of processing jobs.
+It interacts with the database and initiates background processing via Celery tasks.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from uuid import UUID
 from datetime import datetime, timedelta
 from typing import Optional
@@ -10,6 +20,10 @@ from app.tasks.tasks import process_job
 
 
 class JobService:
+    """
+    Service class for managing Job entities and their lifecycles.
+    """
+
     @staticmethod
     async def create_job(
         input_type: str,
@@ -17,6 +31,18 @@ class JobService:
         image_key: Optional[str] = None,
         session_id: Optional[str] = None,
     ) -> UUID:
+        """
+        Create a new job and enqueue it for processing.
+
+        Args:
+            input_type (str): Type of input ('text' or 'image').
+            text (Optional[str]): Text content (if text input).
+            image_key (Optional[str]): S3 object key (if image input).
+            session_id (Optional[str]): User session ID.
+
+        Returns:
+            UUID: The ID of the created job.
+        """
         async with AsyncSessionLocal() as db:
             # 1. Create Input
             new_input = Input(
@@ -45,12 +71,31 @@ class JobService:
 
     @staticmethod
     async def get_job(job_id: UUID):
+        """
+        Retrieve a job by its ID.
+
+        Args:
+            job_id (UUID): The unique identifier of the job.
+
+        Returns:
+            Job: The job object, or None if not found.
+        """
         async with AsyncSessionLocal() as db:
             result = await db.execute(select(Job).where(Job.id == job_id))
             return result.scalars().first()
 
     @staticmethod
     async def mark_failed(job_id: UUID, error_code: str, error_message: str):
+        """
+        Mark a job as failed with an error message.
+
+        This is typically called by background workers or error handlers.
+
+        Args:
+            job_id (UUID): The job ID.
+            error_code (str): Short error code.
+            error_message (str): Descriptive error message.
+        """
         async with AsyncSessionLocal() as session:
             try:
                 stmt = select(Job).where(Job.id == job_id)
@@ -68,8 +113,12 @@ class JobService:
     @staticmethod
     async def check_timeouts(timeout_seconds: int = 120):
         """
-        Fail jobs that have been running for too long.
-        This should be called by a periodic task.
+        Check for and fail jobs that have exceeded the maximum execution time.
+
+        This method is intended to be run as a periodic maintenance task.
+
+        Args:
+            timeout_seconds (int): Maximum allowed duration in seconds.
         """
         cutoff = datetime.utcnow() - timedelta(seconds=timeout_seconds)
         async with AsyncSessionLocal() as session:

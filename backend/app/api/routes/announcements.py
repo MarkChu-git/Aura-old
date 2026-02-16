@@ -1,3 +1,12 @@
+"""
+Public Announcement Routes
+--------------------------
+This module provides endpoints for users to retrieve active system announcements.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from fastapi import APIRouter
 from sqlalchemy import select
 
@@ -10,6 +19,12 @@ router = APIRouter()
 
 @router.get("")
 async def get_active_announcements():
+    """
+    Get all active announcements.
+
+    Returns:
+        dict: List of active announcements, sorted by pinned status and date.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement)

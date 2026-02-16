@@ -1,3 +1,13 @@
+"""
+Admin Announcement Management Routes
+------------------------------------
+This module provides administrative endpoints for managing system announcements,
+including creation, deletion, pinning, and visibility toggling.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -11,11 +21,15 @@ router = APIRouter()
 
 
 class AnnouncementCreate(BaseModel):
+    """Schema for creating a new announcement."""
+
     title: str
     content: str
 
 
 class AnnouncementResponse(BaseModel):
+    """Schema for announcement details."""
+
     id: int
     title: str
     content: str
@@ -29,6 +43,15 @@ class AnnouncementResponse(BaseModel):
 
 @router.get("", response_model=None)
 async def list_announcements(_=Depends(get_current_admin_user)):
+    """
+    List all announcements (for admins).
+
+    Args:
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: List of announcement objects.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).order_by(
@@ -54,6 +77,16 @@ async def list_announcements(_=Depends(get_current_admin_user)):
 async def create_announcement(
     announcement: AnnouncementCreate, _=Depends(get_current_admin_user)
 ):
+    """
+    Create a new system announcement.
+
+    Args:
+        announcement (AnnouncementCreate): The announcement details.
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: Success message.
+    """
     async with AsyncSessionLocal() as session:
         new_announcement = Announcement(**announcement.model_dump(), is_active=True)
         session.add(new_announcement)
@@ -63,6 +96,19 @@ async def create_announcement(
 
 @router.delete("/{announcement_id}")
 async def delete_announcement(announcement_id: int, _=Depends(get_current_admin_user)):
+    """
+    Delete an announcement.
+
+    Args:
+        announcement_id (int): ID of the announcement to delete.
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If announcement not found.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).filter(Announcement.id == announcement_id)
@@ -77,6 +123,19 @@ async def delete_announcement(announcement_id: int, _=Depends(get_current_admin_
 
 @router.put("/{announcement_id}/toggle")
 async def toggle_announcement(announcement_id: int, _=Depends(get_current_admin_user)):
+    """
+    Toggle the active status of an announcement.
+
+    Args:
+        announcement_id (int): ID of the announcement.
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If announcement not found.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).filter(Announcement.id == announcement_id)
@@ -91,6 +150,20 @@ async def toggle_announcement(announcement_id: int, _=Depends(get_current_admin_
 
 @router.put("/{announcement_id}/pin")
 async def pin_announcement(announcement_id: int, _=Depends(get_current_admin_user)):
+    """
+    Pin or unpin an announcement.
+    Only one announcement can be pinned at a time (logic might vary, here it unpins others).
+
+    Args:
+        announcement_id (int): ID of the announcement.
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If announcement not found.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(Announcement).filter(Announcement.id == announcement_id)

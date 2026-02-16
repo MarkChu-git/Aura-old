@@ -1,4 +1,13 @@
-import { useEffect, useState, useCallback } from 'react';
+/**
+ * Announcement Bar Component
+ * --------------------------
+ * A simplified version of the announcement display, typically used for single critical alerts.
+ * Listens for storage events to sync dismissal across tabs.
+ *
+ * @component
+ */
+
+import { useEffect, useState } from 'react';
 import { api } from '../services/api.js';
 import { X, Info } from 'lucide-react';
 
@@ -6,27 +15,31 @@ export default function AnnouncementBar() {
     const [announcement, setAnnouncement] = useState(null);
     const [dismissed, setDismissed] = useState(false);
 
-    const loadAnnouncement = useCallback(async () => {
-        try {
-            const response = await api.getActiveAnnouncements();
-            const announcements = response.data || [];
-
-            if (announcements.length > 0) {
-                const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
-                const latestActive = announcements.find(a =>
-                    a.is_active && !dismissedAnnouncements.includes(a.id)
-                );
-                setAnnouncement(latestActive);
-            }
-        } catch (error) {
-            console.error('Failed to load announcement:', error);
-        }
-    }, []);
-
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
+        let mounted = true;
+
+        const loadAnnouncement = async () => {
+            try {
+                const response = await api.getActiveAnnouncements();
+                if (!mounted) return;
+
+                const announcements = response.data || [];
+
+                if (announcements.length > 0) {
+                    const dismissedAnnouncements = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '[]');
+                    const latestActive = announcements.find(a =>
+                        a.is_active && !dismissedAnnouncements.includes(a.id)
+                    );
+                    setAnnouncement(latestActive);
+                }
+            } catch (error) {
+                console.error('Failed to load announcement:', error);
+            }
+        };
+
         loadAnnouncement();
 
+        // Listen for dismissal in other tabs/components
         const handleStorage = (e) => {
             if (e.key === 'announcement-dismissed') {
                 setDismissed(true);
@@ -34,9 +47,15 @@ export default function AnnouncementBar() {
         };
 
         window.addEventListener('storage', handleStorage);
-        return () => window.removeEventListener('storage', handleStorage);
-    }, [loadAnnouncement]);
+        return () => {
+            mounted = false;
+            window.removeEventListener('storage', handleStorage);
+        };
+    }, []);
 
+    /**
+     * Dismiss the current announcement.
+     */
     const handleDismiss = () => {
         if (!announcement) return;
 

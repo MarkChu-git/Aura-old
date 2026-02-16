@@ -1,3 +1,13 @@
+/**
+ * Header Component
+ * ----------------
+ * The main navigation bar of the application.
+ * It handles responsive navigation, user actions (login/logout),
+ * and displays notification badges for announcements.
+ *
+ * @component
+ */
+
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, LogOut, Shield, Bell } from 'lucide-react';
 import { useState, useEffect } from 'react';
@@ -16,6 +26,10 @@ export default function Header() {
     const { isAuthenticated, user, openAuthModal, logout } = useAuth();
     const isAdmin = user?.role === 'admin';
 
+    /**
+     * Effect to load and update the unread announcements count.
+     * Polls every 30 seconds.
+     */
     useEffect(() => {
         const loadUnreadCount = async () => {
             // If user is already on announcements page, don't show unread count
@@ -58,6 +72,11 @@ export default function Header() {
         return () => clearInterval(interval);
     }, [location.pathname]); // Re-run when location changes
 
+    /**
+     * Check if the given path matches the current location.
+     * @param {string} path - The path to check.
+     * @returns {boolean} True if active.
+     */
     const isActive = (path) => location.pathname === path;
 
     return (
@@ -71,11 +90,15 @@ export default function Header() {
             borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
             boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)'
         }}>
-            <div className="container" style={{
+            <div style={{
                 height: '75px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between'
+                justifyContent: 'space-between',
+                position: 'relative',
+                padding: '0 2rem',
+                width: '100%',
+                maxWidth: 'none'
             }}>
                 {/* Logo - Premium Serif */}
                 <Link to="/" style={{
@@ -83,7 +106,8 @@ export default function Header() {
                     alignItems: 'center',
                     gap: '0.75rem',
                     textDecoration: 'none',
-                    color: 'hsl(var(--color-text-main))'
+                    color: 'hsl(var(--color-text-main))',
+                    zIndex: 20
                 }}>
                     <Logo size={40} />
                     <span style={{
@@ -99,18 +123,18 @@ export default function Header() {
                 {/* Desktop Nav - Centered */}
                 <nav style={{
                     display: 'none',
-                    gap: '2.5rem',
+                    gap: '2rem',
                     position: 'absolute',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    '@media (min-width: 768px)': { display: 'flex' }
+                    zIndex: 10
                 }} className="desktop-nav">
                     {[
                         { path: '/', label: t('header.home') },
                         { path: '/chat', label: t('header.explore') },
                         { path: '/announcements', label: t('header.announcements'), icon: Bell, badge: unreadCount },
                         { path: '/profile', label: t('header.profile') },
-                        ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : [])
+                        ...(isAdmin ? [{ path: '/admin', label: t('header.admin') }] : [])
                     ].map(({ path, label, icon: Icon, badge }) => (
                         <Link
                             key={path}
@@ -167,7 +191,7 @@ export default function Header() {
                 </nav>
 
                 {/* Desktop Actions */}
-                <div style={{ display: 'none', gap: '1rem', '@media (min-width: 768px)': { display: 'flex' } }} className="desktop-actions">
+                <div style={{ display: 'none', gap: '1rem', zIndex: 20 }} className="desktop-actions">
                     <LanguageSwitcher />
                     {!isAuthenticated ? (
                         <>
@@ -255,7 +279,7 @@ export default function Header() {
                         { path: '/chat', label: t('header.explore') },
                         { path: '/announcements', label: t('header.announcements'), icon: Bell, badge: unreadCount },
                         { path: '/profile', label: t('header.profile') },
-                        ...(isAdmin ? [{ path: '/admin', label: 'Admin' }] : [])
+                        ...(isAdmin ? [{ path: '/admin', label: t('header.admin') }] : [])
                     ].map(({ path, label, icon: Icon, badge }) => (
                         <Link
                             key={path}
@@ -318,14 +342,15 @@ export default function Header() {
             )}
 
             <style>{`
-        @media (min-width: 768px) {
+        @media (min-width: 1200px) {
           .mobile-toggle { display: none; }
           .desktop-nav { display: flex !important; }
           .desktop-actions { display: flex !important; }
         }
-        @media (max-width: 767px) {
+        @media (max-width: 1199px) {
             .desktop-nav { display: none !important; }
             .desktop-actions { display: none !important; }
+            .mobile-toggle { display: flex !important; }
         }
         
         .desktop-nav a:hover {

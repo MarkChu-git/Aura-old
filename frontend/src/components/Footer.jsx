@@ -1,3 +1,11 @@
+/**
+ * Footer Component
+ * ----------------
+ * The page footer displaying copyright, links, and branding.
+ *
+ * @component
+ */
+
 import { Link } from 'react-router-dom';
 import Logo from './Logo';
 

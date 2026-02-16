@@ -1,7 +1,9 @@
 """
-Google Authentication Module
+Google Authentication Module.
 
-Handles Google ID token verification and user authentication.
+This module handles the verification of Google ID tokens using the `google-auth` library.
+It validates the token signature, issuer, and expiration, and ensures that the user's
+email address has been verified by Google.
 """
 
 import logging
@@ -14,29 +16,48 @@ logger = logging.getLogger(__name__)
 
 
 class GoogleAuthError(Exception):
-    """Raised when Google authentication fails"""
+    """
+    Base exception for Google authentication failures.
+    Raised when the token is invalid, expired, or malformed.
+    """
 
     pass
 
 
 class EmailNotVerifiedError(GoogleAuthError):
-    """Raised when Google email is not verified"""
+    """
+    Exception raised when a valid Google token is presented,
+    but the associated email address has not been verified by Google.
+    """
 
     pass
 
 
 def verify_google_token(credential: str) -> Dict[str, Any]:
     """
-    Verify Google ID token and return user info.
+    Verifies a Google ID token and extracts user information.
+
+    This function performs the following checks:
+    1. Validates the JWT signature using Google's public keys.
+    2. Checks the `aud` (audience) claim matches the configured Client ID.
+    3. Checks the `iss` (issuer) claim is a valid Google issuer.
+    4. Checks the `exp` (expiration) claim.
+    5. Verifies that `email_verified` is true.
 
     Args:
-        credential: Google ID token JWT
+        credential (str): The raw Google ID token (JWT string).
 
     Returns:
-        Dict containing user info (sub, email, name, picture, email_verified)
+        Dict[str, Any]: A dictionary containing the user's profile information:
+            - sub: The unique Google user ID.
+            - email: The user's email address.
+            - name: The user's full name.
+            - picture: The URL to the user's profile picture.
+            - email_verified: Boolean indicating email verification status.
 
     Raises:
-        GoogleAuthError: If token verification fails
+        GoogleAuthError: If the token is invalid, expired, or from the wrong issuer.
+        EmailNotVerifiedError: If the email address is not verified.
     """
     try:
         # Verify the token
@@ -61,7 +82,7 @@ def verify_google_token(credential: str) -> Dict[str, Any]:
         }
 
     except ValueError as e:
-        # Invalid token
+        # Invalid token (signature, expiration, etc.)
         error_msg = str(e)
         logger.warning(f"Google token verification failed: {error_msg}")
         raise GoogleAuthError(f"Invalid Google credential: {error_msg}")

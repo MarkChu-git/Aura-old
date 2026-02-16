@@ -1,3 +1,13 @@
+"""
+Admin User Management Routes
+----------------------------
+This module provides administrative endpoints for managing users,
+including listing users, banning/unbanning users, and sending messages.
+
+Author: Aura Team
+Created: 2024-01-01
+"""
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import select
@@ -13,10 +23,14 @@ router = APIRouter()
 
 
 class SendMessageRequest(BaseModel):
+    """Schema for sending a message to a user."""
+
     content: str
 
 
 class UserResponse(BaseModel):
+    """Schema for user details in list view."""
+
     id: int
     email: str
     name: str | None
@@ -32,6 +46,17 @@ class UserResponse(BaseModel):
 
 @router.get("", response_model=None)
 async def list_users(skip: int = 0, limit: int = 50, _=Depends(get_current_admin_user)):
+    """
+    List all users in the system.
+
+    Args:
+        skip (int): Number of records to skip (pagination).
+        limit (int): Max number of records to return.
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: List of user objects.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(
             select(User).offset(skip).limit(limit).order_by(User.created_at.desc())
@@ -56,6 +81,20 @@ async def list_users(skip: int = 0, limit: int = 50, _=Depends(get_current_admin
 
 @router.post("/{user_id}/ban")
 async def ban_user(user_id: int, admin_user: User = Depends(get_current_admin_user)):
+    """
+    Ban a user by deactivating their account.
+    Logs the action in the audit log.
+
+    Args:
+        user_id (int): ID of the user to ban.
+        admin_user (User): The admin performing the action.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If user is not found.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(User).filter(User.id == user_id))
         user = result.scalars().first()
@@ -78,6 +117,20 @@ async def ban_user(user_id: int, admin_user: User = Depends(get_current_admin_us
 
 @router.delete("/{user_id}/ban")
 async def unban_user(user_id: int, admin_user: User = Depends(get_current_admin_user)):
+    """
+    Unban a user by reactivating their account.
+    Logs the action in the audit log.
+
+    Args:
+        user_id (int): ID of the user to unban.
+        admin_user (User): The admin performing the action.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If user is not found.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(User).filter(User.id == user_id))
         user = result.scalars().first()
@@ -102,6 +155,20 @@ async def unban_user(user_id: int, admin_user: User = Depends(get_current_admin_
 async def send_message(
     user_id: int, request: SendMessageRequest, _=Depends(get_current_admin_user)
 ):
+    """
+    Send a system message to a user.
+
+    Args:
+        user_id (int): ID of the recipient user.
+        request (SendMessageRequest): Message content.
+        _ (User): Ensures the requester is an admin.
+
+    Returns:
+        dict: Success message.
+
+    Raises:
+        HTTPException(404): If user is not found.
+    """
     async with AsyncSessionLocal() as session:
         result = await session.execute(select(User).filter(User.id == user_id))
         user = result.scalars().first()

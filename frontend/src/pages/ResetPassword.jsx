@@ -1,8 +1,27 @@
+/**
+ * @file ResetPassword.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Page for resetting the user's password. Accepts a reset token
+ * and the new password, enforcing password strength requirements.
+ */
+
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Lock, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { api } from '../services/api';
 
+/**
+ * ResetPassword Page Component.
+ * 
+ * Final step of the password reset flow.
+ * 1. Validates the presence of a token (passed via router state or manually entered).
+ * 2. Accepts new password and confirmation.
+ * 3. Submits the reset request to the API.
+ * 
+ * @component
+ * @returns {JSX.Element} The ResetPassword page
+ */
 export default function ResetPassword() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -13,6 +32,7 @@ export default function ResetPassword() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
 
+    // Initialize token from navigation state if available
     useEffect(() => {
         // Get token from location state or URL params
         if (location.state?.token) {
@@ -20,6 +40,12 @@ export default function ResetPassword() {
         }
     }, [location]);
 
+    /**
+     * Handles the password reset submission.
+     * Validates input (token existence, password match, password length).
+     * 
+     * @param {Event} e - Form submission event
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');

@@ -2,26 +2,19 @@
 
 ## Deployment Issues
 
-### 1. API Health Check Failed (Connection Refused)
+### 1. API Health Check Failed (404 Not Found or 502 Bad Gateway)
 
 **Symptoms:**
 - `./scripts/bootstrap.sh` fails with "WARNING: API health check failed."
-- `curl http://localhost/health` returns 502 Bad Gateway.
-- Nginx logs (`docker logs aura-nginx-1`) show `connect() failed (111: Connection refused)` connecting to an upstream IP (e.g., `172.19.0.x`).
+- `curl http://localhost/health` returns 404 or 502.
 
 **Cause:**
-- **Stale DNS Cache:** Nginx caches the IP addresses of upstream containers (`api`, `frontend`) based on the `resolver ... valid=30s;` directive. If container IPs change (e.g., due to container recreation) and Nginx hasn't updated its cache or restarted, it tries to connect to the old IP.
-
-**Solution:**
-- **Restart Nginx:** This forces a DNS lookup of the upstream services.
-  ```bash
-  docker restart aura-nginx-1
-  ```
-- **Verify:**
-  ```bash
-  curl -v http://localhost/health
-  ```
-  Should return `{"status":"ok"}`.
+- **404 Not Found**: Traefik is running, but the `Host` header doesn't match your router rule.
+  - *Fix*: Ensure your `docker-compose.prod.yml` labels include `Host('localhost')` or test with `curl -H "Host: your-domain.com" ...`.
+- **502 Bad Gateway**: Traefik matches the rule, but cannot reach the internal Nginx container.
+  - *Fix*: Ensure both `traefik` and `aura-nginx` are on the `proxy` network. Check `docker network inspect proxy`.
+- **Connection Refused**: Traefik is not running.
+  - *Fix*: Run `./scripts/install-global-gateway.sh`.
 
 ### 2. Frontend API Calls Fail (404/502)
 

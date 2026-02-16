@@ -1,17 +1,42 @@
+/**
+ * @file Announcements.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Public announcements page. Displays a list of active system announcements
+ * to users. Supports Markdown rendering and pinned posts.
+ */
+
 import { useEffect, useState } from 'react';
 import { api } from '../services/api';
 import { Megaphone, Calendar, X, Pin } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+/**
+ * Announcements Page Component.
+ * 
+ * Fetches and displays active announcements from the backend.
+ * Features:
+ * - Markdown rendering for rich text content
+ * - Visual distinction for pinned announcements
+ * - Date formatting
+ * - Empty state handling
+ * 
+ * @component
+ * @returns {JSX.Element} The Announcements page
+ */
 export default function Announcements() {
     const [announcements, setAnnouncements] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Load announcements on mount
     useEffect(() => {
         loadAnnouncements();
     }, []);
 
+    /**
+     * Fetches active announcements from the API.
+     */
     const loadAnnouncements = async () => {
         try {
             const response = await api.getActiveAnnouncements();
@@ -23,6 +48,12 @@ export default function Announcements() {
         }
     };
 
+    /**
+     * Formats a date string into a long readable format.
+     * 
+     * @param {string} dateString - ISO date string
+     * @returns {string} Formatted date (e.g., "January 1, 2024")
+     */
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('en-US', { 

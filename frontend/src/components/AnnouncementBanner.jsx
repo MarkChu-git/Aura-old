@@ -1,4 +1,14 @@
-import { useEffect, useState, useCallback } from 'react';
+/**
+ * Announcement Banner Component
+ * -----------------------------
+ * A dismissible banner that displays system announcements at the top of the page.
+ * Supports multiple announcements and cycles through them.
+ * Persists dismissed state to localStorage.
+ *
+ * @component
+ */
+
+import { useEffect, useState } from 'react';
 import { X, Megaphone } from 'lucide-react';
 import { api } from '../services/api.js';
 
@@ -8,28 +18,42 @@ export default function AnnouncementBanner() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [dismissed, setDismissed] = useState(() => JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}'));
 
-    const loadAnnouncements = useCallback(async () => {
-        try {
-            const response = await api.getActiveAnnouncements();
-            const activeAnnouncements = response.data || [];
-            // Read fresh from local storage to ensure accuracy
-            const dismissedData = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
-            // Check as object keys since that is the storage format used here
-            const filtered = activeAnnouncements.filter(a => !dismissedData[a.id]);
-            setAnnouncements(filtered);
-            if (filtered.length > 0) {
-                setCurrentAnnouncement(filtered[0]);
+    useEffect(() => {
+        let mounted = true;
+
+        const loadAnnouncements = async () => {
+            try {
+                const response = await api.getActiveAnnouncements();
+                if (!mounted) return;
+
+                const activeAnnouncements = response.data || [];
+                // Read fresh from local storage to ensure accuracy
+                const dismissedData = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
+                // Check as object keys since that is the storage format used here
+                const filtered = activeAnnouncements.filter(a => !dismissedData[a.id]);
+                
+                setAnnouncements(filtered);
+                if (filtered.length > 0) {
+                    setCurrentAnnouncement(filtered[0]);
+                }
+            } catch (error) {
+                console.error('Failed to load announcements:', error);
             }
-        } catch (error) {
-            console.error('Failed to load announcements:', error);
-        }
+        };
+
+        loadAnnouncements();
+
+        return () => {
+            mounted = false;
+        };
     }, []);
 
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        loadAnnouncements();
-    }, [loadAnnouncements]);
-
+    /**
+     * Handle dismissal of an announcement.
+     * Updates localStorage and state.
+     * 
+     * @param {number} id - The announcement ID.
+     */
     const handleDismiss = (id) => {
         const newDismissed = { ...dismissed, [id]: true };
         localStorage.setItem('dismissedAnnouncements', JSON.stringify(newDismissed));

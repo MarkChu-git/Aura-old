@@ -1,11 +1,170 @@
-import { useState, useRef, useEffect } from 'react';
+/**
+ * Chat Page Component
+ * -------------------
+ * The main chat interface. Features:
+ * - Real-time chat with AI
+ * - Sidebar with conversation history
+ * - Markdown rendering for messages
+ * - Code syntax highlighting
+ * - Mobile responsive layout
+ *
+ * @component
+ */
+
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, User, Bot, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock, Trash2 } from 'lucide-react';
+import { Send, User, Sparkles, Loader2, MessageSquare, Plus, Menu as MenuIcon, Lock, Trash2, Copy, Check } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { api } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
+
+/**
+ * CodeBlock Component
+ * Renders code snippets with syntax highlighting and copy functionality.
+ */
+const CodeBlock = ({ language, children }) => {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(children);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div style={{ position: 'relative', margin: '1rem 0', borderRadius: '0.5rem', overflow: 'hidden', width: '100%', maxWidth: '650px' }}>
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '0.5rem 1rem',
+                background: '#282c34',
+                color: '#abb2bf',
+                fontSize: '0.8rem',
+                borderBottom: '1px solid #3e4451'
+            }}>
+                <span>{language || 'code'}</span>
+                <button
+                    onClick={handleCopy}
+                    style={{
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'inherit',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.25rem',
+                        fontSize: '0.8rem'
+                    }}
+                >
+                    {copied ? <Check size={14} /> : <Copy size={14} />}
+                    {copied ? 'Copied!' : 'Copy'}
+                </button>
+            </div>
+            <SyntaxHighlighter
+                language={language}
+                style={oneDark}
+                customStyle={{ margin: 0, borderRadius: 0, fontSize: '0.9rem', maxWidth: '100%', overflowX: 'auto' }}
+                wrapLines={true}
+            >
+                {children}
+            </SyntaxHighlighter>
+        </div>
+    );
+};
+
+/**
+ * MessageBubble Component
+ * Renders a single chat message (user or AI) with Markdown support.
+ */
+const MessageBubble = ({ msg, isAi }) => {
+    const [copied, setCopied] = useState(false);
+
+    const handleCopyMessage = () => {
+        navigator.clipboard.writeText(msg.content);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
+
+    return (
+        <div style={{
+            padding: '1rem 1.25rem',
+            borderRadius: '1.25rem',
+            borderTopLeftRadius: isAi ? '0.25rem' : '1.25rem',
+            borderTopRightRadius: isAi ? '1.25rem' : '0.25rem',
+            background: isAi ? 'white' : 'hsl(var(--color-text-main))',
+            color: isAi ? 'hsl(var(--color-text-main))' : 'white',
+            lineHeight: '1.6',
+            fontSize: '0.95rem',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+            border: isAi ? '1px solid rgba(0,0,0,0.08)' : 'none',
+            position: 'relative',
+            group: 'message-bubble' // Identifier for hover effect
+        }}
+            className="message-bubble-container"
+        >
+            <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                    p: ({ ...props }) => <p style={{ margin: 0, marginBottom: '0.5rem' }} {...props} />,
+                    ul: ({ ...props }) => <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }} {...props} />,
+                    ol: ({ ...props }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }} {...props} />,
+                    li: ({ ...props }) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
+                    strong: ({ ...props }) => <strong style={{ fontWeight: 600 }} {...props} />,
+                    code: ({ inline, className, children, ...props }) => {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return !inline && match ? (
+                            <CodeBlock language={match[1]}>
+                                {String(children).replace(/\n$/, '')}
+                            </CodeBlock>
+                        ) : (
+                            <code className={className} style={{
+                                background: 'rgba(0, 0, 0, 0.1)',
+                                padding: '0.2rem 0.4rem',
+                                borderRadius: '0.25rem',
+                                fontSize: '0.85em',
+                                fontFamily: 'monospace'
+                            }} {...props}>
+                                {children}
+                            </code>
+                        );
+                    }
+                }}
+            >
+                {msg.content}
+            </ReactMarkdown>
+            
+            <button
+                onClick={handleCopyMessage}
+                className="message-copy-btn"
+                style={{
+                    position: 'absolute',
+                    bottom: '-1.5rem',
+                    right: isAi ? '0' : 'auto',
+                    left: isAi ? 'auto' : '0',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'hsl(var(--color-text-muted))',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.25rem',
+                    fontSize: '0.75rem',
+                    opacity: 0,
+                    transition: 'opacity 0.2s ease',
+                    padding: '0.25rem'
+                }}
+            >
+                {copied ? <Check size={12} /> : <Copy size={12} />}
+                {copied ? 'Copied' : 'Copy'}
+            </button>
+        </div>
+    );
+};
 
 export default function Chat() {
     const { isAuthenticated, openAuthModal } = useAuth();
@@ -24,6 +183,7 @@ export default function Chat() {
     const [showSidebar, setShowSidebar] = useState(false); // Default hidden on mobile
 
     const messagesEndRef = useRef(null);
+    const loadingConversationRef = useRef(false);
 
     // Fetch History on Mount/Auth Change
     useEffect(() => {
@@ -39,19 +199,20 @@ export default function Chat() {
     useEffect(() => {
         if (location.state?.conversationId && isAuthenticated) {
             loadConversation(location.state.conversationId);
-            // Clear state to prevent loop if we were to act on it differently, but here it's fine.
-            // Actually, we might want to ensure we don't reload if already loaded?
-            // loadConversation checks 'loading' but not if current id matches. 
-            // It sets id.
-            // Good enough.
         }
-    }, [location.state, isAuthenticated]);
+    }, [location.state, isAuthenticated, loadConversation]);
 
     // Update welcome message when language changes if it's the only message
     useEffect(() => {
-        if (messages.length === 1 && messages[0].role === 'assistant') {
-            setMessages([{ role: 'assistant', content: t('chat.welcomeMessage') }]);
-        }
+        const newContent = t('chat.welcomeMessage');
+        setMessages(prevMessages => {
+            // Only update if there's exactly one message and it's from the assistant
+            // This indicates it's likely the welcome message
+            if (prevMessages.length === 1 && prevMessages[0].role === 'assistant') {
+                return [{ role: 'assistant', content: newContent }];
+            }
+            return prevMessages;
+        });
     }, [t, i18n.language]);
 
     const fetchHistory = async () => {
@@ -71,15 +232,19 @@ export default function Chat() {
         scrollToBottom();
     }, [messages]);
 
-    const loadConversation = async (id) => {
-        if (loading) return;
+    /**
+     * Load a specific conversation from history.
+     * @param {string} id - Conversation ID.
+     */
+    const loadConversation = useCallback(async (id) => {
+        if (loadingConversationRef.current) return;
+        loadingConversationRef.current = true;
         setHistoryLoading(true);
         try {
             const msgs = await api.getConversation(id);
             // Format DB messages to UI format
             const formatted = msgs.map(m => ({ role: m.role, content: m.content }));
 
-            // If empty (shouldn't happen), add welcome? No, just show history.
             setMessages(formatted);
             setConversationId(id);
             if (window.innerWidth < 768) setShowSidebar(false); // Auto close on mobile
@@ -87,9 +252,13 @@ export default function Chat() {
             console.error("Failed to load conversation", err);
         } finally {
             setHistoryLoading(false);
+            loadingConversationRef.current = false;
         }
-    };
+    }, []);
 
+    /**
+     * Reset chat state for a new conversation.
+     */
     const startNewChat = () => {
         setConversationId(null);
         setMessages([
@@ -97,7 +266,12 @@ export default function Chat() {
         ]);
         if (window.innerWidth < 768) setShowSidebar(false);
     };
-    // Delete Handler
+
+    /**
+     * Delete a conversation.
+     * @param {Event} e - Click event.
+     * @param {string} id - Conversation ID.
+     */
     const handleDeleteChat = async (e, id) => {
         e.preventDefault(); // Prevent default link/button behavior
         e.stopPropagation(); // Prevent opening the chat when deleting
@@ -117,6 +291,10 @@ export default function Chat() {
         }
     };
 
+    /**
+     * Handle sending a new message.
+     * @param {Event} e - Form submit event.
+     */
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!input.trim() || loading) return;
@@ -142,12 +320,7 @@ export default function Chat() {
             }
 
             // Trigger History Refresh
-            // We do this on EVERY message to catch title updates (which happen around msg #5)
-            // The backend runs in background, so we poll a few times
             if (isAuthenticated) {
-                // Immediate update not strictly needed for title, but good for "last updated" sort
-                // fetchHistory(); 
-
                 // Poll for AI Title generation
                 setTimeout(fetchHistory, 2000);
                 setTimeout(fetchHistory, 5000);
@@ -200,8 +373,7 @@ export default function Chat() {
                         right: 0,
                         bottom: 0,
                         backgroundColor: 'transparent',
-                        zIndex: 40, // Higher than sidebar (20) - WAIT, sidebar needs to be on TOP. Sidebar is z=50. So 40 is correct.
-                        // Display handled by CSS class now
+                        zIndex: 40,
                     }}
                     onClick={() => setShowSidebar(false)}
                 />
@@ -218,7 +390,6 @@ export default function Chat() {
                 borderRight: '1px solid hsl(var(--color-border))',
                 paddingRight: '1rem',
                 transition: 'transform 0.3s ease',
-                // zIndex removed from inline to allow CSS override (mobile needs 50 > overlay 40)
             }}>
                 <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
                     <button
@@ -461,30 +632,7 @@ export default function Chat() {
                                 </div>
 
                                 {/* Bubble */}
-                                <div style={{
-                                    padding: '1rem 1.25rem',
-                                    borderRadius: '1.25rem',
-                                    borderTopLeftRadius: isAi ? '0.25rem' : '1.25rem',
-                                    borderTopRightRadius: isAi ? '1.25rem' : '0.25rem',
-                                    background: isAi ? 'rgba(255,255,255,0.5)' : 'hsl(var(--color-text-main))',
-                                    color: isAi ? 'inherit' : 'white',
-                                    lineHeight: '1.6',
-                                    fontSize: '0.95rem',
-                                    boxShadow: isAi ? 'none' : '0 4px 12px rgba(0,0,0,0.1)'
-                                }}>
-                                    <ReactMarkdown
-                                        remarkPlugins={[remarkGfm]}
-                                        components={{
-                                            p: ({ ...props }) => <p style={{ margin: 0, marginBottom: '0.5rem' }} {...props} />,
-                                            ul: ({ ...props }) => <ul style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }} {...props} />,
-                                            ol: ({ ...props }) => <ol style={{ margin: '0.5rem 0', paddingLeft: '1.5rem' }} {...props} />,
-                                            li: ({ ...props }) => <li style={{ marginBottom: '0.25rem' }} {...props} />,
-                                            strong: ({ ...props }) => <strong style={{ fontWeight: 600 }} {...props} />
-                                        }}
-                                    >
-                                        {msg.content}
-                                    </ReactMarkdown>
-                                </div>
+                                <MessageBubble msg={msg} isAi={isAi} />
                             </div>
                         );
                     })}
@@ -585,10 +733,14 @@ export default function Chat() {
                         display: block !important;
                     }
                     .sidebar-overlay {
-                        display: block !important;
-                    }
+                    display: block !important;
                 }
-            `}</style>
-        </div>
-    );
+            }
+
+            .message-bubble-container:hover .message-copy-btn {
+                opacity: 1 !important;
+            }
+        `}</style>
+    </div>
+);
 }

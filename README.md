@@ -23,12 +23,14 @@ Unlike traditional keyword-based search (e.g., "floral perfume"), Aura understan
 
 ## 🏗 Architecture
 
-The system is built as a modern distributed application with a clear separation of concerns between the interactive frontend, the high-performance API layer, and the asynchronous data processing pipeline.
+The system is built as a modern distributed application. In production, a **Global Traefik Gateway** handles incoming traffic and SSL termination, routing requests to the internal application stack.
 
 ```mermaid
 graph TD
-    Client["User Client"] -->|HTTP/REST| Frontend["Frontend SPA (React)"]
-    Frontend -->|API Requests| API["Backend API (FastAPI)"]
+    Client["User Client"] -->|HTTPS| Traefik["Traefik Gateway"]
+    Traefik -->|Routing| Nginx["Internal Nginx"]
+    Nginx -->|Static Files| Frontend["Frontend SPA (React)"]
+    Nginx -->|API Requests| API["Backend API (FastAPI)"]
     
     subgraph Data Layer
         DB[("PostgreSQL + pgvector")]
@@ -72,6 +74,7 @@ graph TD
 For detailed instructions on deploying Aura securely to a production server (Linux + Docker Compose), please refer to the [Deployment Guide](DEPLOYMENT.md).
 
 **Highlights:**
+- ✅ **Global Gateway**: Uses Traefik for auto-HTTPS and multi-project support.
 - ✅ **One-Command Bootstrap**: `./scripts/bootstrap.sh`
 - ✅ **Secure by Default**: Strict database isolation & external secrets.
 - ✅ **Maintenance**: Helpers for logs (`./scripts/logs.sh`) and updates (`./scripts/deploy.sh`).
@@ -82,21 +85,22 @@ There are two ways to run Aura: **Production Mode** (easiest, runs everything in
 
 ### 🐳 Option 1: Production Mode (Recommended)
 
-Run the entire application (frontend, backend, db, redis) in containers.
+Run the entire application (frontend, backend, db, redis) in containers behind the Traefik Gateway.
 
-**1. Start Services**
+**1. Initialize Gateway (First Time Only)**
 ```bash
-# Easy start script
-./scripts/bootstrap.sh
-
-# Or manually
-docker compose -f docker-compose.prod.yml up -d
+./scripts/install-global-gateway.sh
 ```
 
-**2. Access Application**
-- 🌍 **App URL**: [http://localhost](http://localhost) (Port 80)
+**2. Start Services**
+```bash
+./scripts/bootstrap.sh
+```
+
+**3. Access Application**
+- 🌍 **App URL**: `http://localhost` (via Traefik)
 - 🔌 **API**: `http://localhost/v1`
-- 📘 **API Docs**: `http://localhost/docs` (if enabled in Nginx)
+- 📘 **API Docs**: `http://localhost/docs`
 
 > **Note**: In this mode, the frontend is served on port **80**, not 5173.
 

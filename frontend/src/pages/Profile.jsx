@@ -1,3 +1,11 @@
+/**
+ * @file Profile.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description User profile page. Displays user information, interaction history,
+ * security settings (change password), and data control options.
+ */
+
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
@@ -6,6 +14,20 @@ import { User, LogOut, Clock, Bookmark, Settings, Trash2, ChevronRight, AlertCir
 import { Link, useNavigate } from 'react-router-dom';
 import UserMessages from '../components/UserMessages';
 
+/**
+ * Profile Page Component.
+ * 
+ * Manages user profile interactions.
+ * Features:
+ * - View Account Details (Email, status)
+ * - View History of analyses
+ * - Change Password
+ * - Clear History / Saved Data
+ * - User Messages (inbox for admin messages)
+ * 
+ * @component
+ * @returns {JSX.Element} The Profile page
+ */
 export default function Profile() {
     const { isAuthenticated, logout } = useAuth();
     const { t } = useTranslation();
@@ -26,6 +48,7 @@ export default function Profile() {
     const [passwordSuccess, setPasswordSuccess] = useState('');
     const [changingPassword, setChangingPassword] = useState(false);
 
+    // Load profile data when authenticated
     useEffect(() => {
         if (isAuthenticated) {
             loadData();
@@ -34,6 +57,9 @@ export default function Profile() {
         }
     }, [isAuthenticated]);
 
+    /**
+     * Fetches profile and history data from the API.
+     */
     const loadData = async () => {
         try {
             const [profileData, historyData] = await Promise.all([
@@ -50,18 +76,24 @@ export default function Profile() {
         }
     };
 
+    /**
+     * Clears the user's interaction history.
+     */
     const handleClearHistory = async () => {
-        if (!confirm("Clear your history? This will delete your exploration history from this device/account.")) return;
+        if (!confirm(t('profile.dataControls.confirmClearHistory'))) return;
         try {
             await api.clearHistory();
             setHistory([]);
         } catch {
-            alert("Failed to clear history");
+            alert(t('common.error'));
         }
     };
 
+    /**
+     * Clears saved items (Mock implementation).
+     */
     const handleClearSaved = () => {
-        if (!confirm("Clear saved items? This will remove all items from your Saved list.")) return;
+        if (!confirm(t('profile.dataControls.confirmClearSaved'))) return;
         setSaved([]);
     };
 
@@ -71,6 +103,12 @@ export default function Profile() {
         });
     };
 
+    /**
+     * Handles the change password form submission.
+     * Validates input and sends request to API.
+     * 
+     * @param {Event} e - Form submission event
+     */
     const handleChangePassword = async (e) => {
         e.preventDefault();
         setPasswordError('');
@@ -78,31 +116,31 @@ export default function Profile() {
 
         // Validation
         if (!oldPassword || !newPassword || !confirmPassword) {
-            setPasswordError('All fields are required');
+            setPasswordError(t('profile.security.errors.allRequired'));
             return;
         }
 
         if (newPassword !== confirmPassword) {
-            setPasswordError('New passwords do not match');
+            setPasswordError(t('profile.security.errors.noMatch'));
             return;
         }
 
         if (newPassword.length < 10) {
-            setPasswordError('Password must be at least 10 characters');
+            setPasswordError(t('profile.security.errors.tooShort'));
             return;
         }
 
         setChangingPassword(true);
         try {
             await api.changePassword({ old_password: oldPassword, new_password: newPassword });
-            setPasswordSuccess('Password changed successfully!');
+            setPasswordSuccess(t('profile.security.success'));
             setOldPassword('');
             setNewPassword('');
             setConfirmPassword('');
             setShowPasswordForm(false);
             setTimeout(() => setPasswordSuccess(''), 3000);
         } catch (err) {
-            setPasswordError(err.response?.data?.detail || 'Failed to change password');
+            setPasswordError(err.response?.data?.detail || t('profile.security.errors.failed'));
         } finally {
             setChangingPassword(false);
         }
@@ -171,7 +209,7 @@ export default function Profile() {
 
             {/* Messages Section */}
             {user?.role !== 'admin' && (
-                <Section title="Messages" icon={MessageSquare}>
+                <Section title={t('profile.messages')} icon={MessageSquare}>
                     <UserMessages />
                 </Section>
             )}

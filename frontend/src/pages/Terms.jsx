@@ -1,3 +1,11 @@
+/**
+ * @file Terms.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Static page displaying the Terms of Service.
+ * Outlines the legal agreement between the user and Aura.
+ */
+
 export default function Terms() {
     return (
         <div className="container">

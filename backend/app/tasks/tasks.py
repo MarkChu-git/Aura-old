@@ -1,3 +1,11 @@
+"""
+Celery Tasks for Job Processing.
+
+This module contains the asynchronous background tasks used to process
+analysis jobs. It handles the lifecycle of a job from 'QUEUED' to 'SUCCEEDED'
+or 'FAILED', orchestrating the AI adapter calls and database updates.
+"""
+
 import asyncio
 from uuid import UUID
 from datetime import datetime
@@ -17,21 +25,48 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-# Factory for adapter
 def get_ai_adapter():
+    """
+    Factory function to instantiate the appropriate AI adapter.
+
+    Returns:
+        AIAdapter: An instance of RealAIAdapter if an API key is present,
+        otherwise returns MockAIAdapter for testing/development.
+    """
     if settings.DEEPSEEK_API_KEY:
         from app.ai.real_adapter import RealAIAdapter
 
         return RealAIAdapter()
+
     if settings.AI_ADAPTER_TYPE == "mock":
         return MockAIAdapter()
+
     return MockAIAdapter()  # Fallback
 
 
 async def process_job_async(job_id: str):
+    """
+    Asynchronous core logic for processing a job.
+
+    Steps:
+    1. Validate job existence and state.
+    2. Update status to RUNNING.
+    3. Extract imagery/tags from input using AI Adapter.
+    4. Generate embeddings (simulated in MVP).
+    5. Retrieve matching SKUs (using database or vector search).
+    6. Generate explanations for recommendations.
+    7. Save results and recommendations to the database.
+    8. Mark job as SUCCEEDED.
+
+    Handles exceptions by rolling back the transaction and updating the
+    job status to FAILED with an error code.
+
+    Args:
+        job_id (str): The UUID string of the job to process.
+    """
     adapter = get_ai_adapter()
 
-    # Set Logging Context
+    # Set Logging Context for structured logging
     token = job_id_context.set(job_id)
 
     try:
@@ -89,7 +124,7 @@ async def process_job_async(job_id: str):
                 await session.commit()
 
                 # 4. Retrieval & Reranking (Merged for MVP)
-                # Fallback for empty DB: just pick 3 random SKUs
+                # Fallback for empty DB: just pick 5 random SKUs
                 result_skus = await session.execute(select(SKU).limit(5))
                 skus = result_skus.scalars().all()
 
@@ -100,10 +135,10 @@ async def process_job_async(job_id: str):
                         job_id=job.id,
                         sku_id=sku.id,
                         rank=i + 1,
-                        score=0.9 - (i * 0.1),  # Fake score
+                        score=0.9 - (i * 0.1),  # Fake score for MVP
                         reason_short=explanation,
                         reason_long=explanation,
-                        matched_tags={"common": ["fresh", "woody"]},
+                        matched_tags={"common": ["fresh", "woody"]},  # Placeholder
                     )
                     session.add(rec)
                     recommendations.append(rec)
@@ -132,7 +167,7 @@ async def process_job_async(job_id: str):
                 logger.error(f"Job {job_id} failed: {e}")
                 await session.rollback()
 
-                # Re-fetch job to update status safely
+                # Re-fetch job to update status safely in a separate session
                 async with AsyncSessionLocal() as err_session:
                     stmt = select(Job).where(Job.id == UUID(job_id))
                     res = await err_session.execute(stmt)
@@ -159,7 +194,12 @@ async def process_job_async(job_id: str):
 @shared_task
 def process_job(job_id: str):
     """
-    Sync wrapper for async processing because Celery runs in a sync loop by default unless using specialized async pool.
-    Standard approach: use asyncio.run
+    Celery task entry point for processing a job.
+
+    Since Celery runs in a synchronous loop by default, this function wraps
+    the asynchronous `process_job_async` function using `asyncio.run()`.
+
+    Args:
+        job_id (str): The UUID string of the job.
     """
     asyncio.run(process_job_async(job_id))

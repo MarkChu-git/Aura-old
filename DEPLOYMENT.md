@@ -1,59 +1,63 @@
 # Production Deployment & Operations Guide
 
-This document describes how to deploy, secure, and maintain the Aura platform in a production environment.
+This document describes how to deploy, secure, and maintain the Aura platform in a production environment using **Traefik** as the global gateway.
 
 ## 🏗 Architecture
 
-- **Edge Proxy (Nginx)**: Listens on ports 80/443. Routes traffic to Frontend or API.
-- **Frontend**: Static React files served by a lightweight internal Nginx.
+- **Global Gateway (Traefik)**: Listens on host ports 80/443. Manages SSL and routes traffic to containers.
+- **Internal Proxy (Nginx)**: Runs inside the Aura stack to route between Frontend and Backend.
+- **Frontend**: Static React files served by the internal Nginx.
 - **Backend**: FastAPI + Celery Worker (internal network only).
 - **Data**: PostgreSQL + Redis (internal network only).
 
 ## 🚀 Quick Start (Fresh Server)
 
-1. **Clone & Setup**
+### Phase 1: Server Initialization (One-Time)
 
+1. **Stop Old Services**: Ensure port 80/443 are free (stop host Nginx/Apache).
+2. **Install Gateway**:
+   ```bash
+   chmod +x scripts/install-global-gateway.sh
+   ./scripts/install-global-gateway.sh
+   ```
+   *This sets up Traefik and the shared `proxy` network.*
+
+### Phase 2: Deploy Aura
+
+1. **Clone & Setup**
    ```bash
    git clone https://github.com/your-username/aura.git
    cd aura
-   
-   # Copy scripts if they aren't executable
    chmod +x scripts/*.sh
    ```
 
 2. **Configure Secrets**
-
-   Create the secure secrets file:
-
    ```bash
-   # Recommended location
-   touch /home/deploy/aura-secrets.env
-   chmod 600 /home/deploy/aura-secrets.env
-   
-   # Copy template content
-   cat .env.example >> /home/deploy/aura-secrets.env
+   touch backend/.env
+   cat backend/.env.example >> backend/.env
    # EDIT the file with real keys!
-   vim /home/deploy/aura-secrets.env
+   vim backend/.env
    ```
 
-3. **Bootstrap**
+3. **Configure Domain**
+   Edit `docker-compose.prod.yml` to set your domain:
+   ```yaml
+   - "traefik.http.routers.aura.rule=Host(`your-domain.com`)"
+   ```
 
-   Run the one-command setup:
-
+4. **Launch**
    ```bash
-   ./scripts/bootstrap.sh
+   ./scripts/deploy.sh
    ```
 
 ## 🔄 Updates & Maintenance
 
 - **Deploy New Code**:
-
   ```bash
   ./scripts/deploy.sh --build
   ```
 
 - **View Logs**:
-
   ```bash
   ./scripts/logs.sh [api|worker|nginx|frontend]
   ```
@@ -61,7 +65,6 @@ This document describes how to deploy, secure, and maintain the Aura platform in
 ## 🔐 Security Hardening
 
 ### 1. Firewall (UFW)
-
 Only allow essential ports.
 
 ```bash
@@ -69,55 +72,35 @@ sudo ufw default deny incoming
 sudo ufw allow ssh
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
+# Do NOT open port 8080 - Traefik dashboard should not be publicly accessible
+# If you need the dashboard, access it via SSH tunnel instead:
+# ssh -L 8080:localhost:8080 user@your-server
 sudo ufw enable
 ```
 
-### 2. SSH Security
+**⚠️ Security Note:** The Traefik dashboard is disabled by default in the installation script. Never expose port 8080 publicly, as it provides detailed information about your infrastructure that attackers could exploit.
 
-Edit `/etc/ssh/sshd_config`:
-- `PermitRootLogin no`
-- `PasswordAuthentication no` (Use SSH Keys)
-
-### 3. Fail2Ban
-
-Install to block brute-force attempts.
-
-```bash
-sudo apt install fail2ban
-sudo systemctl enable fail2ban
-```
-
-## 🌐 HTTPS Setup (SSL)
-
-We recommend using **Cloudflare** (Flexible/Full mode) for free SSL and WAF.
-
-Alternatively, to use **Let's Encrypt** on the Edge Nginx:
-1. Install Certbot on the host.
-2. Generate certs: `certbot certonly --standalone -d your-domain.com`.
-3. Mount `/etc/letsencrypt` into the `nginx` service in `docker-compose.prod.yml`.
-4. Uncomment the 443 config in `deploy/nginx/aura.conf`.
+### 2. SSL (HTTPS)
+Traefik handles SSL **automatically** via Let's Encrypt.
+- Ensure your domain DNS points to the server IP.
+- Traefik will request a certificate on the first request.
+- Certificates are stored in `~/traefik-gateway/acme.json`.
 
 ## 🔧 Troubleshooting
 
-### Common Issues
+### 1. 502 Bad Gateway / 404 Not Found
+- Check Traefik Dashboard: `http://<server-ip>:8080`
+- Ensure the `proxy` network exists: `docker network ls`
+- Check if Aura's Nginx container is healthy: `docker ps`
 
-1. **502 Bad Gateway**:
-   - The backend might still be starting. Check logs: `./scripts/logs.sh api`
-   - Healthchecks in `docker-compose.prod.yml` prevent traffic until ready.
-
-2. **Frontend Crashes**:
-   - Ensure `frontend/nginx.conf` does NOT contain `upstream` blocks. It should be static only.
-
-3. **DeepSeek API 401 Unauthorized**:
-   - See [DeepSeek Troubleshooting](docs/troubleshooting/DEEPSEEK.md).
-   - Verify `DEEPSEEK_API_KEY` is set in your secrets file.
+### 2. DeepSeek API 401 Unauthorized
+- See [DeepSeek Troubleshooting](docs/troubleshooting/DEEPSEEK.md).
+- Verify `DEEPSEEK_API_KEY` is set in your secrets file.
 
 ### Rollback
-
 If a deployment fails, revert to the previous image:
 
 ```bash
-# Tag functionality not yet implemented in script, manually revert git:
 git checkout <previous-commit-hash>
 ./scripts/deploy.sh --build
 ```

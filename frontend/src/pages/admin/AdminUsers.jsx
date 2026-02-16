@@ -1,8 +1,30 @@
+/**
+ * @file AdminUsers.jsx
+ * @author Aura Team
+ * @created 2024-01-01
+ * @description Admin page for managing registered users. Allows admins to view user lists,
+ * search users, ban/unban users, and send direct messages to users.
+ */
+
 import { useEffect, useState } from 'react';
 import { api } from '../../services/api';
 import { ArrowLeft, Search, Shield, ShieldOff, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+/**
+ * AdminUsers Page Component.
+ * 
+ * Provides an interface for user management.
+ * Features:
+ * - List all users
+ * - Filter users by name or email
+ * - View user status (Active/Banned)
+ * - Ban or Unban users
+ * - Send direct messages to users via a modal
+ * 
+ * @component
+ * @returns {JSX.Element} The AdminUsers page
+ */
 export default function AdminUsers() {
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
@@ -13,10 +35,14 @@ export default function AdminUsers() {
     const [messageContent, setMessageContent] = useState('');
     const [sendingMessage, setSendingMessage] = useState(false);
 
+    // Load users on mount
     useEffect(() => {
         loadUsers();
     }, []);
 
+    /**
+     * Fetches the list of all users from the API.
+     */
     const loadUsers = async () => {
         try {
             const response = await api.admin.getUsers();
@@ -28,6 +54,13 @@ export default function AdminUsers() {
         }
     };
 
+    /**
+     * Toggles the ban status of a user.
+     * Prompts for confirmation before taking action.
+     * 
+     * @param {string} userId - The ID of the user to ban/unban
+     * @param {boolean} isActive - Current active status of the user (true if active, false if banned)
+     */
     const handleBan = async (userId, isActive) => {
         if (!confirm(`Are you sure you want to ${isActive ? 'ban' : 'unban'} this user?`)) return;
 
@@ -44,6 +77,10 @@ export default function AdminUsers() {
         }
     };
 
+    /**
+     * Sends a direct message to the selected user.
+     * Uses the content from the message modal.
+     */
     const handleSendMessage = async () => {
         if (!messageContent.trim()) return;
 
@@ -61,11 +98,18 @@ export default function AdminUsers() {
         }
     };
 
+    // Filter users based on search term
     const filteredUsers = users.filter(user =>
         user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
+    /**
+     * Formats a date string.
+     * 
+     * @param {string} dateString - ISO date string
+     * @returns {string} Formatted date
+     */
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -73,6 +117,12 @@ export default function AdminUsers() {
         });
     };
 
+    /**
+     * Helper component to display user avatar or initials.
+     * 
+     * @param {Object} props
+     * @param {Object} props.user - User object
+     */
     const UserAvatar = ({ user }) => {
         if (user.picture_url) {
             return <img src={user.picture_url} alt={user.name || user.email} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />;

@@ -72,9 +72,13 @@ sudo ufw default deny incoming
 sudo ufw allow ssh
 sudo ufw allow 80/tcp
 sudo ufw allow 443/tcp
-sudo ufw allow 8080/tcp  # Traefik Dashboard (Restrict IP if possible!)
+# Do NOT open port 8080 - Traefik dashboard should not be publicly accessible
+# If you need the dashboard, access it via SSH tunnel instead:
+# ssh -L 8080:localhost:8080 user@your-server
 sudo ufw enable
 ```
+
+**⚠️ Security Note:** The Traefik dashboard is disabled by default in the installation script. Never expose port 8080 publicly, as it provides detailed information about your infrastructure that attackers could exploit.
 
 ### 2. SSL (HTTPS)
 Traefik handles SSL **automatically** via Let's Encrypt.

@@ -26,11 +26,13 @@ router = APIRouter()
 
 class GoogleAuthRequest(BaseModel):
     """Request schema for Google authentication."""
+
     credential: str  # Google ID token JWT
 
 
 class UserResponse(BaseModel):
     """Response schema for user data."""
+
     id: int
     email: str
     name: Optional[str] = None
@@ -43,6 +45,7 @@ class UserResponse(BaseModel):
 
 class GoogleAuthResponse(BaseModel):
     """Response schema for successful Google authentication."""
+
     access_token: str
     token_type: str = "bearer"
     user: UserResponse

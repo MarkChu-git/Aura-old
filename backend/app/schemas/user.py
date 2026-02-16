@@ -19,6 +19,7 @@ class UserBase(BaseModel):
         role (str): The user's role (e.g., "user", "admin"). Defaults to "user".
         language (Optional[str]): The user's preferred language code. Defaults to "en".
     """
+
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = True
     role: str = "user"
@@ -33,6 +34,7 @@ class UserCreate(UserBase):
         email (EmailStr): The user's email address (required).
         password (str): The user's raw password (required).
     """
+
     email: EmailStr
     password: str
 
@@ -45,6 +47,7 @@ class UserLogin(BaseModel):
         email (EmailStr): The user's email address.
         password (str): The user's password.
     """
+
     email: EmailStr
     password: str
 
@@ -57,10 +60,12 @@ class UserInDBBase(UserBase):
     Attributes:
         id (Optional[int]): The unique primary key of the user.
     """
+
     id: Optional[int] = None
 
     class Config:
         """Pydantic configuration."""
+
         from_attributes = True
 
 
@@ -69,16 +74,18 @@ class User(UserInDBBase):
     Schema for public user data returned by the API.
     Inherits all fields from UserInDBBase.
     """
+
     pass
 
 
 class UserInDB(UserInDBBase):
     """
     Schema for internal user data, including the hashed password.
-    
+
     Attributes:
         hashed_password (str): The hashed version of the user's password.
     """
+
     hashed_password: str
 
 
@@ -90,6 +97,7 @@ class PasswordChange(BaseModel):
         old_password (str): The user's current password for verification.
         new_password (str): The new password to set.
     """
+
     old_password: str
     new_password: str
 
@@ -101,6 +109,7 @@ class PasswordResetRequest(BaseModel):
     Attributes:
         email (EmailStr): The email address of the account to reset.
     """
+
     email: EmailStr
 
 
@@ -112,5 +121,6 @@ class PasswordReset(BaseModel):
         token (str): The reset token received via email/link.
         new_password (str): The new password to set.
     """
+
     token: str
     new_password: str

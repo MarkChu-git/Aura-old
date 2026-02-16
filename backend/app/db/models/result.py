@@ -18,24 +18,25 @@ from app.db.session import Base
 class Result(Base):
     """
     Result Database Model.
-    
+
     Stores the final analysis results linked to a specific job.
     Includes extracted tags, scent direction, and a textual summary.
     """
+
     __tablename__ = "results"
 
     job_id = Column(UUID(as_uuid=True), ForeignKey("jobs.id"), primary_key=True)
     """Foreign key to the Job. Also acts as the primary key (1-to-1 relationship)."""
-    
+
     extracted_tags = Column(JSON, nullable=True)
     """JSON object containing tags extracted from the input."""
-    
+
     scent_direction = Column(JSON, nullable=True)
     """JSON object describing the recommended scent direction/profile."""
-    
+
     summary = Column(Text, nullable=True)
     """Generated textual summary or explanation."""
-    
+
     created_at = Column(DateTime, default=datetime.utcnow)
     """Timestamp when the result was generated."""
 

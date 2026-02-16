@@ -21,7 +21,7 @@ router = APIRouter()
 async def get_active_announcements():
     """
     Get all active announcements.
-    
+
     Returns:
         dict: List of active announcements, sorted by pinned status and date.
     """

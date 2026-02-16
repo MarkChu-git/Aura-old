@@ -88,7 +88,7 @@ class JobService:
     async def mark_failed(job_id: UUID, error_code: str, error_message: str):
         """
         Mark a job as failed with an error message.
-        
+
         This is typically called by background workers or error handlers.
 
         Args:
@@ -114,7 +114,7 @@ class JobService:
     async def check_timeouts(timeout_seconds: int = 120):
         """
         Check for and fail jobs that have exceeded the maximum execution time.
-        
+
         This method is intended to be run as a periodic maintenance task.
 
         Args:

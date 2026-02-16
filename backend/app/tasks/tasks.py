@@ -35,11 +35,12 @@ def get_ai_adapter():
     """
     if settings.DEEPSEEK_API_KEY:
         from app.ai.real_adapter import RealAIAdapter
+
         return RealAIAdapter()
-    
+
     if settings.AI_ADAPTER_TYPE == "mock":
         return MockAIAdapter()
-    
+
     return MockAIAdapter()  # Fallback
 
 
@@ -137,7 +138,7 @@ async def process_job_async(job_id: str):
                         score=0.9 - (i * 0.1),  # Fake score for MVP
                         reason_short=explanation,
                         reason_long=explanation,
-                        matched_tags={"common": ["fresh", "woody"]}, # Placeholder
+                        matched_tags={"common": ["fresh", "woody"]},  # Placeholder
                     )
                     session.add(rec)
                     recommendations.append(rec)

@@ -22,15 +22,15 @@ class MockAIAdapter(AIAdapter):
     ) -> Dict[str, Any]:
         """
         Simulates the extraction of imagery and tags from input.
-        
+
         Logic:
         - If 'rain' is in the text, returns a specific set of keywords.
         - Otherwise, returns random choices from predefined lists.
-        
+
         Args:
             text (Optional[str]): User input text.
             image_key (Optional[str]): Image file key (ignored in mock).
-            
+
         Returns:
             Dict[str, Any]: Simulated extracted tags.
         """
@@ -51,7 +51,7 @@ class MockAIAdapter(AIAdapter):
     async def embed(self, text: str) -> List[float]:
         """
         Simulates vector embedding generation.
-        
+
         Returns:
             List[float]: A list of 1536 random floats (simulating OpenAI dimensions).
         """
@@ -62,7 +62,7 @@ class MockAIAdapter(AIAdapter):
     async def explain(self, sku_name: str, sku_tags: Dict, user_context: Dict) -> str:
         """
         Simulates generating an explanation.
-        
+
         Returns:
             str: A random template string filled with provided context.
         """

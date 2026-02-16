@@ -20,6 +20,7 @@ router = APIRouter()
 
 class FeedbackRequest(BaseModel):
     """Schema for feedback submission."""
+
     job_id: UUID
     action: str
     sku_id: Optional[UUID] = None

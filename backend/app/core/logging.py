@@ -24,12 +24,12 @@ job_id_context: ContextVar[Optional[str]] = ContextVar("job_id", default=None)
 class JSONFormatter(logging.Formatter):
     """
     Custom Logging Formatter that outputs logs in JSON format.
-    
+
     This formatter automatically includes context variables like request_id and job_id
     if they are present in the current context. It ensures logs are machine-readable
     and suitable for log aggregation systems.
     """
-    
+
     def format(self, record: logging.LogRecord) -> str:
         """
         Format the log record as a JSON string.
@@ -70,7 +70,7 @@ class JSONFormatter(logging.Formatter):
 def setup_logging():
     """
     Initialize the logging configuration.
-    
+
     Sets the root logger level to INFO, attaches the JSONFormatter to stdout,
     and silences some noisy third-party libraries.
     """

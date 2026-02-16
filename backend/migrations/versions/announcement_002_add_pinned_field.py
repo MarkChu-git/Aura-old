@@ -9,7 +9,6 @@ Create Date: 2026-01-26
 from alembic import op
 import sqlalchemy as sa
 
-
 revision = "announcement_002"
 down_revision = "admin_001"
 branch_labels = None

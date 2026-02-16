@@ -47,7 +47,7 @@ app.add_middleware(
 async def request_id_middleware(request: Request, call_next):
     """
     Middleware to assign a unique Request ID to each incoming request.
-    
+
     This ID is added to the logging context and returned in the 'X-Request-ID' header,
     facilitating distributed tracing and log correlation.
     """
@@ -75,7 +75,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 def read_root():
     """
     Root endpoint.
-    
+
     Returns:
         dict: Basic API information and links to documentation.
     """
@@ -91,9 +91,9 @@ def read_root():
 def health_check():
     """
     Health check endpoint.
-    
+
     Used by load balancers and monitoring systems to check if the API is responsive.
-    
+
     Returns:
         dict: {"status": "ok"}
     """

@@ -17,7 +17,7 @@ router = APIRouter()
 async def list_taxonomy():
     """
     List all taxonomy terms.
-    
+
     Returns:
         dict: List of taxonomy terms (currently placeholder).
     """

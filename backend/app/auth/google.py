@@ -20,6 +20,7 @@ class GoogleAuthError(Exception):
     Base exception for Google authentication failures.
     Raised when the token is invalid, expired, or malformed.
     """
+
     pass
 
 
@@ -28,6 +29,7 @@ class EmailNotVerifiedError(GoogleAuthError):
     Exception raised when a valid Google token is presented,
     but the associated email address has not been verified by Google.
     """
+
     pass
 
 

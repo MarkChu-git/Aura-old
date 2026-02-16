@@ -20,6 +20,7 @@ router = APIRouter()
 
 class TextInputRequest(BaseModel):
     """Request schema for text input."""
+
     text: str
     session_id: Optional[str] = None
     locale: Optional[str] = "en-US"
@@ -27,6 +28,7 @@ class TextInputRequest(BaseModel):
 
 class ImageInputRequest(BaseModel):
     """Request schema for image input (referencing uploaded object key)."""
+
     object_key: str
     session_id: Optional[str] = None
 

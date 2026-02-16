@@ -20,12 +20,13 @@ from app.core.logging import request_id_context
 class ErrorDetails(BaseModel):
     """
     Structure for error details.
-    
+
     Attributes:
         code (str): Error code (usually HTTP status or internal code).
         message (str): Human-readable error message.
         details (Optional[dict]): Additional context about the error.
     """
+
     code: str
     message: str
     details: Optional[dict] = None
@@ -34,11 +35,12 @@ class ErrorDetails(BaseModel):
 class ErrorResponse(BaseModel):
     """
     Standard error response wrapper.
-    
+
     Attributes:
         request_id (UUID): Unique ID of the request for tracing.
         error (ErrorDetails): The error details object.
     """
+
     request_id: UUID
     error: ErrorDetails
 
@@ -46,11 +48,12 @@ class ErrorResponse(BaseModel):
 class SuccessResponse(BaseModel):
     """
     Standard success response wrapper.
-    
+
     Attributes:
         request_id (UUID): Unique ID of the request for tracing.
         data (Any): The actual response payload.
     """
+
     request_id: UUID
     data: Any
 
@@ -58,7 +61,7 @@ class SuccessResponse(BaseModel):
 async def http_exception_handler(request: Request, exc: Exception):
     """
     Global exception handler for HTTP exceptions.
-    
+
     Intercepts exceptions, extracts the request ID (or generates one),
     and returns a standardized JSON response.
 

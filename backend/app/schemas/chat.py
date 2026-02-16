@@ -16,6 +16,7 @@ class Message(BaseModel):
         role (str): The role of the message sender (e.g., 'user', 'assistant', 'system').
         content (str): The text content of the message.
     """
+
     role: str
     content: str
 
@@ -26,9 +27,10 @@ class ChatRequest(BaseModel):
 
     Attributes:
         messages (List[Message]): The history of messages in the conversation.
-        conversation_id (Optional[str]): The unique ID of the conversation. 
+        conversation_id (Optional[str]): The unique ID of the conversation.
             If None, a new conversation is started.
     """
+
     messages: List[Message]
     conversation_id: Optional[str] = None
 
@@ -41,5 +43,6 @@ class ChatResponse(BaseModel):
         reply (str): The assistant's generated response text.
         conversation_id (Optional[str]): The ID of the conversation this response belongs to.
     """
+
     reply: str
     conversation_id: Optional[str] = None

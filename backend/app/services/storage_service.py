@@ -24,6 +24,7 @@ class StorageAdapter(ABC):
     Abstract base class for storage adapters.
     Defines the interface for generating presigned upload URLs.
     """
+
     @abstractmethod
     def generate_presigned_url(
         self, filename: str, content_type: str
@@ -46,6 +47,7 @@ class MockStorageAdapter(StorageAdapter):
     Mock implementation of StorageAdapter for development/testing.
     Does not interact with real S3.
     """
+
     def generate_presigned_url(
         self, filename: str, content_type: str
     ) -> Dict[str, str]:
@@ -66,6 +68,7 @@ class S3StorageAdapter(StorageAdapter):
     AWS S3 implementation of StorageAdapter.
     Uses boto3 to generate real presigned URLs.
     """
+
     def __init__(self):
         self.s3_client = boto3.client(
             "s3",
@@ -102,13 +105,14 @@ class StorageService:
     Service class/Facade for storage operations.
     Automatically selects the appropriate adapter based on configuration.
     """
+
     _adapter: Optional[StorageAdapter] = None
 
     @classmethod
     def get_adapter(cls) -> StorageAdapter:
         """
         Factory method to get the singleton storage adapter instance.
-        
+
         Returns:
             StorageAdapter: The configured storage adapter.
         """

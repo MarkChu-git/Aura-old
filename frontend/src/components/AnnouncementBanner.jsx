@@ -8,7 +8,7 @@
  * @component
  */
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Megaphone } from 'lucide-react';
 import { api } from '../services/api.js';
 
@@ -18,30 +18,35 @@ export default function AnnouncementBanner() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [dismissed, setDismissed] = useState(() => JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}'));
 
-    /**
-     * Fetch active announcements from the API.
-     * Filters out already dismissed announcements.
-     */
-    const loadAnnouncements = useCallback(async () => {
-        try {
-            const response = await api.getActiveAnnouncements();
-            const activeAnnouncements = response.data || [];
-            // Read fresh from local storage to ensure accuracy
-            const dismissedData = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
-            // Check as object keys since that is the storage format used here
-            const filtered = activeAnnouncements.filter(a => !dismissedData[a.id]);
-            setAnnouncements(filtered);
-            if (filtered.length > 0) {
-                setCurrentAnnouncement(filtered[0]);
-            }
-        } catch (error) {
-            console.error('Failed to load announcements:', error);
-        }
-    }, []);
-
     useEffect(() => {
+        let mounted = true;
+
+        const loadAnnouncements = async () => {
+            try {
+                const response = await api.getActiveAnnouncements();
+                if (!mounted) return;
+
+                const activeAnnouncements = response.data || [];
+                // Read fresh from local storage to ensure accuracy
+                const dismissedData = JSON.parse(localStorage.getItem('dismissedAnnouncements') || '{}');
+                // Check as object keys since that is the storage format used here
+                const filtered = activeAnnouncements.filter(a => !dismissedData[a.id]);
+                
+                setAnnouncements(filtered);
+                if (filtered.length > 0) {
+                    setCurrentAnnouncement(filtered[0]);
+                }
+            } catch (error) {
+                console.error('Failed to load announcements:', error);
+            }
+        };
+
         loadAnnouncements();
-    }, [loadAnnouncements]);
+
+        return () => {
+            mounted = false;
+        };
+    }, []);
 
     /**
      * Handle dismissal of an announcement.

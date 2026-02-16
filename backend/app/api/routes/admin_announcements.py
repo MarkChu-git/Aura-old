@@ -22,12 +22,14 @@ router = APIRouter()
 
 class AnnouncementCreate(BaseModel):
     """Schema for creating a new announcement."""
+
     title: str
     content: str
 
 
 class AnnouncementResponse(BaseModel):
     """Schema for announcement details."""
+
     id: int
     title: str
     content: str

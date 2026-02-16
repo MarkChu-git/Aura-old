@@ -14,7 +14,7 @@ from typing import List, Optional, Dict, Any
 class AIAdapter(ABC):
     """
     Abstract base class for AI service adapters.
-    
+
     All concrete AI adapters must implement these methods to provide
     extraction, embedding, and explanation capabilities.
     """

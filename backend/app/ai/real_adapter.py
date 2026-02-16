@@ -212,7 +212,7 @@ class RealAIAdapter(AIAdapter):
     async def generate_title(self, messages: List[Dict[str, str]]) -> str:
         """
         Generates a concise title for a chat conversation.
-        
+
         Uses a strict system prompt to ensure the title is short, descriptive,
         and safe (no PII, specific length constraints). Includes a post-processing
         pipeline to clean and validate the output.

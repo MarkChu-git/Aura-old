@@ -23,10 +23,6 @@ export default function AuthModal({ isOpen, onClose }) {
     const { t } = useTranslation();
     const googleButtonRef = useRef(null);
 
-    useEffect(() => {
-        if (isOpen) setError('');
-    }, [isOpen]);
-
     /**
      * Initialize and render the Google Sign-In button when modal opens.
      */

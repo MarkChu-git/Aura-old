@@ -26,10 +26,10 @@ rebuild_router = APIRouter()
 async def verify_admin(x_admin_token: str = Header(...)):
     """
     Verify the admin token from the request header.
-    
+
     Args:
         x_admin_token (str): The token provided in the X-Admin-Token header.
-    
+
     Raises:
         HTTPException(403): If the token is invalid.
     """
@@ -39,6 +39,7 @@ async def verify_admin(x_admin_token: str = Header(...)):
 
 class SKUCreate(BaseModel):
     """Schema for creating a new SKU."""
+
     brand: str
     name: str
     category: str
@@ -50,6 +51,7 @@ class SKUCreate(BaseModel):
 
 class SKURead(SKUCreate):
     """Schema for reading SKU details."""
+
     id: UUID
     active: bool
 
@@ -108,7 +110,7 @@ async def create_sku(sku: SKUCreate):
 async def rebuild_embeddings():
     """
     Trigger a background task to rebuild embeddings for all SKUs.
-    
+
     Returns:
         dict: Status message.
     """

@@ -1,4 +1,3 @@
-
 import asyncio
 import sys
 import os
@@ -27,16 +26,17 @@ elif os.path.isdir(os.path.join(os.getcwd(), "backend")):
 from app.db.session import AsyncSessionLocal  # noqa: E402
 from app.db.models.user import User  # noqa: E402
 
+
 async def set_admin_role(email):
     async with AsyncSessionLocal() as db:
         try:
             result = await db.execute(select(User).filter(User.email == email))
             user = result.scalars().first()
-            
+
             if not user:
                 logger.error(f"User {email} not found!")
                 return
-            
+
             if user.role == "admin":
                 logger.info(f"User {email} is already an admin.")
                 return
@@ -46,10 +46,11 @@ async def set_admin_role(email):
             db.add(user)
             await db.commit()
             logger.info(f"Successfully updated {email} role to 'admin'.")
-            
+
         except Exception as e:
             logger.error(f"Error updating user role: {e}")
             await db.rollback()
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
@@ -57,5 +58,5 @@ if __name__ == "__main__":
     else:
         print("Usage: python scripts/set_admin.py <email>")
         sys.exit(1)
-        
+
     asyncio.run(set_admin_role(email))

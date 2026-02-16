@@ -24,11 +24,13 @@ router = APIRouter()
 
 class SendMessageRequest(BaseModel):
     """Schema for sending a message to a user."""
+
     content: str
 
 
 class UserResponse(BaseModel):
     """Schema for user details in list view."""
+
     id: int
     email: str
     name: str | None

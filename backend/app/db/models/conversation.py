@@ -17,27 +17,28 @@ import uuid
 class Conversation(Base):
     """
     Conversation Database Model.
-    
+
     Represents a single chat session or thread. Contains metadata like title
     and status, and holds a collection of messages.
     """
+
     __tablename__ = "conversations"
 
     id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
     """Unique identifier (UUID string) for the conversation."""
-    
+
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     """ID of the user who owns this conversation."""
-    
+
     title = Column(String, nullable=True)
     """Display title of the conversation. Can be auto-generated or user-set."""
-    
+
     title_status = Column(String, default="initial", nullable=False)
     """Status of the title generation (initial, generated, manual)."""
-    
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     """Timestamp when the conversation started."""
-    
+
     updated_at = Column(
         DateTime(timezone=True), onupdate=func.now(), server_default=func.now()
     )
@@ -46,7 +47,7 @@ class Conversation(Base):
     # Relationships
     user = relationship("User", backref="conversations")
     """Relationship to the User model."""
-    
+
     messages = relationship(
         "Message",
         back_populates="conversation",
@@ -59,25 +60,26 @@ class Conversation(Base):
 class Message(Base):
     """
     Message Database Model.
-    
+
     Represents an individual message within a conversation.
     """
+
     __tablename__ = "messages"
 
     id = Column(Integer, primary_key=True, index=True)
     """Unique identifier for the message."""
-    
+
     conversation_id = Column(
         String, ForeignKey("conversations.id"), nullable=False, index=True
     )
     """ID of the parent conversation."""
-    
+
     role = Column(String, nullable=False)
     """Role of the message sender ('user' or 'assistant')."""
-    
+
     content = Column(Text, nullable=False)
     """Content of the message."""
-    
+
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     """Timestamp when the message was created."""
 

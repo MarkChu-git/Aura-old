@@ -49,7 +49,7 @@ async def login_access_token(
 
     Returns:
         dict: Access token and token type.
-    
+
     Raises:
         HTTPException(401): If authentication fails.
         HTTPException(400): If user is inactive.
@@ -310,6 +310,7 @@ async def reset_password(
 
 class LanguageUpdate(BaseModel):
     """Schema for updating user language preference."""
+
     language: str
 
 

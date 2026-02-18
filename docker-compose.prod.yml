@@ -71,6 +71,33 @@ services:
       - "traefik.http.services.aura-api.loadbalancer.server.port=8000"
 
   # -----------------------------------------------------------------------------
+  # X-UI PROXY: Route proxy.withaura.cc -> host:20631 via Traefik
+  # -----------------------------------------------------------------------------
+  proxy-panel:
+    image: alpine/socat
+    restart: always
+    command: tcp-listen:20631,fork,reuseaddr tcp-connect:host.docker.internal:20631
+    expose:
+      - "20631"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      # HTTP: redirect to HTTPS
+      - "traefik.http.routers.proxy-panel-http.rule=Host(`proxyservice.withaura.cc`)"
+      - "traefik.http.routers.proxy-panel-http.entrypoints=web"
+      - "traefik.http.routers.proxy-panel-http.middlewares=proxy2-panel-redirect"
+      - "traefik.http.middlewares.proxy-panel-redirect.redirectscheme.scheme=https"
+      # TCP: TLS passthrough to x-ui (x-ui terminates TLS)
+      - "traefik.tcp.routers.proxy-panel.rule=HostSNI(`proxyservice.withaura.cc`)"
+      - "traefik.tcp.routers.proxy-panel.entrypoints=websecure"
+      - "traefik.tcp.routers.proxy-panel.tls.passthrough=true"
+      - "traefik.tcp.services.proxy-panel.loadbalancer.server.port=20631"
+
+  # -----------------------------------------------------------------------------
   # WORKER: Celery Background Task Worker
   # -----------------------------------------------------------------------------
   worker:

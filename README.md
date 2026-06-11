@@ -1,5 +1,9 @@
 # Aura
 
+> [!WARNING]
+> **This repository is archived and no longer maintained.**
+> It is kept available for reference only. The code is provided as-is, issues and pull requests are disabled, and no further updates will be made.
+
 <div align="center">
 
 ![Aura Logo](docs/images/logo.svg)
